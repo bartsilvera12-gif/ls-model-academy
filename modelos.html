@@ -157,14 +157,14 @@
 
 <header>
   <div style="max-width:1500px;margin:0 auto;padding:14px clamp(20px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:24px">
-    <a href="LS%20Model%20Academy.dc.html" style="display:flex;align-items:center;min-height:44px">
+    <a href="index.html" style="display:flex;align-items:center;min-height:44px">
       <img src="assets/logo-black.png" alt="LS Model Academy" style="height:50px;width:auto" />
     </a>
     <nav class="nav" style="display:flex;align-items:center;gap:32px">
-      <a href="LS%20Model%20Academy.dc.html">Inicio</a>
+      <a href="index.html">Inicio</a>
       <a href="modelos.html" class="active">Modelos</a>
-      <a href="LS%20Model%20Academy.dc.html#nosotros">Nosotros</a>
-      <a href="LS%20Model%20Academy.dc.html#contacto">Contacto</a>
+      <a href="index.html#nosotros">Nosotros</a>
+      <a href="index.html#contacto">Contacto</a>
     </nav>
   </div>
 </header>
@@ -192,7 +192,7 @@
 </section>
 
 <div style="background:var(--paper)">
-  <a class="band" href="LS%20Model%20Academy.dc.html#contacto" aria-label="Quiero formar parte">
+  <a class="band" href="index.html#contacto" aria-label="Quiero formar parte">
     <span class="halo" aria-hidden="true"></span>
     <span class="sheen" aria-hidden="true"></span>
     <span class="inner">
@@ -209,20 +209,20 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)">Navegación</span>
-      <a href="LS%20Model%20Academy.dc.html" style="font-size:13px;color:#D8D8D8">Inicio</a>
+      <a href="index.html" style="font-size:13px;color:#D8D8D8">Inicio</a>
       <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
-      <a href="LS%20Model%20Academy.dc.html#nosotros" style="font-size:13px;color:#D8D8D8">Nosotros</a>
+      <a href="index.html#nosotros" style="font-size:13px;color:#D8D8D8">Nosotros</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)">Redes</span>
       <a href="https://instagram.com/lsmodelacademy" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">Instagram</a>
-      <a href="LS%20Model%20Academy.dc.html#contacto" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
+      <a href="index.html#contacto" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
       <a href="mailto:contacto@lsmodelacademy.com" style="font-size:13px;color:#D8D8D8">Email</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)">Legal</span>
-      <a href="LS%20Model%20Academy.dc.html#privacidad" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
-      <a href="LS%20Model%20Academy.dc.html#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
+      <a href="index.html#privacidad" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
+      <a href="index.html#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
       <span style="font-size:12px;color:var(--muted)">© <span id="year"></span> LS Model Academy</span>
     </div>
   </div>
@@ -230,7 +230,7 @@
 
 <div id="detail" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="dbar">
-    <a href="LS%20Model%20Academy.dc.html" style="display:flex;align-items:center"><img src="assets/logo-black.png" alt="LS Model Academy" style="height:42px;width:auto" /></a>
+    <a href="index.html" style="display:flex;align-items:center"><img src="assets/logo-black.png" alt="LS Model Academy" style="height:42px;width:auto" /></a>
     <div style="display:flex;align-items:center;gap:10px">
       <button type="button" class="round" id="dPrev" aria-label="Modelo anterior">←</button>
       <button type="button" class="round" id="dNext" aria-label="Modelo siguiente">→</button>
@@ -508,7 +508,7 @@ document.addEventListener('click', function(e){
   if (e.target.closest && e.target.closest('#dPrev')){ openDetail(cur-1); return; }
   if (e.target.closest && e.target.closest('#dNext')){ openDetail(cur+1); return; }
   if (e.target.closest && e.target.closest('#dCta')){
-    location.href = 'LS%20Model%20Academy.dc.html#contacto';
+    location.href = 'index.html#contacto';
   }
 });
 document.addEventListener('keydown', function(e){
