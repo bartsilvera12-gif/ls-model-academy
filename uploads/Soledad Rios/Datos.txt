@@ -1,0 +1,5 @@
+Nombre y apellido : Soledad Ríos 
+Edad : 19 años 
+Medidas: Busto 83 / Cintura 66 / Cadera 98
+Altura : 1.72 
+Ciudad : Ciudad del Este

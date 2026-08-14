@@ -1,0 +1,9 @@
+Nombre y apellido: Cielo Rodríguez 
+Edad: 24
+Altura: 1,73
+Calce: 38
+Busto: 82
+Cintura: 62 
+Cadera: 93
+Tamaño vestido/rem: XP/P
+Tamaño pantalón: 36/38

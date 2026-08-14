@@ -1,0 +1,7 @@
+Nombre y apellido: Antonia Lüdicke
+Edad: 20
+Altura: 1.80 
+Busto: 86
+Cintura: 66
+Cadera: 94
+Ciudad: Emboscada

@@ -1,0 +1,9 @@
+Nombre y apellido : Lucero Saldívar 
+Edad: 20
+Medidas= busto: 89
+Cintura: 64
+Cadera: 96
+Calce: 38
+Vestidos/ remeras: P
+Altura : 1,78
+Ciudad: Ciudad del este

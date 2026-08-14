@@ -1,0 +1,11 @@
+Jazmin Orihuela 
+Edad: 21
+Altura: 1,68
+Busto: 82 cm
+Cintura: 58 cm
+Cadera: 86 cm
+Blusa: X, P
+Pantalón: 36 
+Vestido: P
+Calce: 38
+Ciudad: Luque

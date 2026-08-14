@@ -1,0 +1,10 @@
+Jessica Brizuela 
+Edad: 23
+Altura: 1,70
+Calce: 38
+Busto: 83
+Cintura: 63
+Cadera: 98
+Tamaño vestido/remera: P
+Tamaño pantalón : P 
+Ciudad: Caaguazú

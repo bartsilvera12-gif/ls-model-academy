@@ -1,0 +1,19 @@
+# Video fuente sin comprimir (54 MB).
+# El sitio usa hero.mp4 (1.3 MB), generado a partir de este.
+Video Project 1.mp4
+
+# Sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.thumbnail
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Dependencias / build
+node_modules/
+dist/

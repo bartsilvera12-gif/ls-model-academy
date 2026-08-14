@@ -1,0 +1,7 @@
+Nombre y apellido: Jamila González 
+País/ciudad: Paraguay, Ciudad del Este 
+Edad: 20 años 
+Busto: 75cm
+Cintura: 60cm 
+Cadera: 90cm 
+Altura: 1,72

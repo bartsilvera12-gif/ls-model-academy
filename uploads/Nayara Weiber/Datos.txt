@@ -1,0 +1,11 @@
+Nombre y apellido: Nayara Weiber 
+Edad: 21 
+Altura: 1,70
+Busto: 81
+Cintura: 63
+Cadera: 95
+Calce: 37/38
+Tamaño pantalón: 36/38
+Tamaño de vestido : P
+Tamaño de blusas: P
+Ciudad: Foz do Iguaçu / Ciudad del Este

@@ -1,0 +1,8 @@
+Nombre y apellido: Alejandra Ortiz
+Edad: 18
+Altura: 1’71
+Calce: 35
+Busto: 80
+Cintura: 60
+Cadera: 90
+Ciudad: Ciudad Del Este

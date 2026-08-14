@@ -1,0 +1,8 @@
+Nombre y apellido : Zueli Magaly Vazquez 
+Edad: 21
+Medidas 
+Busto: 86 
+Cintura: 63
+Cadera: 92
+Altura: 1,72
+Ciudad en que vivís: Luque

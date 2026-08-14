@@ -1,0 +1,6 @@
+Datos 
+Nombre y apellido: Cecilia Lezcano 
+Edad: 20
+Medidas: Busto 80, Cintura 60, Cadera 95
+Altura 1.76
+Ciudad en que vivís: Asunción

@@ -1,0 +1,8 @@
+Nombre y Apellido: Araceli Cano
+Edad: 18 Años
+Altura: 1,75
+Busto: 78
+Cintura: 63
+Cadera: 95
+Calce: 39
+Ciudad: Ciudad del Este, Paraguay
