@@ -14,6 +14,11 @@
 <meta property="og:title" content="LS Model Management" />
 <meta property="og:description" content="Elegancia, actitud y presencia. Modelos profesionales para eventos, campañas y pasarelas." />
 <meta property="og:type" content="website" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="theme-color" content="#0B0B0B" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -381,6 +386,10 @@
 
     /* iOS hace zoom al enfocar un campo con fuente menor a 16px */
     input, select, textarea { font-size: 16px !important; }
+
+    /* En movil hay una barra CTA fija de ~69px al fondo: sin este
+       espacio tapa el credito y el copyright del footer. */
+    footer { padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important; }
 
     /* Menos alto muerto en el carrusel */
     #dcModelos { min-height: 56vh; }
@@ -1125,8 +1134,10 @@
     const speed = f('timeSpeed', 0.25);
     let w = 0, h = 0;
     function resize() {
-      // Resolucion limitada: el shader corre por pixel y a dpr alto se vuelve caro.
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      // Resolucion limitada: el shader corre por pixel y a dpr alto se vuelve
+      // caro. En movil se baja mas, porque compite con el video y el carrusel.
+      const narrow = window.innerWidth < 620;
+      const dpr = Math.min(window.devicePixelRatio || 1, narrow ? 0.75 : 1.5);
       const nw = Math.round(cv.clientWidth * dpr), nh = Math.round(cv.clientHeight * dpr);
       if (nw === w && nh === h) return;
       w = nw; h = nh; cv.width = w; cv.height = h;
@@ -1301,14 +1312,17 @@
 
     // Escala segun el ancho disponible. En pantallas angostas se reducen
     // separacion y profundidad, si no las tarjetas quedan diminutas.
-    const base = { spread: o.spread, depth: o.depth, visible: o.visibleCards, tilt: o.tilt };
+    const base = { spread: o.spread, depth: o.depth, visible: o.visibleCards, tilt: o.tilt, blur: o.blur };
     function fit() {
       const w = root.clientWidth;
       const narrow = w < 620;
       o.spread = narrow ? Math.round(base.spread * 0.5) : base.spread;
       o.depth = narrow ? Math.round(base.depth * 0.66) : base.depth;
-      o.visibleCards = narrow ? 3 : base.visible;
+      // Menos tarjetas y sin desenfoque: en un telefono el blur sobre
+      // varias imagenes grandes es lo que hace que la animacion se trabe.
+      o.visibleCards = narrow ? 2 : base.visible;
       o.tilt = narrow ? Math.round(base.tilt * 0.7) : base.tilt;
+      o.blur = narrow ? 0 : base.blur;
       const needed = o.cardWidth + Math.abs(o.spread) * 2 + (narrow ? 44 : 120);
       scale = cl(w / needed, 0.4, 1);
       layout(pos);
