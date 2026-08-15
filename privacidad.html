@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Política de privacidad — LS Model Management</title>
+<meta name="description" content="Cómo LS Model Management recolecta, usa y protege los datos personales de postulantes y clientes." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#060606; --paper:#F7F7F4; --muted:#8A8A8A; --line:rgba(6,6,6,.14); }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Jost','Helvetica Neue',Helvetica,sans-serif;
+    overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  a { color:inherit; }
+  img { display:block; max-width:100%; }
+  ::selection { background:var(--ink); color:var(--paper); }
+
+  header {
+    position:fixed; top:0; left:0; right:0; z-index:60;
+    background:rgba(247,247,244,.9); backdrop-filter:blur(14px);
+    border-bottom:1px solid transparent; transition:border-color .4s ease;
+  }
+  body.scrolled header { border-bottom-color:var(--line); }
+  .nav a { font-size:11px; letter-spacing:.28em; text-transform:uppercase; text-decoration:none; position:relative; padding:6px 0; }
+  .nav a::after { content:''; position:absolute; left:0; bottom:0; height:1px; width:0; background:var(--ink); transition:width .4s cubic-bezier(.2,.7,.2,1); }
+  .nav a:hover::after { width:100%; }
+
+  .wrap { max-width:820px; margin:0 auto; padding:clamp(130px,18vh,190px) clamp(22px,5vw,40px) clamp(80px,12vh,130px); }
+  .kicker { margin:0 0 22px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:19px; color:var(--muted); }
+  h1 {
+    margin:0; font-family:'Cormorant Garamond',serif; font-weight:300;
+    font-size:clamp(38px,6.4vw,76px); line-height:.98; text-transform:uppercase; letter-spacing:-.01em;
+  }
+  .updated { margin:26px 0 0; font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); }
+  .rule { height:1px; background:var(--ink); margin:clamp(34px,5vh,54px) 0 0; }
+
+  section { margin-top:clamp(38px,5.5vh,58px); }
+  h2 {
+    margin:0 0 18px; padding-bottom:14px; border-bottom:1px solid var(--line);
+    font-size:11px; letter-spacing:.3em; text-transform:uppercase; font-weight:500;
+  }
+  p, li { font-size:15px; line-height:1.95; color:#3C3C3C; font-weight:300; }
+  p { margin:0 0 16px; }
+  ul { margin:0 0 16px; padding-left:20px; }
+  li { margin-bottom:9px; }
+  strong { font-weight:500; color:var(--ink); }
+  .note {
+    margin-top:clamp(40px,6vh,64px); padding:24px 26px;
+    border:1px solid var(--line); background:rgba(6,6,6,.025);
+    font-size:13px; line-height:1.85; color:#555;
+  }
+  .back { display:inline-flex; align-items:center; gap:14px; margin-top:clamp(40px,6vh,64px); font-size:11px; letter-spacing:.28em; text-transform:uppercase; text-decoration:none; }
+  .back:hover { opacity:.62; }
+
+  footer { background:var(--ink); color:var(--paper); padding:44px clamp(22px,5vw,40px); }
+  .fwrap { max-width:1400px; margin:0 auto; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; }
+  .fwrap span, .fwrap a { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); text-decoration:none; }
+  .fwrap a strong { font-weight:500; color:#D8D8D8; }
+  .fwrap a:hover, .fwrap a:hover strong { color:#F7F7F4; }
+  @media (max-width:760px){ .nav { display:none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="max-width:1400px;margin:0 auto;padding:14px clamp(22px,5vw,40px);display:flex;align-items:center;justify-content:space-between;gap:24px">
+    <a href="index.html" style="display:flex;align-items:center;min-height:44px">
+      <img src="assets/logo-black.png" alt="LS Model Management" style="height:48px;width:auto" />
+    </a>
+    <nav class="nav" style="display:flex;align-items:center;gap:30px">
+      <a href="index.html">Inicio</a>
+      <a href="modelos.html">Modelos</a>
+      <a href="index.html#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <p class="kicker">— Legal</p>
+  <h1>Política de<br />privacidad</h1>
+  <p class="updated">Última actualización: 15 de agosto de 2026</p>
+  <div class="rule"></div>
+
+  <section>
+    <h2>Quiénes somos</h2>
+    <p><strong>LS Model Management</strong> es una agencia de modelos con cobertura en Paraguay. Esta política explica qué datos personales recolectamos a través de este sitio, con qué finalidad los usamos y qué derechos tenés sobre ellos.</p>
+    <p>Para cualquier consulta sobre tus datos podés escribirnos a <a href="mailto:contacto@lsmodelacademy.com">contacto@lsmodelacademy.com</a>.</p>
+  </section>
+
+  <section>
+    <h2>Qué datos recolectamos</h2>
+    <p>Solo recolectamos los datos que vos mismo nos enviás a través de los formularios del sitio. No usamos cookies de seguimiento ni herramientas de analítica de terceros.</p>
+
+    <p><strong>Si te postulás como modelo:</strong></p>
+    <ul>
+      <li>Nombre y apellido, edad y ciudad.</li>
+      <li>Número de WhatsApp y correo electrónico.</li>
+      <li>Usuario de Instagram, si decidís compartirlo.</li>
+      <li>Altura, experiencia previa y categoría de interés.</li>
+      <li>Una breve presentación personal, si querés incluirla.</li>
+      <li>Las fotografías que adjuntes.</li>
+    </ul>
+
+    <p><strong>Si sos menor de 18 años</strong>, además pedimos el nombre y el WhatsApp de tu padre, madre o tutor legal, junto con su autorización expresa. Sin esa autorización no procesamos la postulación.</p>
+
+    <p><strong>Si solicitás modelos para un evento o producción:</strong></p>
+    <ul>
+      <li>Nombre de la empresa o persona y del responsable de contacto.</li>
+      <li>WhatsApp y correo electrónico.</li>
+      <li>Tipo de evento, ciudad, fecha, horario y cantidad de modelos.</li>
+      <li>Perfil buscado, presupuesto estimado e información adicional, si los completás.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Para qué los usamos</h2>
+    <ul>
+      <li><strong>Postulaciones:</strong> evaluar tu perfil y contactarte si avanzamos con tu candidatura.</li>
+      <li><strong>Solicitudes de empresas:</strong> preparar una propuesta de perfiles y coordinar el trabajo.</li>
+      <li><strong>Comunicación:</strong> responder tus consultas por WhatsApp o correo.</li>
+    </ul>
+    <p>No usamos tus datos para publicidad ni para ninguna finalidad distinta de la que motivó tu contacto.</p>
+  </section>
+
+  <section>
+    <h2>Publicación de tu perfil</h2>
+    <p><strong>Ninguna postulación se publica automáticamente.</strong> Los datos y las fotografías que enviás se mantienen privados mientras evaluamos tu perfil.</p>
+    <p>Si tu perfil es seleccionado y querés que aparezca en el sitio, te lo pedimos y lo acordamos con vos antes de publicar cualquier foto o dato. En el caso de menores de edad, ese acuerdo se hace con el padre, madre o tutor legal.</p>
+  </section>
+
+  <section>
+    <h2>Con quién los compartimos</h2>
+    <p>No vendemos ni cedemos tus datos personales.</p>
+    <p>Cuando una marca, empresa o productora nos solicita modelos, compartimos únicamente los datos profesionales necesarios para esa propuesta —nombre, fotografías de book, medidas y disponibilidad— y solo de las modelos que ya forman parte de la agencia y prestaron su acuerdo. Nunca compartimos tu WhatsApp, tu correo ni tu domicilio sin tu consentimiento previo.</p>
+  </section>
+
+  <section>
+    <h2>Cuánto tiempo los conservamos</h2>
+    <p>Conservamos los datos de las postulaciones mientras el perfil siga vigente en la agencia o hasta que nos pidas darlo de baja.</p>
+    <p>Las solicitudes de empresas se conservan durante el tiempo necesario para gestionar el trabajo y cumplir con las obligaciones administrativas correspondientes.</p>
+  </section>
+
+  <section>
+    <h2>Tus derechos</h2>
+    <p>En cualquier momento podés pedirnos:</p>
+    <ul>
+      <li>Acceder a los datos que tenemos sobre vos.</li>
+      <li>Corregir los que estén desactualizados o sean incorrectos.</li>
+      <li>Eliminar tu perfil y las fotografías asociadas.</li>
+      <li>Retirar tu consentimiento para que sigamos usándolos.</li>
+    </ul>
+    <p>Escribinos a <a href="mailto:contacto@lsmodelacademy.com">contacto@lsmodelacademy.com</a> y respondemos dentro de los diez días hábiles. Para verificar tu identidad podemos pedirte algún dato adicional antes de proceder.</p>
+  </section>
+
+  <section>
+    <h2>Seguridad</h2>
+    <p>Aplicamos medidas razonables para proteger la información que nos confiás. Las fotografías se guardan en almacenamiento privado y el acceso queda restringido al equipo de la agencia.</p>
+    <p>Ningún sistema es completamente infalible. Si llegara a ocurrir un incidente que afecte tus datos personales, te lo comunicaremos.</p>
+  </section>
+
+  <section>
+    <h2>Cambios en esta política</h2>
+    <p>Si modificamos esta política, actualizamos la fecha del encabezado. Cuando el cambio sea significativo y afecte cómo tratamos tus datos, te avisamos por los canales de contacto que nos hayas dado.</p>
+  </section>
+
+  <div class="note">
+    <strong>Nota para el equipo de LS Model Management:</strong> este documento describe con exactitud lo que el sitio recolecta hoy, pero antes de publicarlo conviene completarlo con la razón social, el RUC y el domicilio legal de la agencia, y que lo revise un profesional para verificar que cumpla con la normativa paraguaya de protección de datos personales aplicable a tu caso.
+  </div>
+
+  <a class="back" href="index.html">← Volver al inicio</a>
+</div>
+
+<footer>
+  <div class="fwrap">
+    <span>© <span id="year"></span> LS Model Management</span>
+    <a href="https://neura.com.py" target="_blank" rel="noopener">Desarrollado por <strong>Neura</strong></a>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  function onScroll(){ document.body.classList.toggle('scrolled', window.pageYOffset > 20); }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+</script>
+
+</body>
+</html>

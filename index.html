@@ -9,9 +9,9 @@
 <x-dc>
 <helmet>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LS Model Academy — Agencia y academia de modelos</title>
-<meta name="description" content="LS Model Academy: descubrimos nuevos talentos y conectamos modelos profesionales con marcas, producciones y eventos." />
-<meta property="og:title" content="LS Model Academy" />
+<title>LS Model Management — Agencia de modelos</title>
+<meta name="description" content="LS Model Management: descubrimos nuevos talentos y conectamos modelos profesionales con marcas, producciones y eventos." />
+<meta property="og:title" content="LS Model Management" />
 <meta property="og:description" content="Elegancia, actitud y presencia. Modelos profesionales para eventos, campañas y pasarelas." />
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -59,14 +59,84 @@
     text-transform: none !important;
   }
 
-  /* Sección nosotros: fondo blanco con textura de ruido */
-  #nosotros { position: relative; background: #FBFAF7; color: #060606; isolation: isolate; }
-  #nosotros::before {
-    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    opacity: .55; mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  /* Seccion nosotros con fondo Grainient (shader WebGL) */
+  #nosotros { position: relative; background: #2C313A; color: #F2F4FA; isolation: isolate; overflow: hidden; }
+  #nosotros .grainient {
+    position: absolute; inset: 0; z-index: 0; display: block;
+    width: 100%; height: 100%; pointer-events: none;
   }
-  #nosotros > * { position: relative; z-index: 1; }
+  /* Respaldo si no hay WebGL */
+  #nosotros.no-gl { background: linear-gradient(104deg, #262B33 0%, #20242B 34%, #2C313A 68%, #262B33 100%); }
+  /* Velo entre el shader y el texto: sin el, el contraste queda en 3.2:1. */
+  #nosotros::after {
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: rgba(12,15,20,.06);
+  }
+  #nosotros > * { position: relative; z-index: 2; }
+  /* Marca de agua: el logo gigante sangrando por el borde derecho */
+  #nosotros .ls-mark {
+    position: absolute; z-index: 1; pointer-events: none;
+    right: -24%; top: 50%; transform: translateY(-50%);
+    height: min(112%, 900px); width: auto; max-width: none;
+    opacity: .05;
+  }
+
+  .ls-about { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; }
+  .ls-about__top {
+    display: grid; grid-template-columns: 1.55fr 1fr;
+    gap: clamp(32px,5vw,80px); align-items: start;
+    margin-bottom: clamp(56px,9vh,110px);
+  }
+  .ls-about__kicker {
+    margin: 0 0 26px; font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 19px; color: rgba(255,255,255,.86);
+  }
+  .ls-about__title {
+    margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(34px,5.2vw,72px); line-height: 1.06;
+    text-transform: uppercase; letter-spacing: .005em; color: #F2F4FA;
+  }
+  .ls-about__dash { display: block; width: 64px; height: 1px; background: rgba(242,244,250,.45); margin: 30px 0 30px; }
+  .ls-about__body {
+    margin: 0; max-width: 44ch; font-size: 15px; line-height: 1.95;
+    color: #FFFFFF; font-weight: 300; text-wrap: pretty;
+  }
+  .ls-about__mark { padding-top: 26px; }
+  .ls-about__mark img { height: clamp(66px,6.4vw,104px); width: auto; opacity: .96; }
+  .ls-about__mark p {
+    margin: 22px 0 0; max-width: 26ch;
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+    font-size: clamp(15px,1.35vw,19px); line-height: 1.5; color: #FFFFFF;
+  }
+
+  /* Valores numerados automaticamente */
+  .ls-values {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(242,244,250,.2);
+  }
+  .ls-value {
+    position: relative;
+    padding: clamp(30px,4vh,46px) clamp(20px,2.2vw,34px) clamp(28px,3.6vh,44px);
+  }
+  .ls-value + .ls-value { border-left: 1px solid rgba(242,244,250,.16); }
+  .ls-value h3 {
+    margin: 0 0 14px;
+    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #F2F4FA;
+  }
+  .ls-value p { margin: 0; font-size: 13px; line-height: 1.9; color: #FFFFFF; font-weight: 300; }
+
+  @media (max-width: 1000px) {
+    .ls-about__top { grid-template-columns: 1fr; }
+    .ls-about__mark { padding-top: 4px; }
+    .ls-values { grid-template-columns: repeat(2, 1fr); }
+    .ls-value:nth-child(3) { border-left: none; }
+    .ls-value:nth-child(n+3) { border-top: 1px solid rgba(242,244,250,.16); }
+    #nosotros .ls-mark { right: -38%; opacity: .04; }
+  }
+  @media (max-width: 620px) {
+    .ls-values { grid-template-columns: 1fr; }
+    .ls-value + .ls-value { border-left: none; border-top: 1px solid rgba(242,244,250,.16); }
+  }
   /* Círculos celestes de fondo */
   #nosotros .ls-c { position: absolute; z-index: 0 !important; border-radius: 50%; pointer-events: none; }
   #nosotros .ls-c--a { width: clamp(300px,32vw,540px); aspect-ratio: 1; right: -6%; top: -14%; border: 1px solid rgba(150,190,216,.34); }
@@ -90,35 +160,138 @@
     [data-anim] { opacity: 1 !important; transform: none !important; transition: none !important; }
   }
 
-  /* Contacto: filas y botones */
-  .ls-row {
-    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 16px;
-    min-height: 68px; padding: 0 4px; position: relative;
-    border-bottom: 1px solid rgba(5,5,5,.16); color: #050505;
+  /* Contacto: panel oscuro + panel claro a pantalla partida */
+  .ls-ct { display: grid; grid-template-columns: 42% 58%; min-height: 88vh; }
+  .ls-ct__left {
+    position: relative; overflow: hidden; background: #0B0B0B; color: #F7F7F4;
+    padding: clamp(64px,10vh,110px) clamp(28px,4vw,64px);
+    display: flex; flex-direction: column; justify-content: center;
   }
-  .ls-row::after {
-    content: ''; position: absolute; left: 0; bottom: -1px; height: 1px; width: 0;
-    background: #050505; transition: width .6s cubic-bezier(.2,.7,.2,1);
+  .ls-ct__mark {
+    position: absolute; z-index: 0; pointer-events: none;
+    left: -8%; bottom: -18%; height: min(78%, 660px); width: auto; max-width: none;
+    opacity: .085;
   }
-  .ls-row:not(.ls-row--static):hover::after { width: 100%; }
-  .ls-row-k { font-size: 11px; letter-spacing: .32em; text-transform: uppercase; }
-  .ls-row-v { font-size: 13px; color: #8A8A8A; text-align: right; word-break: break-word; transition: color .4s ease; }
-  .ls-row:not(.ls-row--static):hover .ls-row-v { color: #050505; }
-  .ls-row-a { width: 16px; font-size: 12px; color: #8A8A8A; opacity: 0; transform: translate(-4px,4px); transition: opacity .4s ease, transform .4s ease; }
-  .ls-row:not(.ls-row--static):hover .ls-row-a { opacity: 1; transform: none; color: #050505; }
+  .ls-ct__lead { position: relative; z-index: 1; }
+  .ls-ct__kicker {
+    margin: 0 0 26px; font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 19px; color: rgba(247,247,244,.72);
+  }
+  .ls-ct__title {
+    margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(36px,4.6vw,66px); line-height: 1.05;
+    text-transform: uppercase; letter-spacing: .005em; color: #F7F7F4;
+  }
+  .ls-ct__dash { display: block; width: 62px; height: 1px; background: rgba(247,247,244,.5); margin: 30px 0; }
+  .ls-ct__body { margin: 0; max-width: 34ch; font-size: 15px; line-height: 1.9; color: rgba(247,247,244,.78); font-weight: 300; }
 
-  .ls-cta {
-    display: flex; align-items: center; justify-content: space-between; gap: 18px;
-    min-height: 62px; padding: 0 26px; cursor: pointer;
-    background: transparent; color: #050505; border: 1px solid rgba(5,5,5,.26);
-    font-size: 11px; letter-spacing: .32em; text-transform: uppercase;
+  .ls-ct__right {
+    background: #F7F7F4; color: #050505;
+    padding: clamp(64px,10vh,110px) clamp(28px,4vw,64px);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .ls-ct__label {
+    margin: 0 0 26px; padding-bottom: 24px; border-bottom: 1px solid rgba(5,5,5,.16);
+    font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #050505;
+  }
+
+  .ls-opt {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    min-height: clamp(96px,13vh,132px); padding: 0 clamp(22px,3vw,44px);
+    cursor: pointer; background: transparent; color: #050505;
+    border: 1px solid rgba(5,5,5,.3);
     transition: background .45s ease, color .45s ease, border-color .45s ease;
   }
-  .ls-cta .ls-cta-a { font-size: 15px; letter-spacing: 0; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
-  .ls-cta:hover { background: #050505; color: #F7F7F4; border-color: #050505; }
-  .ls-cta:hover .ls-cta-a { transform: translateX(7px); }
-  .ls-cta--solid { background: #050505; color: #F7F7F4; border-color: #050505; }
-  .ls-cta--solid:hover { background: transparent; color: #050505; border-color: #050505; }
+  .ls-opt__t {
+    font-family: 'Cormorant Garamond', serif !important; font-weight: 300 !important;
+    font-size: clamp(22px,2.4vw,32px); line-height: 1;
+    letter-spacing: .04em !important; text-transform: uppercase;
+  }
+  .ls-opt__a {
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid currentColor; font-size: 16px; letter-spacing: 0;
+    transition: transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .ls-opt:hover .ls-opt__a { transform: translateX(8px); }
+  .ls-opt--solid { background: #050505; color: #F7F7F4; border-color: #050505; }
+  .ls-opt--solid:hover { background: transparent; color: #050505; border-color: #050505; }
+  .ls-opt:not(.ls-opt--solid):hover { background: #050505; color: #F7F7F4; border-color: #050505; }
+
+  .ls-ct__info {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    margin-top: clamp(34px,5vh,58px); padding-top: clamp(28px,4vh,44px);
+    border-top: 1px solid rgba(5,5,5,.16);
+  }
+  .ls-ct__cell { position: relative; padding: 0 clamp(14px,1.6vw,26px); color: #050505; }
+  .ls-ct__cell:first-child { padding-left: 0; }
+  .ls-ct__cell + .ls-ct__cell { border-left: 1px solid rgba(5,5,5,.16); }
+  .ls-ct__k { display: block; margin-bottom: 14px; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #8A8A8A; }
+  .ls-ct__v {
+    display: block; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(15px,1.5vw,21px); line-height: 1.3;
+    letter-spacing: normal; text-transform: none; word-break: break-word;
+    transition: transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .ls-ct__cell:not(.ls-ct__cell--static):hover .ls-ct__v { transform: translateX(6px); }
+  .ls-ct__note { margin: clamp(28px,4vh,44px) 0 0; font-size: 12px; line-height: 1.85; color: #8A8A8A; font-weight: 300; }
+
+  @media (max-width: 900px) {
+    .ls-ct { grid-template-columns: 1fr; min-height: 0; }
+    .ls-ct__mark { left: -22%; bottom: -24%; height: 62%; }
+    .ls-ct__info { grid-template-columns: 1fr; }
+    .ls-ct__cell { padding: 20px 0; }
+    .ls-ct__cell + .ls-ct__cell { border-left: none; border-top: 1px solid rgba(5,5,5,.14); }
+  }
+
+  /* Carrusel 3D de fotos. Port vanilla de DepthCarousel (React + GSAP),
+     con la paleta clara del sitio en vez del tema oscuro original. */
+  .dc {
+    position: relative; width: 100%; height: 100%; min-height: 320px;
+    display: flex; align-items: center; justify-content: center;
+    perspective: var(--dc-perspective, 1400px); perspective-origin: 50% 50%;
+    touch-action: pan-y; outline: none; user-select: none; -webkit-user-select: none;
+    cursor: grab;
+  }
+  .dc:active { cursor: grabbing; }
+  .dc:focus-visible { outline: 1px solid rgba(6,6,6,.45); outline-offset: 4px; }
+  .dc__stage { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .dc__card {
+    position: absolute; top: 50%; left: 50%; transform-origin: center center;
+    overflow: hidden; background: #EDEAE4;
+    box-shadow: 0 30px 60px -22px rgba(6,6,6,.42), 0 8px 20px -10px rgba(6,6,6,.28);
+    cursor: pointer; transform: translate(-50%,-50%);
+    contain: layout paint;
+  }
+  .dc__img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; }
+  .dc__tint { position: absolute; inset: 0; opacity: 0; pointer-events: none; mix-blend-mode: multiply; }
+  .dc__cap {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none;
+    padding: 46px 16px 14px; color: #F7F7F4;
+    background: linear-gradient(180deg, rgba(6,6,6,0) 0%, rgba(6,6,6,.62) 100%);
+    font-size: 10px; letter-spacing: .26em; text-transform: uppercase;
+    opacity: 0; transition: opacity .4s ease;
+  }
+  .dc__card.is-front .dc__cap { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .dc__card { will-change: auto; }
+  }
+
+  /* Titular con video recortado dentro de las letras.
+     Port vanilla del componente MaskedHeading (React + GSAP). */
+  .mh { position: relative; display: block; width: 100%; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  .mh__measure { color: transparent; display: block; }
+  .mh__word { display: inline-block; white-space: pre; }
+  .mh__word:not(:last-child)::after { content: ' '; }
+  .mh__base { display: inline-block; width: 0; height: 0; }
+  .mh__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .mh__reveal { position: absolute; inset: 0; display: block; pointer-events: none; }
+  .mh__clip { position: absolute; inset: 0; display: block; }
+  .mh__media { position: absolute; inset: 0; display: block; will-change: transform, filter; }
+  .mh__src { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+  /* Fondo de respaldo si el navegador no soporta clip-path con SVG */
+  .mh--nofx .mh__measure { color: #F7F7F4; }
+  .mh--nofx .mh__reveal { display: none; }
 
   /* Franja CTA */
   .ls-band {
@@ -126,23 +299,23 @@
     min-height: clamp(150px, 20vh, 210px); padding: 40px 24px; overflow: hidden;
     width: 100%; border: none; cursor: pointer; text-align: center; isolation: isolate;
     background: linear-gradient(104deg,
-      #E7EBF0 0%, #DCE3EB 18%, #F0F2F5 34%, #D8E0E9 52%,
-      #EDEFF3 68%, #DCE2EA 84%, #F3F4F6 100%);
+      #232932 0%, #171C23 18%, #2C333D 34%, #1A1F27 52%,
+      #262D37 68%, #191E25 84%, #2F3742 100%);
   }
   .ls-band::before, .ls-band::after {
     content: ''; position: absolute; border-radius: 50%; pointer-events: none;
-    border: 1px solid rgba(255,255,255,.7); z-index: 0;
+    border: 1px solid rgba(255,255,255,.16); z-index: 0;
   }
   .ls-band::before { width: 260px; height: 260px; left: 2%; top: -46%; }
   .ls-band::after  { width: 190px; height: 190px; left: 9%; top: 22%; }
   .ls-band .ls-halo {
     position: absolute; z-index: 0; pointer-events: none; border-radius: 50%;
     width: 150px; height: 150px; left: 15%; top: -30%;
-    border: 1px solid rgba(255,255,255,.55);
+    border: 1px solid rgba(255,255,255,.12);
   }
   .ls-band .ls-sheen {
     position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    background: linear-gradient(76deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.5) 55%, rgba(255,255,255,0) 68%);
+    background: linear-gradient(76deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.09) 55%, rgba(255,255,255,0) 68%);
   }
   .ls-band .ls-inner { position: relative; z-index: 1; }
   .ls-band .ls-label {
@@ -150,9 +323,17 @@
     color: #060606; font-weight: 400; transition: letter-spacing .5s cubic-bezier(.2,.7,.2,1);
   }
   .ls-band:hover .ls-label { letter-spacing: .4em; }
-  .ls-band .ls-dash { display: block; width: 62px; height: 1px; margin: 18px auto 0; background: rgba(6,6,6,.42); transition: width .5s cubic-bezier(.2,.7,.2,1); }
+  .ls-band .ls-dash { display: block; width: 62px; height: 1px; margin: 18px auto 0; background: rgba(247,247,244,.5); transition: width .5s cubic-bezier(.2,.7,.2,1); }
   .ls-band:hover .ls-dash { width: 104px; }
   @media (max-width: 700px) { .ls-band::before, .ls-band::after, .ls-band .ls-halo { display: none; } }
+
+  /* Credito de desarrollo */
+  .ls-credit {
+    font-size: 11px !important; letter-spacing: .18em !important;
+    text-transform: uppercase; color: #8A8A8A; transition: color .4s ease;
+  }
+  .ls-credit strong { font-weight: 500; color: #D8D8D8; transition: color .4s ease; }
+  .ls-credit:hover, .ls-credit:hover strong { color: #F7F7F4; }
 
   header { transition: background .45s ease, border-color .45s ease, backdrop-filter .45s ease; }
   body.ls-scrolled header {
@@ -166,6 +347,45 @@
   @keyframes lsFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes lsWipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
   @keyframes lsHint { 0%,100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(9px); opacity: 1; } }
+  /* ===================== MOVIL ===================== */
+  @media (max-width: 900px) {
+    /* La seccion de Modelos deja de ser 38%/62% y se apila */
+    .ls-md { grid-template-columns: 1fr !important; min-height: 0 !important; }
+    .ls-md__txt {
+      padding: 0 clamp(22px,6vw,34px) clamp(30px,5vh,44px) !important;
+      justify-content: flex-start !important;
+    }
+    #dcModelos { min-height: 62vh; }
+    /* Hero: el video ocupa menos alto y los botones respiran */
+    #inicio { min-height: 88vh; }
+    #inicio .ls-inner { max-width: 100% !important; }
+  }
+
+  @media (max-width: 620px) {
+    /* Titulares mas contenidos */
+    #modelos > div:first-of-type h2 { font-size: clamp(30px,10vw,44px) !important; }
+    #heroName { font-size: clamp(30px,9vw,44px) !important; }
+    .ls-ct__title { font-size: clamp(30px,8.5vw,44px) !important; }
+    .ls-about__title { font-size: clamp(28px,8vw,40px) !important; }
+
+    /* Franja CTA: el titular con video no debe desbordar */
+    .ls-band { min-height: 128px; padding: 30px 18px; }
+    .mh { font-size: 30px !important; }
+
+    /* Areas tactiles: minimo 44px. Los inline styles obligan a !important. */
+    #heroPrev, #heroNext { width: 44px !important; height: 44px !important; }
+    .ls-opt { min-height: 88px; padding: 0 20px; }
+    footer a { padding: 13px 0; }
+    .ls-credit { padding: 10px 0; }
+    #modelos .ls-md__txt a { padding: 6px 0; }
+
+    /* iOS hace zoom al enfocar un campo con fuente menor a 16px */
+    input, select, textarea { font-size: 16px !important; }
+
+    /* Menos alto muerto en el carrusel */
+    #dcModelos { min-height: 56vh; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
@@ -179,7 +399,7 @@
   <header style="position:fixed;top:0;left:0;right:0;z-index:60;background:transparent">
     <div style="max-width:1440px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px">
       <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="display:flex;align-items:center;gap:12px;min-height:44px">
-        <img src="assets/logo-white.png" alt="LS Model Academy" style="height:58px;width:auto;display:block" />
+        <img src="assets/logo-white.png" alt="LS Model Management" style="height:58px;width:auto;display:block" />
       </a>
       <nav style="display:flex;align-items:center;gap:30px">
         <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
@@ -204,7 +424,7 @@
   <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:80;background:#050505;animation:lsFade .35s ease both;display:flex;flex-direction:column">
       <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(216,216,216,.14)">
-        <img src="assets/logo-white.png" alt="LS Model Academy" style="height:58px;width:auto" />
+        <img src="assets/logo-white.png" alt="LS Model Management" style="height:58px;width:auto" />
         <button type="button" onClick="{{ toggleMenu }}" aria-label="Cerrar menú" style="width:44px;height:44px;background:none;border:none;font-size:26px;line-height:1;color:#F7F7F4;cursor:pointer">×</button>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 24px 40px">
@@ -218,7 +438,7 @@
   </sc-if>
 
   <section id="inicio" style="padding:0;position:relative;background:#060606;height:100vh;overflow:hidden">
-    <video id="heroVideo" autoplay muted loop playsinline disablepictureinpicture preload="auto" poster="hero-poster.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0">
+    <video id="heroVideo" autoplay muted loop playsinline disablepictureinpicture preload="auto" poster="hero-poster.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block;z-index:0">
       <source src="hero.mp4" type="video/mp4" />
     </video>
     <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,6,.55) 0%,rgba(6,6,6,.12) 32%,rgba(6,6,6,.16) 68%,rgba(6,6,6,.7) 100%)"></div>
@@ -239,8 +459,8 @@
       <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,6vw,72px);line-height:1;text-transform:uppercase;letter-spacing:.01em">Modelos</h2>
       <span style="flex:1;min-width:60px;height:1px;background:#060606"></span>
     </div>
-    <div style="display:grid;grid-template-columns:38% 62%;min-height:92vh;position:relative;z-index:1">
-      <div style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
+    <div class="ls-md" style="display:grid;grid-template-columns:38% 62%;min-height:92vh;position:relative;z-index:1">
+      <div class="ls-md__txt" style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
         <p id="heroKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">Modelo destacada / 01</p>
         <h3 id="heroName" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease">FIONA<br />OTIÑANO</h3>
         <p id="heroAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease">23 años</p>
@@ -263,75 +483,85 @@
         </div>
       </div>
       <div style="position:relative;overflow:hidden;background:#EDEAE4;min-width:0">
-        <div id="heroPhotoA" style="position:absolute;inset:0;background:#EDEAE4;background-image:url('portada/Fiona%20Oti%C3%B1ano%2023%20a%C3%B1os.jpeg');background-size:cover;background-position:center 20%;background-repeat:no-repeat;opacity:1;transition:opacity 1s cubic-bezier(.4,0,.2,1)"></div>
-        <div id="heroPhotoB" style="position:absolute;inset:0;background:#EDEAE4;background-size:cover;background-repeat:no-repeat;background-position:center 20%;opacity:0;transition:opacity 1s cubic-bezier(.4,0,.2,1)"></div>
+        <div id="dcModelos" class="dc" tabindex="0" role="group"
+             aria-roledescription="carrusel" aria-label="Fotos de las modelos"
+             style="--dc-perspective:1400px"></div>
         <div style="position:absolute;top:0;bottom:0;left:0;width:120px;background:linear-gradient(90deg,#F7F5F1 0%,rgba(247,245,241,0) 100%);pointer-events:none;z-index:2"></div>
       </div>
     </div>
   </section>
 
-  <section id="nosotros" style="padding:88px 20px 96px;overflow:hidden">
-    <span class="ls-c ls-c--a" aria-hidden="true"></span>
-    <span class="ls-c ls-c--b" aria-hidden="true"></span>
-    <span class="ls-c ls-c--c" aria-hidden="true"></span>
-    <span class="ls-c ls-c--d" aria-hidden="true"></span>
-    <div style="max-width:1100px;margin:0 auto">
-      <p data-reveal style="margin:0 0 24px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:#8A8A8A">— Sobre nosotros</p>
-      <p data-reveal style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(26px,4.4vw,44px);line-height:1.28;text-wrap:pretty;color:#060606">LS Model Academy forma, acompaña y representa modelos. Trabajamos el desarrollo de cada perfil con criterio profesional y presentamos a marcas y productoras talentos preparados para responder a lo que un proyecto exige.</p>
-      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:1px;background:rgba(6,6,6,.16);margin-top:50px">
+  <section id="nosotros" style="padding:clamp(80px,12vh,130px) clamp(24px,5vw,72px) clamp(80px,12vh,130px);overflow:hidden">
+    <canvas class="grainient" id="grainientNosotros" aria-hidden="true"
+            data-color1="#20242B" data-color2="#2C313A" data-color3="#262B33"
+            data-time-speed="0.25" data-color-balance="0"
+            data-warp-strength="1" data-warp-frequency="5" data-warp-speed="2" data-warp-amplitude="50"
+            data-blend-angle="0" data-blend-softness="0.05" data-rotation-amount="500"
+            data-noise-scale="2" data-grain-amount="0.05" data-grain-scale="2" data-grain-animated="0"
+            data-contrast="1.0" data-gamma="1" data-saturation="1"
+            data-center-x="0" data-center-y="0" data-zoom="0.9"></canvas>
+    <img class="ls-mark" src="assets/logo-white.png" alt="" aria-hidden="true" />
+    <div class="ls-about">
+      <div class="ls-about__top">
+        <div data-reveal>
+          <p class="ls-about__kicker">— Sobre nosotros</p>
+          <h2 class="ls-about__title">Formamos talento.<br />Construimos carreras.</h2>
+          <span class="ls-about__dash" aria-hidden="true"></span>
+          <p class="ls-about__body">Trabajamos el desarrollo de cada perfil con criterio profesional y presentamos a marcas y productoras talentos preparados para responder a lo que un proyecto exige.</p>
+        </div>
+        <div data-reveal class="ls-about__mark">
+          <img src="assets/logo-white.png" alt="LS Model Management" />
+          <p>Formamos, acompañamos y representamos modelos.</p>
+        </div>
+      </div>
+
+      <div data-reveal class="ls-values">
         <sc-for list="{{ values }}" as="v" hint-placeholder-count="4">
-          <div style="background:rgba(251,250,247,.72);backdrop-filter:blur(3px);padding:26px 20px">
-            <h3 style="margin:0 0 10px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#060606">{{ v.title }}</h3>
-            <p style="margin:0;font-size:13px;line-height:1.7;color:#6E6E6E;font-weight:300">{{ v.text }}</p>
+          <div class="ls-value">
+            <h3>{{ v.title }}</h3>
+            <p>{{ v.text }}</p>
           </div>
         </sc-for>
       </div>
+
     </div>
   </section>
 
-  <section id="contacto" style="background:#F7F7F4;color:#050505;padding:clamp(90px,13vh,140px) clamp(20px,5vw,64px) clamp(80px,11vh,120px)">
-    <div style="max-width:1440px;margin:0 auto">
-      <div data-reveal style="text-align:center;margin-bottom:clamp(48px,7vh,80px)">
-        <p style="margin:0 0 20px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:#8A8A8A">— Contacto</p>
-        <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(44px,7.5vw,92px);line-height:.96;letter-spacing:-.01em;text-transform:uppercase">Hablemos</h2>
+  <section id="contacto" class="ls-ct">
+    <div class="ls-ct__left">
+      <img class="ls-ct__mark" src="assets/logo-white.png" alt="" aria-hidden="true" />
+      <div data-reveal class="ls-ct__lead">
+        <p class="ls-ct__kicker">— Contacto</p>
+        <h2 class="ls-ct__title">Hablemos<br />de tu proyecto.</h2>
+        <span class="ls-ct__dash" aria-hidden="true"></span>
+        <p class="ls-ct__body">Contanos qué necesitás. Nuestro equipo te acompaña de forma personalizada.</p>
       </div>
+    </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(32px,5vw,72px);align-items:start">
-        <div data-reveal>
-          <p style="margin:0 0 26px;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#8A8A8A">Escribinos</p>
-          <div style="display:flex;flex-direction:column;border-top:1px solid rgba(5,5,5,.16)">
-            <a href="{{ igLink }}" target="_blank" rel="noopener" class="ls-row">
-              <span class="ls-row-k">Instagram</span>
-              <span class="ls-row-v">{{ igLabel }}</span>
-              <span class="ls-row-a" aria-hidden="true">↗</span>
-            </a>
-            <a href="{{ mailLink }}" class="ls-row">
-              <span class="ls-row-k">Email</span>
-              <span class="ls-row-v">{{ email }}</span>
-              <span class="ls-row-a" aria-hidden="true">↗</span>
-            </a>
-            <div class="ls-row ls-row--static">
-              <span class="ls-row-k">Cobertura</span>
-              <span class="ls-row-v">{{ coverage }}</span>
-              <span class="ls-row-a" aria-hidden="true"></span>
-            </div>
+    <div class="ls-ct__right">
+      <div data-reveal>
+        <p class="ls-ct__label">Elegí cómo podemos ayudarte</p>
+        <button type="button" onClick="{{ openApply }}" class="ls-opt ls-opt--solid">
+          <span class="ls-opt__t">Quiero ser modelo</span>
+          <span class="ls-opt__a" aria-hidden="true">→</span>
+        </button>
+
+        <div class="ls-ct__info">
+          <a href="{{ igLink }}" target="_blank" rel="noopener" class="ls-ct__cell">
+            <span class="ls-ct__k">Instagram</span>
+            <span class="ls-ct__v">{{ igLabel }}</span>
+          </a>
+          <a href="{{ mailLink }}" class="ls-ct__cell">
+            <span class="ls-ct__k">Email</span>
+            <span class="ls-ct__v">{{ email }}</span>
+          </a>
+          <div class="ls-ct__cell ls-ct__cell--static">
+            <span class="ls-ct__k">Cobertura</span>
+            <span class="ls-ct__v">{{ coverage }}</span>
           </div>
         </div>
 
-        <div data-reveal>
-          <p style="margin:0 0 26px;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#8A8A8A">¿En qué te ayudamos?</p>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <button type="button" onClick="{{ openHire }}" class="ls-cta ls-cta--solid">
-              <span>Solicitar modelos</span>
-              <span class="ls-cta-a" aria-hidden="true">⟶</span>
-            </button>
-            <button type="button" onClick="{{ openAcademy }}" class="ls-cta">
-              <span>Consultar por la academia</span>
-              <span class="ls-cta-a" aria-hidden="true">⟶</span>
-            </button>
-          </div>
-          <p style="margin:24px 0 0;font-size:12px;line-height:1.8;color:#8A8A8A;font-weight:300">Respondemos las consultas de lunes a viernes. Cada solicitud se revisa de forma privada.</p>
-        </div>
+        <p class="ls-ct__note">Respondemos de lunes a viernes. Cada solicitud se revisa de forma privada.</p>
       </div>
     </div>
   </section>
@@ -340,8 +570,14 @@
     <button type="button" class="ls-band" onClick="{{ openApply }}" aria-label="Quiero formar parte">
       <span class="ls-halo" aria-hidden="true"></span>
       <span class="ls-sheen" aria-hidden="true"></span>
-      <span class="ls-inner">
-        <span class="ls-label">Quiero formar parte</span>
+      <span class="ls-inner" style="width:100%;max-width:1100px">
+        <span class="mh" id="mhBand"
+              data-masked="Quiero formar parte"
+              data-media="video" data-src="hero.mp4" data-poster="hero-poster.jpg"
+              data-fill-scale="1.25" data-parallax="26" data-drift="18"
+              data-reveal="rise" data-duration="1.1" data-stagger="0.09"
+              data-text-scale="0.115" data-weight="600" data-tracking="-0.01"
+              aria-hidden="true"></span>
         <span class="ls-dash" aria-hidden="true"></span>
       </span>
     </button>
@@ -350,7 +586,7 @@
   <footer style="padding:60px 20px 40px;border-top:1px solid rgba(216,216,216,.14)">
     <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
       <div>
-        <img src="assets/logo-white.png" alt="LS Model Academy" style="height:78px;width:auto;display:block" />
+        <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto;display:block" />
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A">Navegación</span>
@@ -366,10 +602,16 @@
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A">Legal</span>
-        <a href="#privacidad" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
+        <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
         <a href="#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
-        <span style="font-size:12px;color:#8A8A8A">© {{ year }} LS Model Academy</span>
       </div>
+    </div>
+
+    <div style="max-width:1440px;margin:48px auto 0;padding-top:26px;border-top:1px solid rgba(216,216,216,.14);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+      <span style="font-size:11px;color:#8A8A8A">© {{ year }} LS Model Management</span>
+      <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
+        Desarrollado por <strong>Neura</strong>
+      </a>
     </div>
   </footer>
 
@@ -382,7 +624,7 @@
   <sc-if value="{{ profile }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:90;background:#F7F7F4;color:#050505;overflow-y:auto;animation:lsFade .4s ease both;-webkit-overflow-scrolling:touch">
       <div style="position:sticky;top:0;z-index:2;background:rgba(247,247,244,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(5,5,5,.12);padding:10px 18px;display:flex;align-items:center;justify-content:space-between">
-        <img src="assets/logo-black.png" alt="LS Model Academy" style="height:44px;width:auto" />
+        <img src="assets/logo-black.png" alt="LS Model Management" style="height:44px;width:auto" />
         <button type="button" onClick="{{ closeProfile }}" aria-label="Cerrar perfil" style="min-height:44px;padding:0 16px;background:none;border:1px solid rgba(5,5,5,.28);font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">Cerrar</button>
       </div>
       <div style="max-width:1200px;margin:0 auto;padding:28px 18px 80px">
@@ -423,7 +665,7 @@
     <div role="dialog" aria-modal="true" style="position:fixed;inset:0;z-index:100;background:rgba(5,5,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:0;animation:lsFade .3s ease both">
       <div style="width:100%;max-width:600px;background:#F7F7F4;color:#050505;margin:auto;min-height:100%;animation:lsRise .5s cubic-bezier(.2,.7,.2,1) both">
         <div style="position:sticky;top:0;background:rgba(247,247,244,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(5,5,5,.12);padding:10px 18px;display:flex;align-items:center;justify-content:space-between">
-          <img src="assets/logo-black.png" alt="LS Model Academy" style="height:42px;width:auto" />
+          <img src="assets/logo-black.png" alt="LS Model Management" style="height:42px;width:auto" />
           <button type="button" onClick="{{ closeModal }}" aria-label="Cerrar formulario" style="width:44px;height:44px;background:none;border:none;font-size:26px;line-height:1;cursor:pointer">×</button>
         </div>
         <div style="padding:28px 18px 60px">
@@ -526,6 +768,7 @@
     { name: 'Anahí Ledezma', age: 17, file: 'Anahí Ledezma 17 años.jpeg', pos: 'center 22%' },
     { name: 'Antonia Lüdicke', age: 20, file: 'Antonia Lüdicke 20 años.jpeg', pos: 'center 25%' },
     { name: 'Araceli Cano', age: 18, file: 'Araceli Cano 18 años.jpeg', pos: 'center 20%' },
+    { name: 'Belén Ramírez', age: 20, dir: 'Belén Ramírez', file: 'IMG_4659.PNG', pos: 'center 15%' },
     { name: 'Cecilia Caffarena', age: 20, file: 'Cecilia Caffarena 20 años.jpeg', pos: 'center 18%' },
     { name: 'Cecilia Lezcano', age: 20, file: 'Cecilia Lezcano 20 años.jpeg', pos: 'center 12%' },
     { name: 'Cielo Lezcano', age: 24, file: 'Cielo Lezcano 24 años.JPEG', pos: 'center 20%' },
@@ -551,40 +794,31 @@
 
   function preload(url) { const i = new Image(); i.src = url; }
 
+  // Las modelos sin foto en portada/ usan una de su carpeta en uploads/.
+  function srcOf(m) {
+    return m.dir
+      ? 'uploads/' + encodeURIComponent(m.dir) + '/' + encodeURIComponent(m.file)
+      : 'portada/' + encodeURIComponent(m.file);
+  }
+
+  // Version liviana (900px) para el carrusel. Las originales llegan a
+  // 4160x6240 y decodificarlas 23 veces con blur traba la animacion.
+  function thumbOf(m) {
+    const base = m.dir ? m.dir : m.file.replace(/\.[^.]+$/, '');
+    return 'carousel/' + encodeURIComponent(base) + '.jpg';
+  }
+
+  // Las fotos las maneja el carrusel; aca solo se actualiza el texto.
   function paint(animate) {
     const nameEl = document.getElementById('heroName');
     const ageEl = document.getElementById('heroAge');
     const kickerEl = document.getElementById('heroKicker');
-    const photoA = document.getElementById('heroPhotoA');
-    const photoB = document.getElementById('heroPhotoB');
-    if (!nameEl || !ageEl || !photoA || !photoB) return;
+    if (!nameEl || !ageEl) return;
 
     const m = HERO_MODELS[idx];
     const parts = m.name.split(' ');
     const first = parts[0].toUpperCase();
     const rest = parts.slice(1).join(' ').toUpperCase();
-    const url = "url('portada/" + encodeURIComponent(m.file) + "')";
-
-    const incoming = showA ? photoB : photoA;
-    const outgoing = showA ? photoA : photoB;
-    incoming.style.backgroundImage = url;
-    incoming.style.backgroundPosition = m.pos;
-
-    if (animate === false) {
-      photoA.style.transition = 'none';
-      photoB.style.transition = 'none';
-      photoA.style.opacity = showA ? '1' : '0';
-      photoB.style.opacity = showA ? '0' : '1';
-      void photoA.offsetWidth;
-      photoA.style.transition = '';
-      photoB.style.transition = '';
-    } else {
-      requestAnimationFrame(function () {
-        incoming.style.opacity = '1';
-        outgoing.style.opacity = '0';
-      });
-      showA = !showA;
-    }
 
     nameEl.style.opacity = '0';
     ageEl.style.opacity = '0';
@@ -608,13 +842,33 @@
     if (counterEl) counterEl.textContent = pad(idx + 1);
     if (totalEl) totalEl.textContent = pad(HERO_MODELS.length);
     if (progEl) progEl.style.width = ((idx + 1) / HERO_MODELS.length * 100).toFixed(2) + '%';
-
-    const next = HERO_MODELS[(idx + 1) % HERO_MODELS.length];
-    preload("portada/" + encodeURIComponent(next.file));
   }
 
-  function tick() { idx = (idx + 1) % HERO_MODELS.length; paint(true); }
-  function resetTimer() { if (timer) clearInterval(timer); timer = setInterval(tick, 3500); }
+  let carousel = null;
+
+  function initCarousel() {
+    const el = document.getElementById('dcModelos');
+    if (!el) return;
+    // Ya construido y con su contenido intacto: nada que hacer.
+    if (el.dataset.dcReady === '1' && el.querySelector('.dc__stage')) return;
+    // El framework re-renderizo y lo vacio: se corta el autoplay viejo
+    // antes de reconstruir, si no quedan intervalos huerfanos acumulandose.
+    if (carousel && carousel.stopAuto) carousel.stopAuto();
+    carousel = DepthCarousel(el, {
+      items: HERO_MODELS.map(function (m) {
+        return { image: thumbOf(m), alt: m.name, pos: m.pos, caption: m.name + ' · ' + m.age };
+      }),
+      cardWidth: 420, cardHeight: 560, radius: 0, tint: '#0d0b09',
+      depth: 220, spread: 90, tilt: 22, tiltDirection: 'right',
+      visibleCards: 4, falloff: 0.2, blur: 6, duration: 700,
+      loop: true, autoplay: true, autoplayDelay: 3500,
+      onChange: function (i) { idx = i; paint(true); }
+    });
+    if (carousel) el.dataset.dcReady = '1';
+  }
+
+  function tick() { if (carousel) carousel.next(); }
+  function resetTimer() { if (timer) clearInterval(timer); timer = null; }
 
   /* ---- animación de entrada de los textos ----
      Se excluyen el hero (ya animado por CSS) y el texto del slideshow
@@ -624,8 +878,9 @@
     '#modelos > div:first-of-type h2',
     '#nosotros p', '#nosotros h3',
     '#contacto h2', '#contacto p', '#contacto .ls-row', '#contacto .ls-cta',
-    '.ls-band .ls-label',
-    'footer img', 'footer span', 'footer a'
+    '.ls-band .ls-label'
+    // El footer queda fuera a proposito: es lo ultimo de la pagina, no gana
+    // nada con animarse, y si el reveal no dispara el contenido no se ve.
   ].join(',');
 
   const SKIP = { heroName: 1, heroAge: 1, heroKicker: 1, heroCounter: 1, heroTotal: 1 };
@@ -642,6 +897,12 @@
   }
 
   function tagAnimTargets() {
+    // Red de seguridad: nada dentro del footer debe quedar oculto.
+    document.querySelectorAll('footer [data-anim]').forEach(function (el) {
+      el.removeAttribute('data-anim');
+      el.style.transitionDelay = '';
+    });
+
     const groups = new Map();
     const io = animObserver();
     document.querySelectorAll(ANIM_SEL).forEach(function (el) {
@@ -671,6 +932,9 @@
     document.body.classList.toggle('ls-scrolled', window.pageYOffset > limit);
     tagAnimTargets();
     revealAnims();
+    for (let i = pendingReveals.length - 1; i >= 0; i--) {
+      if (pendingReveals[i]()) pendingReveals.splice(i, 1);
+    }
   }
 
   // El framework re-renderiza y borra los atributos muted/loop del <video>,
@@ -706,9 +970,10 @@
 
   function goTo(i) {
     const n = HERO_MODELS.length;
-    idx = ((i % n) + n) % n;
+    const target = ((i % n) + n) % n;
+    if (carousel) { carousel.goTo(target); return; }
+    idx = target;
     paint(true);
-    resetTimer();
   }
 
   // Delegado en document: sobrevive a los re-renders del framework.
@@ -729,20 +994,601 @@
 
   function initSlideshow() {
     if (!document.getElementById('heroName')) { setTimeout(initSlideshow, 150); return; }
+    initCarousel();
     paint(false);
-    resetTimer();
+  }
+
+  /* ---------- MaskedHeading (port vanilla, sin React ni GSAP) ----------
+     Mide la maquetacion del texto HTML y replica la posicion de cada
+     palabra en nodos <text> de un <clipPath>, que recorta el video. */
+  /* ---------- Grainient: gradiente animado con warp y grano ----------
+     Implementado como shader WebGL a partir de los parametros del
+     componente original (no se dispuso de su codigo fuente). */
+  const GRAIN_FS = [
+    'precision highp float;',
+    'uniform vec2 uRes; uniform float uTime;',
+    'uniform vec3 uC1, uC2, uC3;',
+    'uniform float uBalance, uWarpStr, uWarpFreq, uWarpSpeed, uWarpAmp;',
+    'uniform float uAngle, uSoft, uRot, uNoiseScale;',
+    'uniform float uGrainAmt, uGrainScale, uGrainAnim;',
+    'uniform float uContrast, uGamma, uSat, uZoom;',
+    'uniform vec2 uCenter;',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }',
+    'float noise(vec2 p){',
+    '  vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.0-2.0*f);',
+    '  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),u.x),',
+    '             mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),u.x),u.y);',
+    '}',
+    'float fbm(vec2 p){',
+    '  float v=0.0, a=0.5;',
+    '  for(int k=0;k<5;k++){ v+=a*noise(p); p*=2.02; a*=0.5; }',
+    '  return v;',
+    '}',
+    'void main(){',
+    '  vec2 uv = (gl_FragCoord.xy - 0.5*uRes) / max(uRes.x,uRes.y);',
+    '  uv = uv / max(uZoom, 0.001) - uCenter;',
+    '  float t = uTime;',
+    // Domain warping
+    '  vec2 q = vec2(fbm(uv*uWarpFreq + t*0.10),',
+    '                fbm(uv*uWarpFreq + vec2(5.2,1.3) + t*0.13));',
+    '  vec2 r = vec2(fbm(uv*uWarpFreq + 4.0*q + vec2(1.7,9.2) + t*0.07*uWarpSpeed),',
+    '                fbm(uv*uWarpFreq + 4.0*q + vec2(8.3,2.8) + t*0.09*uWarpSpeed));',
+    '  vec2 wp = uv + (r-0.5) * (uWarpAmp/100.0) * uWarpStr * 0.1;',
+    // Eje de mezcla + rotacion por ruido
+    '  float a = radians(uAngle);',
+    '  float g = dot(wp, vec2(cos(a), sin(a)));',
+    '  g += (fbm(wp*uNoiseScale + t*0.05) - 0.5) * (uRot/500.0);',
+    '  float m = clamp(g*0.5 + 0.5 + uBalance*0.5, 0.0, 1.0);',
+    '  float sft = clamp(uSoft, 0.0001, 0.5);',
+    // Tres paradas equidistantes; uSoft define el ancho de cada transicion.
+    '  float k1 = smoothstep(0.5-sft-0.25, 0.5+sft-0.25, m);',
+    '  float k2 = smoothstep(0.5-sft+0.25, 0.5+sft+0.25, m);',
+    '  vec3 col = mix(mix(uC1, uC2, k1), uC3, k2);',
+    // Post
+    // El contraste pivota sobre el promedio de la paleta, no sobre gris medio:
+    // con colores oscuros, pivotar en 0.5 los aplastaria todos a negro.
+    '  float piv = dot((uC1+uC2+uC3)/3.0, vec3(0.2126,0.7152,0.0722));',
+    '  col = (col - piv) * uContrast + piv;',
+    '  col = pow(max(col, 0.0), vec3(1.0/max(uGamma,0.001)));',
+    '  float lum = dot(col, vec3(0.2126,0.7152,0.0722));',
+    '  col = mix(vec3(lum), col, uSat);',
+    // Grano
+    '  float gn = hash(gl_FragCoord.xy*max(uGrainScale,0.001) + (uGrainAnim>0.5 ? t*60.0 : 0.0));',
+    '  col += (gn-0.5)*uGrainAmt;',
+    '  gl_FragColor = vec4(clamp(col,0.0,1.0), 1.0);',
+    '}'
+  ].join('\n');
+
+  const GRAIN_VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p,0.0,1.0); }';
+
+  function hexToRgb(h) {
+    h = String(h || '').replace('#', '');
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    const n = parseInt(h, 16);
+    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+  }
+
+  function initGrainient(cv) {
+    if (!cv || cv.dataset.glReady === '1') return;
+    const gl = cv.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' })
+            || cv.getContext('experimental-webgl');
+    if (!gl) { cv.parentElement && cv.parentElement.classList.add('no-gl'); cv.style.display = 'none'; return; }
+
+    function sh(type, srcTxt) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, srcTxt); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(s)); return null; }
+      return s;
+    }
+    const vs = sh(gl.VERTEX_SHADER, GRAIN_VS), fs = sh(gl.FRAGMENT_SHADER, GRAIN_FS);
+    if (!vs || !fs) { cv.parentElement && cv.parentElement.classList.add('no-gl'); cv.style.display = 'none'; return; }
+    const pr = gl.createProgram();
+    gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { cv.style.display = 'none'; return; }
+    gl.useProgram(pr);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const d = cv.dataset;
+    const f = function (k, def) { const v = parseFloat(d[k]); return isNaN(v) ? def : v; };
+    const U = {};
+    ['uRes','uTime','uC1','uC2','uC3','uBalance','uWarpStr','uWarpFreq','uWarpSpeed','uWarpAmp',
+     'uAngle','uSoft','uRot','uNoiseScale','uGrainAmt','uGrainScale','uGrainAnim',
+     'uContrast','uGamma','uSat','uZoom','uCenter'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
+
+    gl.uniform3fv(U.uC1, hexToRgb(d.color1 || '#0a102a'));
+    gl.uniform3fv(U.uC2, hexToRgb(d.color2 || '#3B82F6'));
+    gl.uniform3fv(U.uC3, hexToRgb(d.color3 || '#3b1b5a'));
+    gl.uniform1f(U.uBalance, f('colorBalance', 0));
+    gl.uniform1f(U.uWarpStr, f('warpStrength', 1));
+    gl.uniform1f(U.uWarpFreq, f('warpFrequency', 5));
+    gl.uniform1f(U.uWarpSpeed, f('warpSpeed', 2));
+    gl.uniform1f(U.uWarpAmp, f('warpAmplitude', 50));
+    gl.uniform1f(U.uAngle, f('blendAngle', 0));
+    gl.uniform1f(U.uSoft, f('blendSoftness', 0.05));
+    gl.uniform1f(U.uRot, f('rotationAmount', 500));
+    gl.uniform1f(U.uNoiseScale, f('noiseScale', 2));
+    gl.uniform1f(U.uGrainAmt, f('grainAmount', 0.1));
+    gl.uniform1f(U.uGrainScale, f('grainScale', 2));
+    gl.uniform1f(U.uGrainAnim, f('grainAnimated', 0));
+    gl.uniform1f(U.uContrast, f('contrast', 1.5));
+    gl.uniform1f(U.uGamma, f('gamma', 1));
+    gl.uniform1f(U.uSat, f('saturation', 1));
+    gl.uniform1f(U.uZoom, f('zoom', 0.9));
+    gl.uniform2f(U.uCenter, f('centerX', 0), f('centerY', 0));
+
+    const speed = f('timeSpeed', 0.25);
+    let w = 0, h = 0;
+    function resize() {
+      // Resolucion limitada: el shader corre por pixel y a dpr alto se vuelve caro.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const nw = Math.round(cv.clientWidth * dpr), nh = Math.round(cv.clientHeight * dpr);
+      if (nw === w && nh === h) return;
+      w = nw; h = nh; cv.width = w; cv.height = h;
+      gl.viewport(0, 0, w, h);
+      gl.uniform2f(U.uRes, w, h);
+    }
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+
+    // Solo se dibuja mientras la seccion esta en pantalla.
+    let onScreen = false, raf = 0;
+    const t0 = performance.now();
+    function draw() {
+      raf = 0;
+      if (!onScreen || document.hidden) return;
+      resize();
+      gl.uniform1f(U.uTime, ((performance.now() - t0) / 1000) * speed);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      raf = requestAnimationFrame(draw);
+    }
+    function kick() { if (!raf && onScreen && !document.hidden) raf = requestAnimationFrame(draw); }
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        onScreen = es.some(function (e) { return e.isIntersecting; });
+        kick();
+      }, { rootMargin: '120px' }).observe(cv);
+    } else { onScreen = true; }
+    document.addEventListener('visibilitychange', kick);
+
+    // Un frame inmediato para que no quede el canvas en negro.
+    gl.uniform1f(U.uTime, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    onScreen = true; kick();
+
+    cv.dataset.glReady = '1';
+  }
+
+  function initGrainients() {
+    document.querySelectorAll('canvas.grainient').forEach(initGrainient);
+  }
+
+  /* ---------- DepthCarousel (port vanilla, sin React ni GSAP) ---------- */
+  function DepthCarousel(root, opts) {
+    const o = Object.assign({
+      items: [], cardWidth: 300, cardHeight: 380, radius: 0, tint: '#05060a',
+      depth: 220, spread: 90, tilt: 22, tiltDirection: 'right',
+      visibleCards: 4, falloff: 0.2, blur: 6, duration: 700,
+      loop: true, autoplay: false, autoplayDelay: 3200, onChange: null
+    }, opts || {});
+
+    const n = o.items.length;
+    if (!n) return null;
+
+    const cl = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    root.innerHTML = '';
+    const stage = document.createElement('div');
+    stage.className = 'dc__stage';
+    root.appendChild(stage);
+
+    const cards = [], tints = [];
+    o.items.forEach(function (it, i) {
+      const c = document.createElement('div');
+      c.className = 'dc__card';
+      c.style.width = o.cardWidth + 'px';
+      c.style.height = o.cardHeight + 'px';
+      c.style.borderRadius = o.radius + 'px';
+      c.setAttribute('aria-roledescription', 'slide');
+      c.setAttribute('aria-label', (i + 1) + ' de ' + n);
+
+      const img = new Image();
+      img.className = 'dc__img';
+      img.src = it.image; img.alt = it.alt || '';
+      img.draggable = false;
+      img.loading = i < 5 ? 'eager' : 'lazy';
+      if (it.pos) img.style.objectPosition = it.pos;
+      c.appendChild(img);
+
+      if (it.caption) {
+        const cap = document.createElement('span');
+        cap.className = 'dc__cap';
+        cap.textContent = it.caption;
+        c.appendChild(cap);
+      }
+      const t = document.createElement('span');
+      t.className = 'dc__tint';
+      t.style.background = o.tint;
+      c.appendChild(t);
+
+      c.addEventListener('click', function () { if (!drag || !drag.moved) setFocus(i, true); });
+      stage.appendChild(c);
+      cards.push(c); tints.push(t);
+    });
+
+    let pos = 0, focus = 0, scale = 1, raf = 0, drag = null, wheelT = 0, autoT = 0;
+
+    function layout(p) {
+      const dir = o.tiltDirection === 'left' ? -1 : 1;
+      for (let i = 0; i < n; i++) {
+        const el = cards[i];
+        let d = i - p;
+        if (o.loop && n > 1) { d = ((d % n) + n) % n; if (d > n / 2) d -= n; }
+        const shown = Math.abs(d) <= o.visibleCards + 0.5;
+
+        // Las tarjetas fuera de rango se ocultan del pintado: sin esto el
+        // navegador sigue componiendo 23 capas con blur en cada frame.
+        if (!shown) {
+          if (el.style.visibility !== 'hidden') {
+            el.style.visibility = 'hidden';
+            el.style.opacity = '0';
+            el.style.pointerEvents = 'none';
+            el.style.willChange = 'auto';
+            el.style.filter = 'none';
+            el.classList.remove('is-front');
+          }
+          continue;
+        }
+
+        const back = Math.max(0, d);
+        const tz = -o.depth * d;
+        const tx = dir * o.spread * d;
+        const ry = dir * o.tilt * cl(d, 0, 1);
+        const op = d < 0 ? Math.max(0, 1 + d) : 1;
+        const br = Math.max(0.15, 1 - back * o.falloff);
+        const bl = o.blur > 0 ? Math.min(o.blur, (back / Math.max(1, o.visibleCards)) * o.blur) : 0;
+
+        el.style.visibility = 'visible';
+        el.style.willChange = 'transform, opacity, filter';
+        el.style.transform = 'translate(-50%,-50%) scale(' + scale + ') translateX(' + tx.toFixed(2) +
+          'px) translateZ(' + tz.toFixed(2) + 'px) rotateY(' + ry.toFixed(3) + 'deg)';
+        el.style.opacity = op.toFixed(3);
+        el.style.filter = bl > 0.05
+          ? 'brightness(' + br.toFixed(3) + ') blur(' + bl.toFixed(2) + 'px)'
+          : 'brightness(' + br.toFixed(3) + ')';
+        el.style.zIndex = String(Math.round(2000 - d * 20));
+        el.style.pointerEvents = op > 0.05 ? 'auto' : 'none';
+        el.classList.toggle('is-front', Math.abs(d) < 0.5);
+        tints[i].style.opacity = cl(back * o.falloff * 1.25, 0, 0.86).toFixed(3);
+      }
+    }
+
+    // Reemplaza a gsap.to: interpolacion con easing power3.out.
+    function tweenTo(target, animate) {
+      cancelAnimationFrame(raf);
+      const from = pos, delta = target - from;
+      const dur = (animate && !reduce) ? o.duration : 0;
+      if (!dur) { pos = target; normalize(); layout(pos); return; }
+      const t0 = performance.now();
+      (function step(now) {
+        const k = Math.min(1, (now - t0) / dur);
+        const e = 1 - Math.pow(1 - k, 3);
+        pos = from + delta * e;
+        layout(pos);
+        if (k < 1) raf = requestAnimationFrame(step);
+        else { normalize(); layout(pos); }
+      })(t0);
+    }
+
+    function normalize() { if (n > 0) pos = ((pos % n) + n) % n; }
+
+    function setFocus(raw, animate) {
+      const idx = o.loop ? ((raw % n) + n) % n : cl(raw, 0, n - 1);
+      let delta = idx - pos;
+      if (o.loop && n > 1) { delta = ((delta % n) + n) % n; if (delta > n / 2) delta -= n; }
+      tweenTo(pos + delta, animate !== false);
+      if (idx !== focus) { focus = idx; if (o.onChange) o.onChange(idx, o.items[idx]); }
+    }
+
+    function by(step) { setFocus(focus + step, true); }
+
+    // Escala segun el ancho disponible. En pantallas angostas se reducen
+    // separacion y profundidad, si no las tarjetas quedan diminutas.
+    const base = { spread: o.spread, depth: o.depth, visible: o.visibleCards, tilt: o.tilt };
+    function fit() {
+      const w = root.clientWidth;
+      const narrow = w < 620;
+      o.spread = narrow ? Math.round(base.spread * 0.5) : base.spread;
+      o.depth = narrow ? Math.round(base.depth * 0.66) : base.depth;
+      o.visibleCards = narrow ? 3 : base.visible;
+      o.tilt = narrow ? Math.round(base.tilt * 0.7) : base.tilt;
+      const needed = o.cardWidth + Math.abs(o.spread) * 2 + (narrow ? 44 : 120);
+      scale = cl(w / needed, 0.4, 1);
+      layout(pos);
+    }
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(root);
+
+    root.addEventListener('wheel', function (e) {
+      if (n < 2) return;
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+      const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const d = e.deltaMode === 1 ? raw * 24 : raw;
+      pos += cl(d / (o.cardWidth * 0.9), -0.6, 0.6);
+      layout(pos);
+      clearTimeout(wheelT);
+      wheelT = setTimeout(function () { setFocus(Math.round(pos), true); }, 130);
+    }, { passive: false });
+
+    root.addEventListener('pointerdown', function (e) {
+      if (n < 2) return;
+      cancelAnimationFrame(raf);
+      drag = { x: e.clientX, start: pos, lastX: e.clientX, lastT: performance.now(), v: 0, moved: false, id: e.pointerId };
+    });
+    root.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      const stepPx = Math.max(o.cardWidth * 0.55 * scale, 40);
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; try { root.setPointerCapture(drag.id); } catch (err) {} }
+      if (!drag.moved) return;
+      const now = performance.now(), dt = Math.max(now - drag.lastT, 1);
+      drag.v = (e.clientX - drag.lastX) / dt;
+      drag.lastX = e.clientX; drag.lastT = now;
+      pos = drag.start - dx / stepPx;
+      layout(pos);
+    });
+    function endDrag() {
+      if (!drag) return;
+      const d = drag; drag = null;
+      if (!d.moved) return;
+      const stepPx = Math.max(o.cardWidth * 0.55 * scale, 40);
+      setFocus(Math.round(pos - (d.v * 180) / stepPx), true);
+    }
+    root.addEventListener('pointerup', endDrag);
+    root.addEventListener('pointercancel', endDrag);
+
+    root.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); by(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); by(1); }
+    });
+
+    if (o.autoplay && !reduce && n > 1) {
+      let hov = false;
+      root.addEventListener('mouseenter', function () { hov = true; });
+      root.addEventListener('mouseleave', function () { hov = false; });
+      root.addEventListener('focusin', function () { hov = true; });
+      root.addEventListener('focusout', function () { hov = false; });
+      autoT = setInterval(function () {
+        // Con la pestana oculta el navegador congela requestAnimationFrame:
+        // avanzar igual desincronizaria las tarjetas del texto.
+        if (!hov && !document.hidden) by(1);
+      }, Math.max(o.autoplayDelay, 600));
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) { pos = focus; layout(pos); }
+      });
+    }
+
+    fit(); layout(0);
+    if (o.onChange) o.onChange(0, o.items[0]);
+
+    return { next: function () { by(1); }, prev: function () { by(-1); },
+             goTo: function (i) { setFocus(i, true); },
+             index: function () { return focus; },
+             stopAuto: function () { clearInterval(autoT); } };
+  }
+
+  const pendingReveals = [];
+
+  function buildMasked(root) {
+    if (root.dataset.mhReady === '1' && root.querySelector('.mh__clip')) return;
+
+    const d = root.dataset;
+    const words = String(d.masked || root.textContent || '').split(/\s+/).filter(Boolean);
+    if (!words.length) return;
+
+    const num = (k, def) => { const v = parseFloat(d[k]); return isNaN(v) ? def : v; };
+    const cfg = {
+      fillScale: num('fillScale', 1.25),
+      parallax: num('parallax', 26),
+      drift: num('drift', 18),
+      textScale: num('textScale', 0.115),
+      duration: num('duration', 1.1),
+      stagger: num('stagger', 0.09),
+      reveal: d.reveal || 'rise'
+    };
+
+    const uid = 'mhclip-' + Math.abs(words.join('').length * 7919 + root.offsetTop);
+    const SVGNS = 'http://www.w3.org/2000/svg';
+
+    root.innerHTML = '';
+    root.style.fontWeight = d.weight || 600;
+    root.style.letterSpacing = (num('tracking', -0.01)) + 'em';
+    root.style.lineHeight = num('lineHeight', 1.06);
+    root.style.textAlign = d.align || 'center';
+
+    const measure = document.createElement('span');
+    measure.className = 'mh__measure';
+    const wordEls = [], baseEls = [];
+    words.forEach(function (w) {
+      const s = document.createElement('span');
+      s.className = 'mh__word';
+      s.appendChild(document.createTextNode(w));
+      const i = document.createElement('i');
+      i.className = 'mh__base';
+      s.appendChild(i);
+      measure.appendChild(s);
+      wordEls.push(s); baseEls.push(i);
+    });
+    root.appendChild(measure);
+
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('class', 'mh__defs');
+    svg.setAttribute('aria-hidden', 'true');
+    const defs = document.createElementNS(SVGNS, 'defs');
+    const cp = document.createElementNS(SVGNS, 'clipPath');
+    cp.setAttribute('id', uid);
+    cp.setAttribute('clipPathUnits', 'userSpaceOnUse');
+    const glyphs = words.map(function (w) {
+      const t = document.createElementNS(SVGNS, 'text');
+      t.textContent = w;
+      cp.appendChild(t);
+      return t;
+    });
+    defs.appendChild(cp); svg.appendChild(defs); root.appendChild(svg);
+
+    const reveal = document.createElement('span');
+    reveal.className = 'mh__reveal';
+    const clip = document.createElement('span');
+    clip.className = 'mh__clip';
+    clip.style.clipPath = 'url(#' + uid + ')';
+    const media = document.createElement('span');
+    media.className = 'mh__media';
+
+    let src;
+    if ((d.media || 'image') === 'video') {
+      src = document.createElement('video');
+      src.muted = true; src.defaultMuted = true; src.loop = true; src.autoplay = true;
+      src.playsInline = true;
+      // Los atributos, no solo las propiedades: sin muted el navegador bloquea el autoplay.
+      ['muted', 'loop', 'autoplay', 'playsinline'].forEach(function (a) { src.setAttribute(a, ''); });
+      if (d.poster) src.poster = d.poster;
+    } else {
+      src = document.createElement('img');
+      src.alt = '';
+    }
+    src.className = 'mh__src';
+    src.src = d.src || '';
+    media.appendChild(src); clip.appendChild(media);
+    reveal.appendChild(clip); root.appendChild(reveal);
+
+    if (src.tagName === 'VIDEO') {
+      const go = function () { src.muted = true; const p = src.play(); if (p && p.catch) p.catch(function () {}); };
+      go();
+      src.addEventListener('loadeddata', go, { once: true });
+      setInterval(function () { if (src.paused) go(); }, 1200);
+    }
+
+    // Sin soporte de clip-path por SVG: se muestra el texto plano.
+    if (!(window.CSS && CSS.supports && CSS.supports('clip-path', 'url(#x)'))) {
+      root.classList.add('mh--nofx');
+    }
+
+    const off = { x: 0, y: 0, tx: 0, ty: 0 };
+    const clampN = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+
+    function place() {
+      const W = root.clientWidth, H = root.clientHeight;
+      const mx = Math.max(0, ((cfg.fillScale - 1) / 2) * W);
+      const my = Math.max(0, ((cfg.fillScale - 1) / 2) * H);
+      media.style.transform = 'translate3d(' + clampN(off.x, -mx, mx).toFixed(2) + 'px,' +
+        clampN(off.y, -my, my).toFixed(2) + 'px,0) scale(' + cfg.fillScale + ')';
+    }
+
+    function sync() {
+      root.style.fontSize = clampN(root.clientWidth * cfg.textScale, 20, 200).toFixed(1) + 'px';
+      const cs = getComputedStyle(measure);
+      for (let i = 0; i < wordEls.length; i++) {
+        const g = glyphs[i];
+        g.setAttribute('x', wordEls[i].offsetLeft);
+        g.setAttribute('y', baseEls[i].offsetTop);
+        g.style.fontFamily = cs.fontFamily;
+        g.style.fontSize = cs.fontSize;
+        g.style.fontWeight = cs.fontWeight;
+        g.style.fontStyle = cs.fontStyle;
+        g.style.letterSpacing = cs.letterSpacing;
+      }
+      place();
+    }
+
+    sync();
+    if (window.ResizeObserver) new ResizeObserver(sync).observe(root);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync).catch(function () {});
+
+    // Deriva suave + parallax con el puntero.
+    let last = performance.now(), clock = 0;
+    (function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+      const dx = Math.sin(clock * 0.21) * cfg.drift;
+      const dy = Math.cos(clock * 0.17) * cfg.drift * 0.6;
+      const e = 1 - Math.exp(-dt / 0.18);
+      off.x += (off.tx + dx - off.x) * e;
+      off.y += (off.ty + dy - off.y) * e;
+      place();
+      requestAnimationFrame(frame);
+    })(last);
+
+    const host = root.closest('button, a') || root;
+    host.addEventListener('pointermove', function (ev) {
+      if (cfg.parallax <= 0) return;
+      const r = root.getBoundingClientRect();
+      const nx = ((ev.clientX - r.left) / (r.width || 1)) * 2 - 1;
+      const ny = ((ev.clientY - r.top) / (r.height || 1)) * 2 - 1;
+      off.tx = clampN(nx, -1, 1) * -cfg.parallax;
+      off.ty = clampN(ny, -1, 1) * -cfg.parallax;
+    });
+    host.addEventListener('pointerleave', function () { off.tx = 0; off.ty = 0; });
+
+    // Reveal al entrar en pantalla (reemplaza a GSAP).
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (cfg.reveal !== 'none' && !reduce) {
+      const rise = function () { return (parseFloat(getComputedStyle(root).fontSize) || 48) * 1.15; };
+      glyphs.forEach(function (g) {
+        g.style.transition = 'transform ' + cfg.duration + 's cubic-bezier(.16,1,.3,1)';
+      });
+      const rest = function () {
+        const y = rise();
+        glyphs.forEach(function (g, i) {
+          g.style.transitionDelay = (i * cfg.stagger) + 's';
+          g.style.transform = 'translateY(' + y + 'px)';
+        });
+      };
+      const play = function () { glyphs.forEach(function (g) { g.style.transform = 'translateY(0)'; }); };
+      rest();
+      let done = false;
+      const playOnce = function () { if (done) return; done = true; play(); };
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(function (es) {
+          if (es.some(function (e) { return e.isIntersecting; })) { playOnce(); io.disconnect(); }
+        }, { threshold: 0.25 });
+        io.observe(root);
+      }
+      // Respaldo por posicion: si el observer no dispara, el texto no queda oculto.
+      pendingReveals.push(function () {
+        if (done) return true;
+        const r = root.getBoundingClientRect();
+        if (r.top < innerHeight * 0.94 && r.bottom > 0) { playOnce(); return true; }
+        return false;
+      });
+    }
+
+    root.dataset.mhReady = '1';
+  }
+
+  function initMasked() {
+    document.querySelectorAll('[data-masked]').forEach(buildMasked);
   }
 
   function init() {
     kickVideo();
     bindControls();
+    initMasked();
+    initGrainients();
     initSlideshow();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     window.addEventListener('load', onScroll);
     onScroll();
     // El framework re-renderiza: se vuelve a etiquetar lo que aparezca después.
-    setInterval(function () { tagAnimTargets(); revealAnims(); }, 600);
+    setInterval(function () {
+      tagAnimTargets(); revealAnims(); initMasked(); initCarousel(); initGrainients();
+    }, 600);
   }
 
   if (document.readyState === 'loading') {
@@ -951,7 +1797,7 @@ class Component extends DCLogic {
     }));
 
     const copy = {
-      hire: { kicker: 'Solicitud corporativa', title: 'Solicitar modelos', sub: 'Contanos sobre tu evento o producción y te enviamos una propuesta con los perfiles adecuados.', cta: 'Enviar solicitud', done: 'Recibimos tu solicitud. Te contactamos con la propuesta de perfiles.', note: 'Un aviso interno queda registrado para el equipo de LS Model Academy. La notificación por correo y WhatsApp se activa al configurar las credenciales.' },
+      hire: { kicker: 'Solicitud corporativa', title: 'Solicitar modelos', sub: 'Contanos sobre tu evento o producción y te enviamos una propuesta con los perfiles adecuados.', cta: 'Enviar solicitud', done: 'Recibimos tu solicitud. Te contactamos con la propuesta de perfiles.', note: 'Un aviso interno queda registrado para el equipo de LS Model Management. La notificación por correo y WhatsApp se activa al configurar las credenciales.' },
       apply: { kicker: 'Postulación', title: 'Quiero formar parte', sub: 'Completá tus datos y adjuntá fotografías actuales sin filtros. Tu postulación se mantiene privada.', cta: 'Enviar postulación', done: 'Recibimos tu postulación correctamente. Nuestro equipo revisará tu perfil y se comunicará contigo.', note: 'Ninguna postulación se publica en el sitio. Las fotografías quedan en almacenamiento privado con enlaces temporales.' },
       academy: { kicker: 'Academia', title: 'Consultar por la academia', sub: 'Dejanos tus datos y te enviamos la información de la formación disponible.', cta: 'Enviar consulta', done: 'Recibimos tu consulta. Te enviamos la información de la academia a la brevedad.', note: 'Programas, fechas y aranceles se confirman por WhatsApp o correo.' }
     };

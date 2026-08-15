@@ -1,5 +1,7 @@
-# Video fuente sin comprimir (54 MB).
-# El sitio usa hero.mp4 (1.3 MB), generado a partir de este.
+# Videos fuente sin comprimir. El sitio usa hero.mp4 (3.4 MB),
+# generado a partir de hero.MOV (74 MB, HEVC 4K a 120fps, que
+# ademas los navegadores no reproducen).
+hero.MOV
 Video Project 1.mp4
 
 # Sistema
