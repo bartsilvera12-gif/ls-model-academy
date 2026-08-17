@@ -79,7 +79,7 @@
   }
   #nosotros > * { position: relative; z-index: 2; }
   /* Marca de agua: el logo gigante sangrando por el borde derecho */
-  #nosotros .ls-mark { filter: invert(1);
+  #nosotros .ls-mark {
     position: absolute; z-index: 1; pointer-events: none;
     right: -24%; top: 50%; transform: translateY(-50%);
     height: min(112%, 900px); width: auto; max-width: none;
@@ -136,7 +136,7 @@
     .ls-values { grid-template-columns: repeat(2, 1fr); }
     .ls-value:nth-child(3) { border-left: none; }
     .ls-value:nth-child(n+3) { border-top: 1px solid rgba(20,23,28,.18); }
-    #nosotros .ls-mark { filter: invert(1); right: -38%; opacity: .04; }
+    #nosotros .ls-mark { right: -38%; opacity: .04; }
   }
   @media (max-width: 620px) {
     .ls-values { grid-template-columns: 1fr; }
@@ -175,7 +175,7 @@
   .ls-ct__mark {
     position: absolute; z-index: 0; pointer-events: none;
     left: -8%; bottom: -18%; height: min(78%, 660px); width: auto; max-width: none;
-    opacity: .09; filter: invert(1);
+    opacity: .09;
   }
   .ls-ct__lead { position: relative; z-index: 1; }
   .ls-ct__kicker {
@@ -566,7 +566,7 @@
             data-noise-scale="2" data-grain-amount="0.05" data-grain-scale="2" data-grain-animated="0"
             data-contrast="1.0" data-gamma="1" data-saturation="1"
             data-center-x="0" data-center-y="0" data-zoom="0.9"></canvas>
-    <img class="ls-mark" src="assets/logo-white.png" alt="" aria-hidden="true" />
+    <img class="ls-mark" src="assets/logo-black.png" alt="" aria-hidden="true" />
     <div class="ls-about">
       <div class="ls-about__top">
         <div data-reveal>
@@ -576,7 +576,7 @@
           <p class="ls-about__body">Trabajamos el desarrollo de cada perfil con criterio profesional y presentamos a marcas y productoras talentos preparados para responder a lo que un proyecto exige.</p>
         </div>
         <div data-reveal class="ls-about__mark">
-          <img src="assets/logo-white.png" alt="LS Model Management" />
+          <img src="assets/logo-black.png" alt="LS Model Management" />
           <p>Formamos, acompañamos y representamos modelos.</p>
         </div>
       </div>
@@ -595,7 +595,7 @@
 
   <section id="contacto" class="ls-ct">
     <div class="ls-ct__left">
-      <img class="ls-ct__mark" src="assets/logo-white.png" alt="" aria-hidden="true" />
+      <img class="ls-ct__mark" src="assets/logo-black.png" alt="" aria-hidden="true" />
       <div data-reveal class="ls-ct__lead">
         <p class="ls-ct__kicker">— Contacto</p>
         <h2 class="ls-ct__title">Hablemos<br />de tu proyecto.</h2>
@@ -631,6 +631,23 @@
       </div>
     </div>
   </section>
+
+  <div style="background:#F2F1ED">
+    <button type="button" class="ls-band" onClick="{{ openApply }}" aria-label="Quiero formar parte">
+      <span class="ls-halo" aria-hidden="true"></span>
+      <span class="ls-sheen" aria-hidden="true"></span>
+      <span class="ls-inner" style="width:100%;max-width:1100px">
+        <span class="mh" id="mhBand"
+              data-masked="Quiero formar parte"
+              data-media="video" data-src="hero.mp4" data-poster="hero-poster.jpg"
+              data-fill-scale="1.25" data-parallax="26" data-drift="18"
+              data-reveal="rise" data-duration="1.1" data-stagger="0.09"
+              data-text-scale="0.115" data-weight="600" data-tracking="-0.01"
+              aria-hidden="true"></span>
+        <span class="ls-dash" aria-hidden="true"></span>
+      </span>
+    </button>
+  </div>
 
   <footer style="padding:60px 20px 40px;border-top:1px solid rgba(216,216,216,.14)">
     <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
