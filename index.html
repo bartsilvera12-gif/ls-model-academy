@@ -987,21 +987,22 @@
     { name: 'Cecilia Caffarena', age: 20, file: 'Cecilia Caffarena 20 años.jpeg', pos: 'center 18%' },
     { name: 'Cecilia Lezcano', age: 20, file: 'Cecilia Lezcano 20 años.jpeg', pos: 'center 12%' },
     { name: 'Celeste Cibils', age: 19, dir: 'Celeste Cibils', file: 'WhatsApp Image 2026-08-17 at 16.19.15.jpeg', pos: 'center 18%' },
-    { name: 'Cielo Lezcano', age: 24, file: 'Cielo Lezcano 24 años.JPEG', pos: 'center 20%' },
-    { name: 'Dalia Crechi', age: 22, file: 'Dalia Crechi 22 años.jpeg', pos: 'center 14%' },
+    { name: 'Cielo Rodríguez', age: 24, file: 'Cielo Lezcano 24 años.JPEG', pos: 'center 20%' },
+    { name: 'Daila Crechi', age: 22, file: 'Dalia Crechi 22 años.jpeg', pos: 'center 14%' },
     { name: 'Jamila González', age: 20, file: 'Jamila González 20 años.JPEG', pos: 'center 20%' },
     { name: 'Jazmin Orihuela', age: 21, file: 'Jazmin Orihuela 21 años.jpeg', pos: 'center 25%' },
     { name: 'Jessica Brizuela', age: 23, file: 'Jessica Brizuela 23 años.jpeg', pos: 'center 10%' },
     { name: 'Laia Arnella', age: 19, file: 'Laia Arnella 19 años.jpeg', pos: 'center 12%' },
     { name: 'Lucero Saldivar', age: 20, file: 'Lucero Saldivar 20 años.jpeg', pos: 'center 50%' },
-    { name: 'Maria Labres', age: 19, file: 'Maria Labres 19 años.jpeg', pos: 'center 15%' },
+    { name: 'Maria Eduarda Labres', age: 19, file: 'Maria Labres 19 años.jpeg', pos: 'center 15%' },
     { name: 'Nathalia Duarte', age: 21, file: 'Nathalia Duarte 21 años.jpeg', pos: 'center 26%' },
+    { name: 'Nayara Weiber', age: 21, dir: 'Nayara Weiber', file: 'IMG_8779.JPG.jpeg', pos: 'center 15%' },
     { name: 'Paula Mendiola', age: 21, file: 'Paula Mendiola 21 años.jpeg', pos: 'center 10%' },
     { name: 'Soledad Rios', age: 19, file: 'Soledad Rios 19 años.jpeg', pos: 'center 16%' },
     { name: 'Sophia Jimenez', age: 19, file: 'Sophia Jimenez 19 años.jpeg', pos: 'center 12%' },
     { name: 'Tais Espinola', age: 20, file: 'Tais Espinola 20 años.JPEG', pos: 'center 10%' },
-    { name: 'Thamiris Ibarrola', age: null, file: 'Thamiris Ibarrola.jpeg', pos: 'center 28%' },
-    { name: 'Zuelli Vazquez', age: 21, file: 'Zuelli Vazquez 21 años.jpeg', pos: 'center 52%' }
+    { name: 'Thamiris Ibarrola', age: 20, file: 'Thamiris Ibarrola.jpeg', pos: 'center 28%' },
+    { name: 'Zueli Vazquez', age: 21, file: 'Zuelli Vazquez 21 años.jpeg', pos: 'center 52%' }
   ];
 
   let idx = 0;
@@ -1072,7 +1073,9 @@
     if (carousel && carousel.stopAuto) carousel.stopAuto();
     carousel = DepthCarousel(el, {
       items: HERO_MODELS.map(function (m) {
-        return { image: thumbOf(m), alt: m.name, pos: m.pos, caption: m.name + ' · ' + m.age };
+        // Sin edad se muestra solo el nombre: concatenarla a ciegas
+        // imprimia "· null" sobre la foto.
+        return { image: thumbOf(m), alt: m.name, pos: m.pos, caption: m.age ? m.name + ' · ' + m.age : m.name };
       }),
       cardWidth: 420, cardHeight: 560, radius: 0, tint: '#0d0b09',
       depth: 220, spread: 90, tilt: 22, tiltDirection: 'right',
