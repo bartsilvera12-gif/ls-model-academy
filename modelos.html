@@ -156,10 +156,10 @@
   /* Credito de desarrollo */
   .ls-credit {
     font-size: 11px !important; letter-spacing: .18em !important;
-    text-transform: uppercase; color: #5F636A; transition: color .4s ease;
+    text-transform: uppercase; color: var(--muted); transition: color .4s ease;
   }
-  .ls-credit strong { font-weight: 500; color: #161A21; transition: color .4s ease; }
-  .ls-credit:hover, .ls-credit:hover strong { color: #060606; }
+  .ls-credit strong { font-weight: 500; color: #D8D8D8; transition: color .4s ease; }
+  .ls-credit:hover, .ls-credit:hover strong { color: #F7F7F4; }
 
   /* --- franja CTA --- */
   .band {
@@ -230,15 +230,12 @@
     .band { min-height: 130px; padding: 30px 18px; }
   }
 
-  /* Pie de pagina claro (igual que en index.html) */
-  footer a { color: #3C4048; transition: color .35s ease; }
-  footer a:hover { color: #060606; }
-  .ls-foot__base { border-top: 1px solid rgba(20,23,28,.14); color: #5F636A; }
+  .ls-foot__base { border-top: 1px solid rgba(216,216,216,.14); color: var(--muted); }
 
   /* Rotulos del footer como chip: en gris pequenio se perdian */
   .fcol-h {
     display: inline-block; margin-bottom: 6px; padding: 7px 14px;
-    background: #161A21; border: 1px solid #161A21;
+    background: rgba(247,247,244,.12); border: 1px solid rgba(247,247,244,.22);
     border-radius: 999px;
     font-size: 11px !important; letter-spacing: .24em !important;
     text-transform: uppercase; color: #F7F7F4 !important; font-weight: 500 !important;
@@ -312,36 +309,36 @@
   </a>
 </div>
 
-<footer style="background:#EDEBE6;color:#3C4048;padding:64px clamp(20px,4vw,48px) 44px;border-top:1px solid rgba(20,23,28,.14)">
+<footer style="background:var(--ink);color:var(--cream);padding:64px clamp(20px,4vw,48px) 44px;border-top:1px solid rgba(247,247,244,.14)">
   <div style="max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
     <!-- Las dos areas, una al lado de la otra: agencia y escuela -->
     <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
-      <img src="assets/logo-black.png" alt="LS Model Management" style="height:78px;width:auto" />
-      <span aria-hidden="true" style="width:1px;height:52px;background:rgba(20,23,28,.18)"></span>
-      <a href="index.html#academia"><img src="assets/academy-black.png" alt="LS Model Academy" style="height:74px;width:auto;display:block" /></a>
+      <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto" />
+      <span aria-hidden="true" style="width:1px;height:52px;background:rgba(247,247,244,.20)"></span>
+      <a href="index.html#academia"><img src="assets/academy-white.png" alt="LS Model Academy" style="height:74px;width:auto;display:block" /></a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Navegación</span>
-      <a href="index.html" style="font-size:13px">Inicio</a>
-      <a href="modelos.html" style="font-size:13px">Modelos</a>
-      <a href="index.html#nosotros" style="font-size:13px">Nosotros</a>
-      <a href="index.html#academia" style="font-size:13px">Academia</a>
+      <a href="index.html" style="font-size:13px;color:#D8D8D8">Inicio</a>
+      <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
+      <a href="index.html#nosotros" style="font-size:13px;color:#D8D8D8">Nosotros</a>
+      <a href="index.html#academia" style="font-size:13px;color:#D8D8D8">Academia</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Redes</span>
-      <a href="https://instagram.com/lsmodelacademy" target="_blank" rel="noopener" style="font-size:13px">Instagram</a>
-      <a href="index.html#contacto" style="font-size:13px">WhatsApp</a>
-      <a href="mailto:contacto@lsmodelacademy.com" style="font-size:13px">Email</a>
+      <a href="https://instagram.com/lsmodelacademy" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">Instagram</a>
+      <a href="index.html#contacto" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
+      <a href="mailto:contacto@lsmodelacademy.com" style="font-size:13px;color:#D8D8D8">Email</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Legal</span>
-      <a href="privacidad.html" style="font-size:13px">Política de privacidad</a>
-      <a href="index.html#terminos" style="font-size:13px">Términos de uso</a>
+      <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
+      <a href="index.html#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
     </div>
   </div>
 
   <div class="ls-foot__base" style="max-width:1500px;margin:48px auto 0;padding-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
-    <span style="font-size:11px">© <span id="year"></span> LS Model Management</span>
+    <span style="font-size:11px;color:var(--muted)">© <span id="year"></span> LS Model Management</span>
     <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
       Desarrollado por <strong>Neura</strong>
     </a>
