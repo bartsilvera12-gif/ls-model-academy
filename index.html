@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -10,7 +12,7 @@
 <helmet>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LS Model Management — Agencia de modelos</title>
-<meta name="description" content="LS Model Management: descubrimos nuevos talentos y conectamos modelos profesionales con marcas, producciones y eventos." />
+<meta name="description" content="LS Model Management representa modelos profesionales para marcas, producciones y eventos. LS Model Academy forma a quienes quieren dedicarse al modelaje." />
 <meta property="og:title" content="LS Model Management" />
 <meta property="og:description" content="Elegancia, actitud y presencia. Modelos profesionales para eventos, campañas y pasarelas." />
 <meta property="og:type" content="website" />
@@ -87,10 +89,11 @@
   }
 
   .ls-about { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; }
+  /* Una sola columna centrada: el bloque del logo lateral se quito a pedido. */
   .ls-about__top {
-    display: grid; grid-template-columns: 1.55fr 1fr;
-    gap: clamp(32px,5vw,80px); align-items: start;
-    margin-bottom: clamp(56px,9vh,110px);
+    text-align: center;
+    margin: 0 auto clamp(56px,9vh,110px);
+    max-width: 900px;
   }
   .ls-about__kicker {
     margin: 0 0 26px; font-family: 'Cormorant Garamond', serif; font-style: italic;
@@ -101,46 +104,66 @@
     font-size: clamp(34px,5.2vw,72px); line-height: 1.06;
     text-transform: uppercase; letter-spacing: .005em; color: #14171C;
   }
-  .ls-about__dash { display: block; width: 64px; height: 1px; background: rgba(20,23,28,.45); margin: 30px 0 30px; }
+  .ls-about__dash { display: block; width: 64px; height: 1px; background: rgba(20,23,28,.45); margin: 30px auto; }
   .ls-about__body {
-    margin: 0; max-width: 44ch; font-size: 15px; line-height: 1.95;
+    margin: 0 auto; max-width: 52ch; font-size: 15px; line-height: 1.95;
     color: #2A2F36; font-weight: 300; text-wrap: pretty;
   }
-  .ls-about__mark { padding-top: 26px; }
-  .ls-about__mark img { height: clamp(66px,6.4vw,104px); width: auto; opacity: .96; }
-  .ls-about__mark p {
-    margin: 22px 0 0; max-width: 26ch;
-    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
-    font-size: clamp(15px,1.35vw,19px); line-height: 1.5; color: #2A2F36;
-  }
 
-  /* Valores numerados automaticamente */
+  /* Valores: tarjetas oscuras que sobresalen del fondo claro */
   .ls-values {
     display: grid; grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid rgba(20,23,28,.26);
+    gap: clamp(14px,1.6vw,22px);
   }
+  /* El contenedor conserva data-reveal solo para recibir data-in: quien
+     anima es cada tarjeta, si no el fundido se aplicaria dos veces. */
+  .ls-values[data-reveal] { opacity: 1; transform: none; transition: none; }
   .ls-value {
-    position: relative;
-    padding: clamp(30px,4vh,46px) clamp(20px,2.2vw,34px) clamp(28px,3.6vh,44px);
+    position: relative; overflow: hidden;
+    padding: clamp(30px,4vh,44px) clamp(22px,2vw,30px) clamp(30px,4vh,44px);
+    background: #161A21; color: #F2F3F5;
+    border: 1px solid rgba(247,247,244,.10);
+    box-shadow: 0 10px 26px rgba(10,13,18,.16);
+    /* Entrada escalonada: arranca abajo y sube cuando la seccion se revela */
+    opacity: 0; transform: translateY(26px);
+    transition:
+      opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1),
+      background .45s ease, box-shadow .45s ease, border-color .45s ease;
   }
-  .ls-value + .ls-value { border-left: 1px solid rgba(20,23,28,.18); }
+  .ls-values[data-in] .ls-value { opacity: 1; transform: none; }
+  .ls-values[data-in] .ls-value:nth-child(1) { transition-delay: .00s, .00s, 0s, 0s, 0s; }
+  .ls-values[data-in] .ls-value:nth-child(2) { transition-delay: .10s, .10s, 0s, 0s, 0s; }
+  .ls-values[data-in] .ls-value:nth-child(3) { transition-delay: .20s, .20s, 0s, 0s, 0s; }
+  .ls-values[data-in] .ls-value:nth-child(4) { transition-delay: .30s, .30s, 0s, 0s, 0s; }
+  /* Barra superior que se despliega al pasar el cursor */
+  .ls-value::before {
+    content: ''; position: absolute; left: 0; top: 0; height: 2px; width: 0;
+    background: #F2F3F5;
+    transition: width .55s cubic-bezier(.2,.7,.2,1);
+  }
+  .ls-value:hover, .ls-value:focus-within {
+    background: #1F252F;
+    border-color: rgba(247,247,244,.20);
+    transform: translateY(-10px);
+    box-shadow: 0 22px 46px rgba(10,13,18,.30);
+  }
+  .ls-value:hover::before, .ls-value:focus-within::before { width: 100%; }
   .ls-value h3 {
     margin: 0 0 14px;
-    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #14171C;
+    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #FFFFFF;
   }
-  .ls-value p { margin: 0; font-size: 13px; line-height: 1.9; color: #2A2F36; font-weight: 300; }
+  .ls-value p { margin: 0; font-size: 13px; line-height: 1.9; color: #B4B9C1; font-weight: 300; }
+  @media (prefers-reduced-motion: reduce) {
+    .ls-value { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .ls-value:hover { transform: none !important; }
+  }
 
   @media (max-width: 1000px) {
-    .ls-about__top { grid-template-columns: 1fr; }
-    .ls-about__mark { padding-top: 4px; }
     .ls-values { grid-template-columns: repeat(2, 1fr); }
-    .ls-value:nth-child(3) { border-left: none; }
-    .ls-value:nth-child(n+3) { border-top: 1px solid rgba(20,23,28,.18); }
     #nosotros .ls-mark { right: -38%; opacity: .04; }
   }
   @media (max-width: 620px) {
     .ls-values { grid-template-columns: 1fr; }
-    .ls-value + .ls-value { border-left: none; border-top: 1px solid rgba(20,23,28,.18); }
   }
   /* Círculos celestes de fondo */
   #nosotros .ls-c { position: absolute; z-index: 0 !important; border-radius: 50%; pointer-events: none; }
@@ -154,6 +177,95 @@
   @media (max-width: 900px) {
     #nosotros .ls-c--b, #nosotros .ls-c--d { display: none; }
   }
+
+  /* ---- LS Model Academy ----
+     Fondo oscuro a proposito: separa visualmente la escuela de la agencia,
+     que ocupa las secciones claras de arriba y abajo. */
+  .ls-ac {
+    position: relative; overflow: hidden; isolation: isolate;
+    background: #0E1116; color: #F2F3F5;
+    padding: clamp(80px,12vh,130px) clamp(24px,5vw,72px);
+  }
+  .ls-ac__mark {
+    position: absolute; z-index: 0; pointer-events: none;
+    left: -12%; top: 50%; transform: translateY(-50%);
+    height: min(120%, 940px); width: auto; max-width: none; opacity: .045;
+  }
+  .ls-ac__wrap {
+    position: relative; z-index: 1; max-width: 1400px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: clamp(40px,6vw,96px); align-items: center;
+  }
+  .ls-ac__kicker {
+    margin: 0 0 30px; font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 19px; color: #9BA2AC;
+  }
+  .ls-ac__logo { height: clamp(120px,15vw,208px); width: auto; }
+  .ls-ac__dash { display: block; width: 64px; height: 1px; background: rgba(242,243,245,.4); margin: 34px 0; }
+  .ls-ac__body { margin: 0; max-width: 46ch; font-size: 15px; line-height: 1.95; color: #C6CBD3; font-weight: 300; }
+  .ls-ac__body strong { color: #FFFFFF; font-weight: 500; }
+  .ls-ac__note {
+    margin: 22px 0 0; max-width: 46ch;
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+    font-size: clamp(15px,1.3vw,18px); line-height: 1.6; color: #9BA2AC;
+  }
+
+  .ls-ac__list { margin: 0 0 clamp(34px,5vh,48px); padding: 0; list-style: none; }
+  .ls-ac__list li {
+    padding: 18px 0; border-top: 1px solid rgba(242,243,245,.14);
+    font-size: 13px; line-height: 1.8; color: #A9AFB8; font-weight: 300;
+  }
+  .ls-ac__list li:last-child { border-bottom: 1px solid rgba(242,243,245,.14); }
+  .ls-ac__list li span {
+    display: block; margin-bottom: 5px;
+    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #FFFFFF; font-weight: 500;
+  }
+
+  .ls-ac__cta {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    min-height: clamp(88px,12vh,116px); padding: 0 clamp(22px,2.6vw,38px);
+    background: #F7F7F4; color: #0E1116; text-decoration: none;
+    border: 1px solid #F7F7F4;
+    transition: background .45s ease, color .45s ease;
+  }
+  .ls-ac__cta-t {
+    font-family: 'Cormorant Garamond', serif !important; font-weight: 300 !important;
+    font-size: clamp(20px,2.1vw,29px); line-height: 1.15;
+    letter-spacing: .04em !important; text-transform: uppercase;
+  }
+  .ls-ac__cta-a {
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid currentColor; font-size: 16px;
+    transition: transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .ls-ac__cta:hover { background: transparent; color: #F7F7F4; }
+  .ls-ac__cta:hover .ls-ac__cta-a { transform: translateX(8px); }
+
+  .ls-ac__alt {
+    display: inline-block; margin-top: 22px; padding: 8px 0;
+    font-size: 11px; letter-spacing: .24em; text-transform: uppercase;
+    color: #C6CBD3; text-decoration: none;
+    border-bottom: 1px solid rgba(242,243,245,.34);
+    transition: color .4s ease, border-color .4s ease;
+  }
+  .ls-ac__alt:hover { color: #FFFFFF; border-bottom-color: #FFFFFF; }
+
+  @media (max-width: 1000px) {
+    .ls-ac__wrap { grid-template-columns: 1fr; gap: clamp(38px,6vh,56px); }
+    .ls-ac__mark { left: -30%; opacity: .035; }
+  }
+  @media (max-width: 620px) {
+    .ls-ac__cta { min-height: 84px; padding: 0 20px; }
+    .ls-ac__cta-a { width: 44px; height: 44px; }
+  }
+
+  /* Aclaracion de que area es cada una */
+  .ls-about__area {
+    margin: 26px auto 0; max-width: 52ch;
+    font-size: 13px; line-height: 1.9; color: #454B54; font-weight: 300;
+  }
+  .ls-about__area strong { color: #14171C; font-weight: 500; }
 
   /* Animación de entrada escalonada para los textos */
   [data-anim] {
@@ -369,10 +481,10 @@
   /* Credito de desarrollo */
   .ls-credit {
     font-size: 11px !important; letter-spacing: .18em !important;
-    text-transform: uppercase; color: #8A8A8A; transition: color .4s ease;
+    text-transform: uppercase; color: #5F636A; transition: color .4s ease;
   }
-  .ls-credit strong { font-weight: 500; color: #D8D8D8; transition: color .4s ease; }
-  .ls-credit:hover, .ls-credit:hover strong { color: #F7F7F4; }
+  .ls-credit strong { font-weight: 500; color: #161A21; transition: color .4s ease; }
+  .ls-credit:hover, .ls-credit:hover strong { color: #060606; }
 
   header { transition: background .45s ease, border-color .45s ease, backdrop-filter .45s ease; }
   body.ls-scrolled header {
@@ -449,10 +561,19 @@
     *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
   }
 
+  /* Pie de pagina claro */
+  footer {
+    background: #EDEBE6 !important; color: #3C4048 !important;
+    border-top: 1px solid rgba(20,23,28,.14);
+  }
+  footer a { color: #3C4048; transition: color .35s ease; }
+  footer a:hover { color: #060606; }
+  .ls-foot__base { border-top: 1px solid rgba(20,23,28,.14); color: #5F636A; }
+
   /* Rotulos del footer como chip: en gris pequenio se perdian */
   .fcol-h {
     display: inline-block; margin-bottom: 6px; padding: 7px 14px;
-    background: rgba(247,247,244,.12); border: 1px solid rgba(247,247,244,.22);
+    background: #161A21; border: 1px solid #161A21;
     border-radius: 999px;
     font-size: 11px !important; letter-spacing: .24em !important;
     text-transform: uppercase; color: #F7F7F4 !important; font-weight: 500 !important;
@@ -473,6 +594,7 @@
             <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Inicio</a>
             <a href="modelos.html" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Modelos</a>
             <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Nosotros</a>
+            <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Academia</a>
             <a href="#contacto" data-target="contacto" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Contacto</a>
             <button type="button" onClick="{{ openApply }}" style="min-height:44px;padding:0 22px;background:#F7F7F4;color:#060606;border:none;font-size:11px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:background .4s,color .4s" style-hover="background:var(--gold-deep);color:var(--cream)">Quiero formar parte</button>
           </div>
@@ -497,6 +619,7 @@
         <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Inicio</a>
         <a href="modelos.html" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Modelos</a>
         <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Nosotros</a>
+        <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Academia</a>
         <a href="#contacto" data-target="contacto" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Contacto</a>
         <button type="button" onClick="{{ openApply }}" style="margin-top:26px;min-height:52px;background:#F7F7F4;color:#050505;border:none;font-size:12px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer">Quiero formar parte</button>
       </div>
@@ -574,10 +697,7 @@
           <h2 class="ls-about__title">Formamos talento.<br />Construimos carreras.</h2>
           <span class="ls-about__dash" aria-hidden="true"></span>
           <p class="ls-about__body">Trabajamos el desarrollo de cada perfil con criterio profesional y presentamos a marcas y productoras talentos preparados para responder a lo que un proyecto exige.</p>
-        </div>
-        <div data-reveal class="ls-about__mark">
-          <img src="assets/logo-black.png" alt="LS Model Management" />
-          <p>Formamos, acompañamos y representamos modelos.</p>
+          <p class="ls-about__area"><strong>LS Model Management</strong> es el área de representación: gestiona la carrera de cada modelo y su vínculo con marcas y producciones.</p>
         </div>
       </div>
 
@@ -590,6 +710,36 @@
         </sc-for>
       </div>
 
+    </div>
+  </section>
+
+  <!-- LS Model Academy: la escuela. Es un area distinta de Management, por
+       eso tiene su propio logo, su propio fondo oscuro y su propio CTA. -->
+  <section id="academia" class="ls-ac">
+    <img class="ls-ac__mark" src="assets/academy-white.png" alt="" aria-hidden="true" />
+    <div class="ls-ac__wrap">
+      <div data-reveal class="ls-ac__lead">
+        <p class="ls-ac__kicker">— Nuestra escuela</p>
+        <img class="ls-ac__logo" src="assets/academy-white.png" alt="LS Model Academy" />
+        <span class="ls-ac__dash" aria-hidden="true"></span>
+        <p class="ls-ac__body">La formación es un área propia dentro de LS. En <strong>Model Academy</strong> preparamos a quienes recién empiezan y a quienes quieren profesionalizarse, con o sin experiencia previa.</p>
+        <p class="ls-ac__note">Formarte en la academia no implica ser representada por la agencia: son dos caminos distintos que pueden encontrarse.</p>
+      </div>
+
+      <div data-reveal class="ls-ac__side">
+        <ul class="ls-ac__list">
+          <li><span>Pasarela</span> Técnica de caminata, giros y presencia en escena.</li>
+          <li><span>Cámara</span> Expresión, ángulos y desenvolvimiento en producción.</li>
+          <li><span>Imagen</span> Postura, cuidado personal y armado de book.</li>
+          <li><span>Castings</span> Preparación para audiciones y trato profesional.</li>
+        </ul>
+
+        <a class="ls-ac__cta" href="{{ acWa }}" target="{{ acTarget }}" rel="noopener">
+          <span class="ls-ac__cta-t">Quiero formarme como modelo</span>
+          <span class="ls-ac__cta-a" aria-hidden="true">→</span>
+        </a>
+        <a class="ls-ac__alt" href="{{ acWaInfo }}" target="{{ acTarget }}" rel="noopener">Informes sobre Model Academy</a>
+      </div>
     </div>
   </section>
 
@@ -641,7 +791,7 @@
               data-masked="Quiero formar parte"
               data-media="video" data-src="hero.mp4" data-poster="hero-poster.jpg"
               data-fill-scale="1.25" data-parallax="26" data-drift="18"
-              data-reveal="rise" data-duration="1.1" data-stagger="0.09"
+              data-mh-reveal="rise" data-duration="1.1" data-stagger="0.09"
               data-text-scale="0.115" data-weight="600" data-tracking="-0.01"
               aria-hidden="true"></span>
         <span class="ls-dash" aria-hidden="true"></span>
@@ -649,32 +799,38 @@
     </button>
   </div>
 
-  <footer style="padding:60px 20px 40px;border-top:1px solid rgba(216,216,216,.14)">
+  <footer style="padding:60px 20px 40px">
     <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
-      <div>
-        <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto;display:block" />
+      <!-- Las dos areas, una al lado de la otra: agencia y escuela -->
+      <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+        <img src="assets/logo-black.png" alt="LS Model Management" style="height:78px;width:auto;display:block" />
+        <span aria-hidden="true" style="width:1px;height:52px;background:rgba(20,23,28,.18)"></span>
+        <a href="#academia" data-target="academia" onClick="{{ nav }}" style="display:block">
+          <img src="assets/academy-black.png" alt="LS Model Academy" style="height:74px;width:auto;display:block" />
+        </a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <span class="fcol-h">Navegación</span>
-        <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Inicio</a>
-        <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
-        <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Nosotros</a>
+        <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:13px">Inicio</a>
+        <a href="modelos.html" style="font-size:13px">Modelos</a>
+        <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:13px">Nosotros</a>
+        <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-size:13px">Academia</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <span class="fcol-h">Redes</span>
-        <a href="{{ igLink }}" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">Instagram</a>
-        <a href="{{ waLink }}" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
-        <a href="{{ mailLink }}" style="font-size:13px;color:#D8D8D8">Email</a>
+        <a href="{{ igLink }}" target="_blank" rel="noopener" style="font-size:13px">Instagram</a>
+        <a href="{{ waLink }}" target="_blank" rel="noopener" style="font-size:13px">WhatsApp</a>
+        <a href="{{ mailLink }}" style="font-size:13px">Email</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <span class="fcol-h">Legal</span>
-        <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
-        <a href="#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
+        <a href="privacidad.html" style="font-size:13px">Política de privacidad</a>
+        <a href="#terminos" style="font-size:13px">Términos de uso</a>
       </div>
     </div>
 
-    <div style="max-width:1440px;margin:48px auto 0;padding-top:26px;border-top:1px solid rgba(216,216,216,.14);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
-      <span style="font-size:11px;color:#8A8A8A">© {{ year }} LS Model Management</span>
+    <div class="ls-foot__base" style="max-width:1440px;margin:48px auto 0;padding-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+      <span style="font-size:11px">© {{ year }} LS Model Management</span>
       <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
         Desarrollado por <strong>Neura</strong>
       </a>
@@ -944,7 +1100,9 @@
      transición de opacidad controlada por JS. */
   const ANIM_SEL = [
     '#modelos > div:first-of-type h2',
-    '#nosotros p', '#nosotros h3',
+    // Solo el bloque de texto: las tarjetas de valores traen su propia
+    // entrada escalonada en CSS y anidar dos fundidos las dejaba opacas.
+    '#nosotros .ls-about__top p',
     '#contacto h2', '#contacto p', '#contacto .ls-row', '#contacto .ls-cta',
     '.ls-band .ls-label'
     // El footer queda fuera a proposito: es lo ultimo de la pagina, no gana
@@ -1383,7 +1541,13 @@
       o.tilt = narrow ? Math.round(base.tilt * 0.7) : base.tilt;
       o.blur = narrow ? 0 : base.blur;
       const needed = o.cardWidth + Math.abs(o.spread) * 2 + (narrow ? 44 : 120);
-      scale = cl(w / needed, 0.4, 1);
+      // Tambien se mide el ALTO. Antes la escala salia solo del ancho, y en
+      // una ventana baja la tarjeta sobresalia del contenedor, que recorta:
+      // el rotulo con el nombre quedaba cortado por la mitad.
+      const h = root.clientHeight;
+      const needH = o.cardHeight + (narrow ? 28 : 48);
+      const porAlto = h > 0 ? h / needH : 1;
+      scale = cl(Math.min(w / needed, porAlto), 0.4, 1);
       layout(pos);
     }
     if (window.ResizeObserver) new ResizeObserver(fit).observe(root);
@@ -1474,7 +1638,7 @@
       textScale: num('textScale', 0.115),
       duration: num('duration', 1.1),
       stagger: num('stagger', 0.09),
-      reveal: d.reveal || 'rise'
+      reveal: d.mhReveal || 'rise'
     };
 
     const uid = 'mhclip-' + Math.abs(words.join('').length * 7919 + root.offsetTop);
@@ -1661,6 +1825,11 @@
     // El framework re-renderiza: se vuelve a etiquetar lo que aparezca después.
     setInterval(function () {
       tagAnimTargets(); revealAnims(); initMasked(); initCarousel(); initGrainients();
+      // Tambien aca: si solo se procesara al hacer scroll y el observer no
+      // dispara, el titular de la franja queda fuera de cuadro y no se ve.
+      for (let i = pendingReveals.length - 1; i >= 0; i--) {
+        if (pendingReveals[i]()) pendingReveals.splice(i, 1);
+      }
     }, 600);
   }
 
@@ -1679,6 +1848,17 @@ const MODELS = [
   { id: 'm2', name: 'Sofía M.', cats: ['Publicidad', 'Eventos'], ratio: '3/4', photo: 'uploads/modelo2.png' },
   { id: 'm3', name: 'Lucía G.', cats: ['Pasarela', 'Publicidad'], ratio: '3/4', photo: 'uploads/modelo3.png' }
 ];
+
+/* Numero de WhatsApp de la agencia, en formato internacional sin signos.
+   Es el UNICO lugar donde se define: alimenta el enlace del pie y los dos
+   botones de LS Model Academy. Mientras este vacio, esos botones abren el
+   formulario de contacto en vez de WhatsApp. */
+const WHATSAPP = '';
+
+/* Mensajes que quedan escritos al abrir el chat, para que el equipo sepa
+   de entrada por que area consulta la persona. */
+const WA_ACADEMY = 'Hola, quiero formarme como modelo en LS Model Academy.';
+const WA_ACADEMY_INFO = 'Hola, quisiera recibir informes sobre LS Model Academy.';
 
 const EVENT_TYPES = ['Evento corporativo', 'Lanzamiento de producto', 'Campaña publicitaria', 'Producción audiovisual', 'Pasarela o desfile', 'Activación comercial', 'Promotoras', 'Otro'];
 const COURSES = ['Pasarela', 'Postura y presencia', 'Expresión corporal', 'Fotografía', 'Imagen profesional', 'Preparación para castings', 'Desenvolvimiento frente a cámaras'];
@@ -1716,6 +1896,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     window.removeEventListener('resize', this._onResize);
     if (this._io) this._io.disconnect();
+    if (this._netTimer) clearInterval(this._netTimer);
   }
 
   _observe() {
@@ -1725,6 +1906,17 @@ class Component extends DCLogic {
       this._seen.add(el);
       this._io.observe(el);
     });
+    // Red de seguridad: si el observador no llega a disparar (pestania en
+    // segundo plano, re-render a destiempo), lo que ya quedo por encima del
+    // borde inferior se revela igual. Nada puede quedar invisible para siempre.
+    if (this._netTimer) return;
+    this._netTimer = setInterval(() => {
+      document.querySelectorAll('[data-reveal]:not([data-in])').forEach((el) => {
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          el.setAttribute('data-in', '1');
+        }
+      });
+    }, 900);
   }
 
   scrollTo(id) {
@@ -1821,25 +2013,86 @@ class Component extends DCLogic {
     return errors;
   }
 
+  /* Envia el formulario a Supabase. Devuelve una promesa con 'ok',
+     'duplicate' o un mensaje de error.
+
+     Si Supabase no esta configurado, se guarda una copia local para no
+     perder el dato, pero se avisa que no llego: antes el sitio decia
+     "enviado" y en realidad no salia del navegador de la persona. */
   persist(kind, payload) {
-    // Capa de almacenamiento local: reemplazar por Supabase (tablas applications / event_requests)
-    // + notificación por correo y webhook de WhatsApp al confirmar credenciales.
-    try {
-      const key = 'lsma_submissions';
-      const all = JSON.parse(window.localStorage.getItem(key) || '[]');
-      const sig = kind + '|' + JSON.stringify(payload);
-      if (all.some((r) => r.sig === sig)) return 'duplicate';
-      all.push({ sig, kind, payload, status: 'Nueva', created: new Date().toISOString() });
-      window.localStorage.setItem(key, JSON.stringify(all));
-      return 'ok';
-    } catch (e) { return 'ok'; }
+    const sb = window.lsSupabase;
+    const guardarLocal = () => {
+      try {
+        const key = 'lsma_submissions';
+        const all = JSON.parse(window.localStorage.getItem(key) || '[]');
+        const sig = kind + '|' + JSON.stringify(payload, (k, v) => (v instanceof File ? v.name : v));
+        if (all.some((r) => r.sig === sig)) return 'duplicate';
+        all.push({ sig, kind, payload: '(sin conexion)', created: new Date().toISOString() });
+        window.localStorage.setItem(key, JSON.stringify(all));
+      } catch (e) {}
+      return 'sin-conexion';
+    };
+
+    if (!sb) return Promise.resolve(guardarLocal());
+
+    const num = (v) => { const n = parseInt(v, 10); return isNaN(n) ? null : n; };
+    const txt = (v) => (v == null || v === '' ? null : String(v).trim());
+
+    if (kind === 'hire') {
+      return sb.from('event_requests').insert({
+        empresa: txt(payload.empresa), responsable: txt(payload.responsable),
+        whatsapp: txt(payload.whatsapp), email: txt(payload.email),
+        tipo: txt(payload.tipo), ciudad: txt(payload.ciudad),
+        fecha: txt(payload.fecha), horario: txt(payload.horario),
+        cantidad: num(payload.cantidad), perfil: txt(payload.perfil),
+        presupuesto: txt(payload.presupuesto), extra: txt(payload.extra),
+        modelo: txt(payload.modelo)
+      }).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
+    }
+
+    if (kind === 'academy') {
+      return sb.from('event_requests').insert({
+        empresa: txt(payload.nombre), responsable: txt(payload.nombre),
+        whatsapp: txt(payload.whatsapp), email: txt(payload.email),
+        ciudad: txt(payload.ciudad), tipo: 'Consulta de formación',
+        extra: txt(payload.mensaje), perfil: txt(payload.interes)
+      }).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
+    }
+
+    // Postulacion: primero las fotos, despues la ficha con sus rutas.
+    const fotos = Array.from(payload.fotos || []).filter((f) => f instanceof File);
+    const carpeta = String(payload.nombre || 'postulante').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'postulante';
+    const sello = Date.now();
+
+    const subidas = fotos.map((f, i) => {
+      const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
+      const ruta = carpeta + '/' + sello + '-' + (i + 1) + '.' + ext;
+      return sb.storage.from('postulaciones').upload(ruta, f, { upsert: false })
+        .then((r) => (r.error ? null : ruta));
+    });
+
+    return Promise.all(subidas).then((rutas) => sb.from('applications').insert({
+      nombre: txt(payload.nombre), edad: num(payload.edad), ciudad: txt(payload.ciudad),
+      whatsapp: txt(payload.whatsapp), email: txt(payload.email),
+      instagram: txt(payload.instagram), altura: txt(payload.altura),
+      experiencia: txt(payload.experiencia), categoria: txt(payload.categoria),
+      presentacion: txt(payload.presentacion),
+      fotos: rutas.filter(Boolean),
+      tutor: txt(payload.tutor), tutor_wa: txt(payload.tutorWa),
+      tutor_auth: !!payload.tutorAuth
+    })).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
   }
 
   renderVals() {
     const s = this.state;
     const p = this.props;
     const isMobile = s.width < 900;
-    const wa = (p.whatsappNumber || '').replace(/\D/g, '');
+    const wa = (p.whatsappNumber || WHATSAPP || '').replace(/\D/g, '');
+    // Sin numero cargado los botones de la academia no pueden abrir WhatsApp:
+    // caen al formulario de consulta para no dejar un enlace muerto.
+    const waWith = (msg) => (wa ? 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) : '');
     const ig = (p.instagramHandle || 'lsmodelacademy').replace(/^@/, '');
     const email = p.contactEmail || 'contacto@lsmodelacademy.com';
 
@@ -1863,10 +2116,14 @@ class Component extends DCLogic {
       isSelect: d.kind === 'select',
       isFile: d.kind === 'file',
       isInput: ['text', 'tel', 'email', 'number', 'date'].indexOf(d.kind) > -1,
-      fileNote: (s.vals[d.id] && s.vals[d.id].length) ? s.vals[d.id].join(' · ') : 'Actuales, sin filtros, sin lentes oscuros.',
+      fileNote: (s.vals[d.id] && s.vals[d.id].length)
+        ? Array.from(s.vals[d.id]).map((f) => f.name || f).join(' · ')
+        : 'Actuales, sin filtros, sin lentes oscuros.',
       onChange: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: e.target.value }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) }),
       onCheck: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: e.target.checked }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) }),
-      onFiles: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: Array.from(e.target.files || []).map((f) => f.name) }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) })
+      // Se guardan los File reales, no solo los nombres: si no, las fotos
+      // nunca llegan a la agencia.
+      onFiles: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: Array.from(e.target.files || []) }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) })
     }));
 
     const copy = {
@@ -1883,7 +2140,10 @@ class Component extends DCLogic {
       menuOpen: s.menuOpen,
       showSticky: isMobile && !s.modal && !s.profileId && (p.showStickyCta !== false),
       waLink: wa ? 'https://wa.me/' + wa : '#contacto',
-      waLabel: p.whatsappNumber || '[ pendiente ]',
+      waLabel: p.whatsappNumber || WHATSAPP || '[ pendiente ]',
+      acWa: waWith(WA_ACADEMY) || '#contacto',
+      acWaInfo: waWith(WA_ACADEMY_INFO) || '#contacto',
+      acTarget: wa ? '_blank' : '_self',
       igLink: 'https://instagram.com/' + ig,
       igLabel: '@' + ig,
       mailLink: 'mailto:' + email,
@@ -1970,11 +2230,21 @@ class Component extends DCLogic {
         if (Object.keys(errors).length) { this.setState({ errors, formError: 'Revisá los campos marcados antes de enviar.' }); return; }
         this.setState({ busy: true, formError: '' });
         const payload = Object.assign({}, this.state.vals, this.state.modelRequested ? { modelo: this.state.modelRequested } : {});
-        setTimeout(() => {
-          const res = this.persist(this.state.modal, payload);
-          if (res === 'duplicate') { this.setState({ busy: false, formError: 'Esta solicitud ya fue enviada.' }); return; }
-          this.setState({ busy: false, sent: true });
-        }, 650);
+        // Se espera la subida real: antes mostraba "enviado" tras 650ms
+        // sin que el dato hubiera salido del navegador.
+        Promise.resolve(this.persist(this.state.modal, payload)).then((res) => {
+          if (res === 'duplicate') {
+            this.setState({ busy: false, formError: 'Esta solicitud ya fue enviada.' });
+          } else if (res === 'sin-conexion') {
+            this.setState({ busy: false, formError: 'No pudimos enviar tu solicitud. Escribinos por Instagram o correo, por favor.' });
+          } else if (typeof res === 'string' && res.indexOf('error:') === 0) {
+            this.setState({ busy: false, formError: 'No pudimos enviar tu solicitud: ' + res.slice(6) });
+          } else {
+            this.setState({ busy: false, sent: true });
+          }
+        }).catch((err) => {
+          this.setState({ busy: false, formError: 'No pudimos enviar tu solicitud: ' + (err && err.message ? err.message : err) });
+        });
       }
     };
   }

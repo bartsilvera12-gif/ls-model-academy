@@ -57,7 +57,13 @@ for d in uploads/*/; do
     [ -f "$f" ] || continue
     case "$f" in
       *Datos.txt) continue;;          # datos personales, no van al servidor
-      *.HEIC|*.heic) continue;;       # los navegadores no los renderizan
+    esac
+    # Se descarta por CONTENIDO, no por extension: hay HEIC guardados
+    # con nombre .jpeg que ningun navegador puede mostrar.
+    sig=$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')
+    case "$sig" in
+      ffd8ff*|89504e47|52494646) ;;   # JPEG, PNG, WebP
+      *) echo "    ! no es una imagen web, se omite: $f"; continue;;
     esac
     base="${f##*/}"
     shrink "$f" "$OUT/$d$base" 1400 4

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panel — LS Model Management</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="theme-color" content="#0B0B0B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#0E1116; --paper:#F4F4F2; --card:#FFFFFF; --muted:#767B84; --line:#E1E2E5; --ok:#1E7A46; --warn:#8A6A1F; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:'Jost',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+  img { display:block; max-width:100%; }
+  a { color:inherit; }
+
+  /* ---------- login ---------- */
+  #login { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:#0E1116; }
+  .lbox { width:100%; max-width:400px; background:var(--card); padding:40px 34px; }
+  .lbox img { height:52px; width:auto; margin:0 auto 28px; }
+  .lbox h1 { margin:0 0 6px; font-family:'Cormorant Garamond',serif; font-weight:300; font-size:30px; text-align:center; }
+  .lbox p.sub { margin:0 0 26px; text-align:center; font-size:12px; color:var(--muted); }
+
+  label { display:block; margin-bottom:16px; }
+  label span { display:block; margin-bottom:7px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+  input, select, textarea {
+    width:100%; padding:12px 14px; background:#fff;
+    border:1px solid var(--line); border-radius:2px; font-size:16px; outline:none;
+  }
+  input:focus, select:focus, textarea:focus { border-color:var(--ink); }
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    min-height:46px; padding:0 22px; cursor:pointer; border:1px solid var(--ink);
+    background:var(--ink); color:#fff; font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    border-radius:2px; transition:opacity .25s;
+  }
+  .btn:hover { opacity:.84; }
+  .btn--ghost { background:transparent; color:var(--ink); }
+  .btn--danger { background:#fff; color:#9B2C2C; border-color:#E3C4C4; }
+  .btn--sm { min-height:36px; padding:0 14px; font-size:10px; }
+  .btn[disabled] { opacity:.45; cursor:default; }
+  .msg { margin-top:14px; font-size:13px; color:#9B2C2C; }
+  .msg--ok { color:var(--ok); }
+
+  /* ---------- layout ---------- */
+  #app { display:none; }
+  .top {
+    position:sticky; top:0; z-index:20; background:var(--ink); color:#fff;
+    padding:12px clamp(16px,3vw,28px); display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .top img { height:38px; width:auto; }
+  .tabs { display:flex; gap:6px; margin-left:auto; flex-wrap:wrap; }
+  .tab {
+    padding:9px 16px; cursor:pointer; background:transparent; color:#B9BDC4;
+    border:1px solid transparent; border-radius:999px;
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  }
+  .tab.on { background:#fff; color:var(--ink); }
+  .who { font-size:11px; color:#B9BDC4; }
+  .wrap { max-width:1400px; margin:0 auto; padding:clamp(20px,3vw,34px); }
+
+  .bar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+  .bar input, .bar select { width:auto; min-width:180px; }
+  .count { font-size:12px; color:var(--muted); margin-left:auto; }
+
+  /* ---------- tarjetas ---------- */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr)); gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); padding:18px; }
+  .card h3 { margin:0 0 3px; font-family:'Cormorant Garamond',serif; font-weight:400; font-size:23px; }
+  .card .meta { font-size:11px; color:var(--muted); margin-bottom:12px; }
+  dl.kv { margin:0 0 12px; display:grid; grid-template-columns:auto 1fr; gap:5px 12px; }
+  dl.kv dt { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  dl.kv dd { margin:0; font-size:13px; text-align:right; }
+  .thumbs { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
+  .thumbs img { width:56px; height:74px; object-fit:cover; border:1px solid var(--line); cursor:pointer; }
+  .pill { display:inline-block; padding:4px 10px; border-radius:999px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
+  .pill--nueva { background:#E8F0FE; color:#1A4E9B; }
+  .pill--en_revision { background:#FDF3DA; color:#8A6A1F; }
+  .pill--aceptada { background:#E3F5EA; color:#1E7A46; }
+  .pill--descartada { background:#F0F0F0; color:#6B6B6B; }
+  .pill--menor { background:#FCE8E8; color:#9B2C2C; margin-left:6px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+  .empty { padding:60px 20px; text-align:center; color:var(--muted); font-size:14px; }
+
+  /* ---------- aviso de configuracion ---------- */
+  .setup { background:#FDF3DA; border:1px solid #E8D5A0; padding:22px 24px; margin-bottom:22px; }
+  .setup h2 { margin:0 0 10px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
+  .setup ol { margin:0; padding-left:20px; font-size:13px; line-height:1.9; }
+  .setup code { background:#fff; padding:2px 6px; border:1px solid #E8D5A0; font-size:12px; }
+
+  /* ---------- modal ---------- */
+  .ov { position:fixed; inset:0; z-index:60; background:rgba(14,17,22,.7); display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:24px; }
+  .ov.on { display:flex; }
+  .sheet { width:100%; max-width:600px; background:var(--card); padding:28px; margin:auto; }
+  .sheet h2 { margin:0 0 20px; font-family:'Cormorant Garamond',serif; font-weight:300; font-size:26px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  .lightbox { position:fixed; inset:0; z-index:80; background:rgba(14,17,22,.92); display:none; align-items:center; justify-content:center; padding:24px; }
+  .lightbox.on { display:flex; }
+  .lightbox img { max-width:100%; max-height:90vh; width:auto; object-fit:contain; }
+  @media (max-width:620px){ .two { grid-template-columns:1fr; } .count { margin-left:0; } }
+</style>
+</head>
+<body>
+
+<!-- =================== LOGIN =================== -->
+<div id="login">
+  <form class="lbox" id="loginForm">
+    <img src="assets/logo-black.png" alt="LS Model Management" />
+    <h1>Panel interno</h1>
+    <p class="sub">Acceso solo para el equipo</p>
+    <label><span>Correo</span><input type="email" id="email" autocomplete="username" required /></label>
+    <label><span>Contraseña</span><input type="password" id="pass" autocomplete="current-password" required /></label>
+    <button class="btn" style="width:100%" id="loginBtn" type="submit">Entrar</button>
+    <p class="msg" id="loginMsg"></p>
+  </form>
+</div>
+
+<!-- =================== PANEL =================== -->
+<div id="app">
+  <div class="top">
+    <img src="assets/logo-white.png" alt="LS Model Management" />
+    <span class="who" id="who"></span>
+    <div class="tabs">
+      <button class="tab on" data-tab="post" type="button">Postulaciones</button>
+      <button class="tab" data-tab="mod" type="button">Modelos</button>
+      <button class="tab" data-tab="emp" type="button">Empresas</button>
+      <button class="tab" id="logout" type="button" style="color:#fff">Salir</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- ---------- Postulaciones ---------- -->
+    <section id="tab-post">
+      <div class="bar">
+        <input type="search" id="qPost" placeholder="Buscar por nombre o ciudad…" />
+        <select id="fEstado">
+          <option value="">Todos los estados</option>
+          <option value="nueva">Nuevas</option>
+          <option value="en_revision">En revisión</option>
+          <option value="aceptada">Aceptadas</option>
+          <option value="descartada">Descartadas</option>
+        </select>
+        <span class="count" id="cPost"></span>
+      </div>
+      <div class="grid" id="listPost"></div>
+    </section>
+
+    <!-- ---------- Modelos ---------- -->
+    <section id="tab-mod" style="display:none">
+      <div class="bar">
+        <button class="btn" id="newModel" type="button">+ Nueva modelo</button>
+        <input type="search" id="qMod" placeholder="Buscar por nombre…" />
+        <span class="count" id="cMod"></span>
+      </div>
+      <div class="grid" id="listMod"></div>
+    </section>
+
+    <!-- ---------- Empresas ---------- -->
+    <section id="tab-emp" style="display:none">
+      <div class="bar">
+        <input type="search" id="qEmp" placeholder="Buscar por empresa…" />
+        <span class="count" id="cEmp"></span>
+      </div>
+      <div class="grid" id="listEmp"></div>
+    </section>
+  </div>
+</div>
+
+<!-- Editor de modelo -->
+<div class="ov" id="ov">
+  <form class="sheet" id="modelForm">
+    <h2 id="ovTitle">Nueva modelo</h2>
+    <input type="hidden" id="mId" />
+    <label><span>Nombre y apellido *</span><input id="mNombre" required /></label>
+    <div class="two">
+      <label><span>Edad</span><input id="mEdad" type="number" min="14" max="80" /></label>
+      <label><span>Altura</span><input id="mAltura" placeholder="1,74" /></label>
+      <label><span>Busto</span><input id="mBusto" type="number" /></label>
+      <label><span>Cintura</span><input id="mCintura" type="number" /></label>
+      <label><span>Cadera</span><input id="mCadera" type="number" /></label>
+      <label><span>Calce</span><input id="mCalce" /></label>
+      <label><span>Ciudad</span><input id="mCiudad" /></label>
+      <label><span>Orden</span><input id="mOrden" type="number" value="100" /></label>
+    </div>
+    <label><span>Foto de portada</span><input id="mCover" type="file" accept="image/*" /></label>
+    <label><span>Galería (se pueden elegir varias)</span><input id="mFotos" type="file" accept="image/*" multiple /></label>
+    <label style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="mPub" checked style="width:auto" />
+      <span style="margin:0;letter-spacing:.1em">Visible en el sitio</span>
+    </label>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn btn--ghost" type="button" id="ovCancel">Cancelar</button>
+      <button class="btn" type="submit" id="ovSave">Guardar</button>
+    </div>
+    <p class="msg" id="ovMsg"></p>
+  </form>
+</div>
+
+<div class="lightbox" id="lb"><img id="lbImg" alt="" /></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function () {
+  var sb = window.lsSupabase;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- Sin credenciales: se explica que falta en vez de fallar ---- */
+  if (!sb) {
+    $('login').innerHTML =
+      '<div class="lbox setup" style="max-width:560px">' +
+      '<h2>Falta conectar Supabase</h2>' +
+      '<ol>' +
+      '<li>Crear un proyecto en <code>supabase.com</code>.</li>' +
+      '<li>Abrir <b>SQL Editor</b>, pegar el contenido de <code>supabase-schema.sql</code> y ejecutarlo.</li>' +
+      '<li>En <b>Authentication → Providers → Email</b>, desactivar <i>Enable email signups</i>.</li>' +
+      '<li>En <b>Authentication → Users</b>, crear la cuenta del equipo a mano.</li>' +
+      '<li>Copiar <b>Project URL</b> y <b>anon key</b> (Project Settings → API) dentro de <code>supabase-config.js</code>.</li>' +
+      '</ol></div>';
+    return;
+  }
+
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
+  };
+  var fecha = function (iso) {
+    try { return new Date(iso).toLocaleDateString('es-PY', { day:'2-digit', month:'short', year:'numeric' }); }
+    catch (e) { return ''; }
+  };
+  var slug = function (s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+            .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'modelo';
+  };
+
+  /* ================= SESION ================= */
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var b = $('loginBtn'); b.disabled = true; $('loginMsg').textContent = '';
+    sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value })
+      .then(function (r) {
+        b.disabled = false;
+        if (r.error) { $('loginMsg').textContent = 'No pudimos entrar: ' + r.error.message; return; }
+        abrirPanel(r.data.user);
+      });
+  });
+
+  $('logout').addEventListener('click', function () {
+    sb.auth.signOut().then(function () { location.reload(); });
+  });
+
+  function abrirPanel(user) {
+    $('login').style.display = 'none';
+    $('app').style.display = 'block';
+    $('who').textContent = user && user.email ? user.email : '';
+    cargarPostulaciones(); cargarModelos(); cargarEmpresas();
+  }
+
+  sb.auth.getSession().then(function (r) {
+    if (r.data && r.data.session) abrirPanel(r.data.session.user);
+  });
+
+  /* ================= PESTANIAS ================= */
+  document.querySelectorAll('.tab[data-tab]').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.tab[data-tab]').forEach(function (x) { x.classList.remove('on'); });
+      t.classList.add('on');
+      ['post','mod','emp'].forEach(function (k) {
+        $('tab-' + k).style.display = (k === t.dataset.tab) ? 'block' : 'none';
+      });
+    });
+  });
+
+  /* ================= POSTULACIONES ================= */
+  var posts = [];
+
+  function cargarPostulaciones() {
+    sb.from('applications').select('*').order('created_at', { ascending:false })
+      .then(function (r) {
+        if (r.error) { $('listPost').innerHTML = '<p class="empty">' + esc(r.error.message) + '</p>'; return; }
+        posts = r.data || [];
+        pintarPostulaciones();
+      });
+  }
+
+  function pintarPostulaciones() {
+    var q = $('qPost').value.toLowerCase().trim();
+    var est = $('fEstado').value;
+    var l = posts.filter(function (p) {
+      if (est && p.estado !== est) return false;
+      if (!q) return true;
+      return ((p.nombre||'') + ' ' + (p.ciudad||'')).toLowerCase().indexOf(q) > -1;
+    });
+    $('cPost').textContent = l.length + ' de ' + posts.length;
+    if (!l.length) { $('listPost').innerHTML = '<p class="empty">No hay postulaciones que coincidan.</p>'; return; }
+
+    $('listPost').innerHTML = l.map(function (p) {
+      var menor = p.edad && p.edad < 18;
+      return '<div class="card">' +
+        '<h3>' + esc(p.nombre) + (menor ? '<span class="pill pill--menor">Menor</span>' : '') + '</h3>' +
+        '<p class="meta">' + fecha(p.created_at) + (p.ciudad ? ' · ' + esc(p.ciudad) : '') + '</p>' +
+        '<span class="pill pill--' + esc(p.estado) + '">' + esc(p.estado.replace('_',' ')) + '</span>' +
+        '<dl class="kv" style="margin-top:12px">' +
+          (p.edad ? '<dt>Edad</dt><dd>' + p.edad + '</dd>' : '') +
+          (p.altura ? '<dt>Altura</dt><dd>' + esc(p.altura) + '</dd>' : '') +
+          ((p.busto||p.cintura||p.cadera) ? '' : '') +
+          (p.whatsapp ? '<dt>WhatsApp</dt><dd><a href="https://wa.me/' + esc(String(p.whatsapp).replace(/\D/g,'')) + '" target="_blank" rel="noopener">' + esc(p.whatsapp) + '</a></dd>' : '') +
+          (p.email ? '<dt>Email</dt><dd><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></dd>' : '') +
+          (p.instagram ? '<dt>Instagram</dt><dd>' + esc(p.instagram) + '</dd>' : '') +
+          (p.experiencia ? '<dt>Experiencia</dt><dd>' + esc(p.experiencia) + '</dd>' : '') +
+          (p.categoria ? '<dt>Categoría</dt><dd>' + esc(p.categoria) + '</dd>' : '') +
+        '</dl>' +
+        (menor && p.tutor ? '<p style="font-size:12px;color:#9B2C2C;margin:0 0 10px">Tutor: ' + esc(p.tutor) + (p.tutor_wa ? ' · ' + esc(p.tutor_wa) : '') + (p.tutor_auth ? ' · autorizado' : ' · SIN autorización') + '</p>' : '') +
+        (p.presentacion ? '<p style="font-size:13px;line-height:1.7;color:#41464E">' + esc(p.presentacion) + '</p>' : '') +
+        '<div class="thumbs" data-fotos="' + esc((p.fotos||[]).join('|')) + '"></div>' +
+        '<div class="row">' +
+          '<select data-estado="' + p.id + '" style="min-width:150px">' +
+            ['nueva','en_revision','aceptada','descartada'].map(function (e) {
+              return '<option value="' + e + '"' + (p.estado===e?' selected':'') + '>' + e.replace('_',' ') + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="btn btn--sm btn--danger" data-del-post="' + p.id + '" type="button">Eliminar</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Las fotos son privadas: hay que pedir una URL firmada para verlas
+    document.querySelectorAll('#listPost .thumbs').forEach(function (box) {
+      var rutas = (box.dataset.fotos || '').split('|').filter(Boolean);
+      rutas.forEach(function (ruta) {
+        sb.storage.from('postulaciones').createSignedUrl(ruta, 3600).then(function (r) {
+          if (!r.data) return;
+          var i = new Image(); i.src = r.data.signedUrl; i.alt = '';
+          i.addEventListener('click', function () { $('lbImg').src = r.data.signedUrl; $('lb').classList.add('on'); });
+          box.appendChild(i);
+        });
+      });
+    });
+
+    document.querySelectorAll('[data-estado]').forEach(function (s) {
+      s.addEventListener('change', function () {
+        sb.from('applications').update({ estado: s.value }).eq('id', s.dataset.estado)
+          .then(function () { cargarPostulaciones(); });
+      });
+    });
+    document.querySelectorAll('[data-del-post]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('¿Eliminar esta postulación? No se puede deshacer.')) return;
+        sb.from('applications').delete().eq('id', b.dataset.delPost).then(cargarPostulaciones);
+      });
+    });
+  }
+  $('qPost').addEventListener('input', pintarPostulaciones);
+  $('fEstado').addEventListener('change', pintarPostulaciones);
+  $('lb').addEventListener('click', function () { $('lb').classList.remove('on'); });
+
+  /* ================= EMPRESAS ================= */
+  var emps = [];
+  function cargarEmpresas() {
+    sb.from('event_requests').select('*').order('created_at', { ascending:false })
+      .then(function (r) {
+        if (r.error) { $('listEmp').innerHTML = '<p class="empty">' + esc(r.error.message) + '</p>'; return; }
+        emps = r.data || []; pintarEmpresas();
+      });
+  }
+  function pintarEmpresas() {
+    var q = $('qEmp').value.toLowerCase().trim();
+    var l = emps.filter(function (e) { return !q || (e.empresa||'').toLowerCase().indexOf(q) > -1; });
+    $('cEmp').textContent = l.length + ' de ' + emps.length;
+    if (!l.length) { $('listEmp').innerHTML = '<p class="empty">No hay solicitudes.</p>'; return; }
+    $('listEmp').innerHTML = l.map(function (e) {
+      return '<div class="card">' +
+        '<h3>' + esc(e.empresa) + '</h3>' +
+        '<p class="meta">' + fecha(e.created_at) + (e.tipo ? ' · ' + esc(e.tipo) : '') + '</p>' +
+        '<span class="pill pill--' + esc(e.estado === 'cerrada' ? 'aceptada' : e.estado) + '">' + esc(e.estado.replace('_',' ')) + '</span>' +
+        '<dl class="kv" style="margin-top:12px">' +
+          (e.responsable ? '<dt>Contacto</dt><dd>' + esc(e.responsable) + '</dd>' : '') +
+          (e.whatsapp ? '<dt>WhatsApp</dt><dd><a href="https://wa.me/' + esc(String(e.whatsapp).replace(/\D/g,'')) + '" target="_blank" rel="noopener">' + esc(e.whatsapp) + '</a></dd>' : '') +
+          (e.email ? '<dt>Email</dt><dd><a href="mailto:' + esc(e.email) + '">' + esc(e.email) + '</a></dd>' : '') +
+          (e.fecha ? '<dt>Fecha</dt><dd>' + esc(e.fecha) + '</dd>' : '') +
+          (e.ciudad ? '<dt>Ciudad</dt><dd>' + esc(e.ciudad) + '</dd>' : '') +
+          (e.cantidad ? '<dt>Cantidad</dt><dd>' + e.cantidad + '</dd>' : '') +
+          (e.modelo ? '<dt>Modelo</dt><dd>' + esc(e.modelo) + '</dd>' : '') +
+        '</dl>' +
+        (e.perfil ? '<p style="font-size:13px;line-height:1.7;color:#41464E">' + esc(e.perfil) + '</p>' : '') +
+        '<div class="row">' +
+          '<select data-emp="' + e.id + '" style="min-width:150px">' +
+            ['nueva','en_revision','cerrada','descartada'].map(function (x) {
+              return '<option value="' + x + '"' + (e.estado===x?' selected':'') + '>' + x.replace('_',' ') + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="btn btn--sm btn--danger" data-del-emp="' + e.id + '" type="button">Eliminar</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    document.querySelectorAll('[data-emp]').forEach(function (s) {
+      s.addEventListener('change', function () {
+        sb.from('event_requests').update({ estado: s.value }).eq('id', s.dataset.emp).then(cargarEmpresas);
+      });
+    });
+    document.querySelectorAll('[data-del-emp]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('¿Eliminar esta solicitud?')) return;
+        sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(cargarEmpresas);
+      });
+    });
+  }
+  $('qEmp').addEventListener('input', pintarEmpresas);
+
+  /* ================= MODELOS ================= */
+  var mods = [];
+  function cargarModelos() {
+    sb.from('models').select('*').order('orden').order('nombre')
+      .then(function (r) {
+        if (r.error) { $('listMod').innerHTML = '<p class="empty">' + esc(r.error.message) + '</p>'; return; }
+        mods = r.data || []; pintarModelos();
+      });
+  }
+  function pintarModelos() {
+    var q = $('qMod').value.toLowerCase().trim();
+    var l = mods.filter(function (m) { return !q || (m.nombre||'').toLowerCase().indexOf(q) > -1; });
+    $('cMod').textContent = l.length + ' de ' + mods.length;
+    if (!l.length) { $('listMod').innerHTML = '<p class="empty">Todavía no hay modelos cargadas.</p>'; return; }
+    $('listMod').innerHTML = l.map(function (m) {
+      return '<div class="card">' +
+        (m.cover ? '<img src="' + esc(m.cover) + '" alt="" style="width:100%;aspect-ratio:3/4;object-fit:cover;margin-bottom:14px" />' : '') +
+        '<h3>' + esc(m.nombre) + '</h3>' +
+        '<p class="meta">' + (m.edad ? m.edad + ' años' : '') + (m.ciudad ? ' · ' + esc(m.ciudad) : '') + '</p>' +
+        '<span class="pill pill--' + (m.publicada ? 'aceptada' : 'descartada') + '">' + (m.publicada ? 'visible' : 'oculta') + '</span>' +
+        '<dl class="kv" style="margin-top:12px">' +
+          (m.altura ? '<dt>Altura</dt><dd>' + esc(m.altura) + '</dd>' : '') +
+          ((m.busto&&m.cintura&&m.cadera) ? '<dt>Medidas</dt><dd>' + m.busto + '-' + m.cintura + '-' + m.cadera + '</dd>' : '') +
+          '<dt>Fotos</dt><dd>' + ((m.fotos||[]).length) + '</dd>' +
+          '<dt>Orden</dt><dd>' + (m.orden==null?100:m.orden) + '</dd>' +
+        '</dl>' +
+        '<div class="row">' +
+          '<button class="btn btn--sm btn--ghost" data-edit="' + m.id + '" type="button">Editar</button>' +
+          '<button class="btn btn--sm btn--ghost" data-pub="' + m.id + '" type="button">' + (m.publicada ? 'Ocultar' : 'Publicar') + '</button>' +
+          '<button class="btn btn--sm btn--danger" data-del-mod="' + m.id + '" type="button">Eliminar</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    document.querySelectorAll('[data-edit]').forEach(function (b) {
+      b.addEventListener('click', function () { abrirEditor(mods.filter(function (x) { return x.id === b.dataset.edit; })[0]); });
+    });
+    document.querySelectorAll('[data-pub]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var m = mods.filter(function (x) { return x.id === b.dataset.pub; })[0];
+        sb.from('models').update({ publicada: !m.publicada }).eq('id', m.id).then(cargarModelos);
+      });
+    });
+    document.querySelectorAll('[data-del-mod]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('¿Eliminar esta modelo del sitio?')) return;
+        sb.from('models').delete().eq('id', b.dataset.delMod).then(cargarModelos);
+      });
+    });
+  }
+  $('qMod').addEventListener('input', pintarModelos);
+
+  function abrirEditor(m) {
+    m = m || {};
+    $('ovTitle').textContent = m.id ? 'Editar modelo' : 'Nueva modelo';
+    $('mId').value = m.id || '';
+    ['Nombre','Edad','Altura','Busto','Cintura','Cadera','Calce','Ciudad'].forEach(function (k) {
+      $('m' + k).value = m[k.toLowerCase()] == null ? '' : m[k.toLowerCase()];
+    });
+    $('mOrden').value = m.orden == null ? 100 : m.orden;
+    $('mPub').checked = m.publicada !== false;
+    $('mCover').value = ''; $('mFotos').value = ''; $('ovMsg').textContent = '';
+    $('ov').classList.add('on');
+  }
+  $('newModel').addEventListener('click', function () { abrirEditor(null); });
+  $('ovCancel').addEventListener('click', function () { $('ov').classList.remove('on'); });
+
+  function subir(file, carpeta) {
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var ruta = carpeta + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+    return sb.storage.from('modelos').upload(ruta, file, { upsert:false }).then(function (r) {
+      if (r.error) throw r.error;
+      return sb.storage.from('modelos').getPublicUrl(ruta).data.publicUrl;
+    });
+  }
+
+  $('modelForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var b = $('ovSave'); b.disabled = true; $('ovMsg').className = 'msg'; $('ovMsg').textContent = 'Guardando…';
+    var carpeta = slug($('mNombre').value);
+    var num = function (id) { var v = parseInt($(id).value, 10); return isNaN(v) ? null : v; };
+    var datos = {
+      nombre: $('mNombre').value.trim(),
+      edad: num('mEdad'), altura: $('mAltura').value.trim() || null,
+      busto: num('mBusto'), cintura: num('mCintura'), cadera: num('mCadera'),
+      calce: $('mCalce').value.trim() || null, ciudad: $('mCiudad').value.trim() || null,
+      orden: num('mOrden') == null ? 100 : num('mOrden'),
+      publicada: $('mPub').checked
+    };
+    var tareas = [];
+    if ($('mCover').files[0]) tareas.push(subir($('mCover').files[0], carpeta).then(function (u) { datos.cover = u; }));
+    var gal = Array.from($('mFotos').files || []);
+    if (gal.length) {
+      tareas.push(Promise.all(gal.map(function (f) { return subir(f, carpeta); })).then(function (us) { datos.fotos = us; }));
+    }
+
+    Promise.all(tareas).then(function () {
+      var id = $('mId').value;
+      return id ? sb.from('models').update(datos).eq('id', id) : sb.from('models').insert(datos);
+    }).then(function (r) {
+      b.disabled = false;
+      if (r && r.error) { $('ovMsg').textContent = 'No se pudo guardar: ' + r.error.message; return; }
+      $('ov').classList.remove('on'); cargarModelos();
+    }).catch(function (err) {
+      b.disabled = false;
+      $('ovMsg').textContent = 'No se pudo guardar: ' + (err.message || err);
+    });
+  });
+})();
+</script>
+</body>
+</html>

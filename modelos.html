@@ -156,10 +156,10 @@
   /* Credito de desarrollo */
   .ls-credit {
     font-size: 11px !important; letter-spacing: .18em !important;
-    text-transform: uppercase; color: var(--muted); transition: color .4s ease;
+    text-transform: uppercase; color: #5F636A; transition: color .4s ease;
   }
-  .ls-credit strong { font-weight: 500; color: #D8D8D8; transition: color .4s ease; }
-  .ls-credit:hover, .ls-credit:hover strong { color: #F7F7F4; }
+  .ls-credit strong { font-weight: 500; color: #161A21; transition: color .4s ease; }
+  .ls-credit:hover, .ls-credit:hover strong { color: #060606; }
 
   /* --- franja CTA --- */
   .band {
@@ -230,10 +230,15 @@
     .band { min-height: 130px; padding: 30px 18px; }
   }
 
+  /* Pie de pagina claro (igual que en index.html) */
+  footer a { color: #3C4048; transition: color .35s ease; }
+  footer a:hover { color: #060606; }
+  .ls-foot__base { border-top: 1px solid rgba(20,23,28,.14); color: #5F636A; }
+
   /* Rotulos del footer como chip: en gris pequenio se perdian */
   .fcol-h {
     display: inline-block; margin-bottom: 6px; padding: 7px 14px;
-    background: rgba(247,247,244,.12); border: 1px solid rgba(247,247,244,.22);
+    background: #161A21; border: 1px solid #161A21;
     border-radius: 999px;
     font-size: 11px !important; letter-spacing: .24em !important;
     text-transform: uppercase; color: #F7F7F4 !important; font-weight: 500 !important;
@@ -251,6 +256,7 @@
       <a href="index.html">Inicio</a>
       <a href="modelos.html" class="active">Modelos</a>
       <a href="index.html#nosotros">Nosotros</a>
+      <a href="index.html#academia">Academia</a>
       <a href="index.html#contacto">Contacto</a>
     </nav>
     <button type="button" class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
@@ -268,6 +274,7 @@
     <a href="index.html">Inicio</a>
     <a href="modelos.html">Modelos</a>
     <a href="index.html#nosotros">Nosotros</a>
+    <a href="index.html#academia">Academia</a>
     <a href="index.html#contacto">Contacto</a>
   </nav>
 </div>
@@ -305,32 +312,36 @@
   </a>
 </div>
 
-<footer style="background:var(--ink);color:var(--cream);padding:64px clamp(20px,4vw,48px) 44px;border-top:1px solid rgba(247,247,244,.14)">
+<footer style="background:#EDEBE6;color:#3C4048;padding:64px clamp(20px,4vw,48px) 44px;border-top:1px solid rgba(20,23,28,.14)">
   <div style="max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
-    <div>
-      <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto" />
+    <!-- Las dos areas, una al lado de la otra: agencia y escuela -->
+    <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+      <img src="assets/logo-black.png" alt="LS Model Management" style="height:78px;width:auto" />
+      <span aria-hidden="true" style="width:1px;height:52px;background:rgba(20,23,28,.18)"></span>
+      <a href="index.html#academia"><img src="assets/academy-black.png" alt="LS Model Academy" style="height:74px;width:auto;display:block" /></a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Navegación</span>
-      <a href="index.html" style="font-size:13px;color:#D8D8D8">Inicio</a>
-      <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
-      <a href="index.html#nosotros" style="font-size:13px;color:#D8D8D8">Nosotros</a>
+      <a href="index.html" style="font-size:13px">Inicio</a>
+      <a href="modelos.html" style="font-size:13px">Modelos</a>
+      <a href="index.html#nosotros" style="font-size:13px">Nosotros</a>
+      <a href="index.html#academia" style="font-size:13px">Academia</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Redes</span>
-      <a href="https://instagram.com/lsmodelacademy" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">Instagram</a>
-      <a href="index.html#contacto" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
-      <a href="mailto:contacto@lsmodelacademy.com" style="font-size:13px;color:#D8D8D8">Email</a>
+      <a href="https://instagram.com/lsmodelacademy" target="_blank" rel="noopener" style="font-size:13px">Instagram</a>
+      <a href="index.html#contacto" style="font-size:13px">WhatsApp</a>
+      <a href="mailto:contacto@lsmodelacademy.com" style="font-size:13px">Email</a>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <span class="fcol-h">Legal</span>
-      <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
-      <a href="index.html#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
+      <a href="privacidad.html" style="font-size:13px">Política de privacidad</a>
+      <a href="index.html#terminos" style="font-size:13px">Términos de uso</a>
     </div>
   </div>
 
-  <div style="max-width:1500px;margin:48px auto 0;padding-top:26px;border-top:1px solid rgba(216,216,216,.14);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
-    <span style="font-size:11px;color:var(--muted)">© <span id="year"></span> LS Model Management</span>
+  <div class="ls-foot__base" style="max-width:1500px;margin:48px auto 0;padding-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+    <span style="font-size:11px">© <span id="year"></span> LS Model Management</span>
     <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
       Desarrollado por <strong>Neura</strong>
     </a>
@@ -369,6 +380,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 <script>
 var U = 'uploads/', P = 'portada/';
 
@@ -467,12 +480,17 @@ var MODELS = [
 
   { name:'Zueli Vazquez', age:21, alt:'1,72', b:86, c:63, ca:92, ciudad:'Luque',
     cover:P+'Zuelli Vazquez 21 años.jpeg', pos:'center 52%', dir:'Zueli Vazquez',
-    fotos:['1000863508.jpg.jpeg','1000863510.jpg.jpeg','1000863513.jpg.jpeg','1000863514.jpg.jpeg','1000863515.jpg.jpeg','1000863517.jpg.jpeg'] }
+    // 1000863508.jpg.jpeg quedo afuera: pese al nombre es un HEIC de 512px
+    // (firma ftypheic) que ningun navegador puede mostrar.
+    fotos:['1000863510.jpg.jpeg','1000863513.jpg.jpeg','1000863514.jpg.jpeg','1000863515.jpg.jpeg','1000863517.jpg.jpeg'] }
 ];
 
 function pad(n){ return (n<10?'0':'')+n; }
-function enc(p){ return p.split('/').map(encodeURIComponent).join('/'); }
-function photo(m,f){ return enc(U + m.dir + '/' + f); }
+// Supabase devuelve URLs completas; las locales son rutas relativas que hay
+// que codificar por segmento, porque tienen espacios y acentos.
+function esURL(p){ return /^https?:\/\//i.test(String(p)); }
+function enc(p){ return esURL(p) ? p : String(p).split('/').map(encodeURIComponent).join('/'); }
+function photo(m,f){ return esURL(f) ? f : enc(U + m.dir + '/' + f); }
 function slug(s){
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
           .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -573,12 +591,19 @@ function openDetail(i, push){
     });
   };
 
+  // Si una foto no se puede mostrar (formato no soportado, archivo roto),
+  // se quita su miniatura en vez de dejar un hueco.
+  main.onerror = function(){
+    if (total > 1) showPhoto(photoIdx + 1);
+  };
+
   thumbs.innerHTML = '';
   m.fotos.forEach(function(f, k){
     var t = document.createElement('button');
     t.type = 'button'; t.className = 'thumb' + (k===0 ? ' sel' : '');
     t.setAttribute('aria-label', 'Foto ' + (k+1) + ' de ' + m.name);
     var ti = new Image(); ti.src = photo(m,f); ti.alt = ''; ti.loading = 'lazy';
+    ti.onerror = function(){ t.style.display = 'none'; };
     t.appendChild(ti);
     t.addEventListener('click', function(){ showPhoto(k); startPhotoCycle(total); });
     thumbs.appendChild(t);
@@ -710,8 +735,38 @@ document.addEventListener('keydown', function(e){
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') set(false); });
 })();
 
+/* Si Supabase esta configurado y tiene modelos cargadas, se usan esas.
+   Si no, se mantiene la lista escrita en este archivo: asi el sitio nunca
+   queda vacio por un problema de conexion. */
+function desdeSupabase(){
+  var sb = window.lsSupabase;
+  if (!sb) return Promise.resolve(null);
+  return sb.from('models').select('*').eq('publicada', true)
+    .order('orden').order('nombre')
+    .then(function(r){
+      if (r.error || !r.data || !r.data.length) return null;
+      return r.data.map(function(m){
+        return {
+          name: m.nombre, age: m.edad, alt: m.altura,
+          b: m.busto, c: m.cintura, ca: m.cadera,
+          calce: m.calce, vestido: m.vestido, pantalon: m.pantalon,
+          ciudad: m.ciudad,
+          cover: m.cover || (m.fotos && m.fotos[0]) || '',
+          pos: m.cover_pos || 'center 20%',
+          dir: '', fotos: (m.fotos && m.fotos.length) ? m.fotos : (m.cover ? [m.cover] : [])
+        };
+      }).filter(function(m){ return m.cover; });
+    })
+    .catch(function(){ return null; });
+}
+
 document.getElementById('year').textContent = new Date().getFullYear();
 renderGrid();
+desdeSupabase().then(function(remotas){
+  if (!remotas) return;             // se queda con la lista local
+  MODELS = remotas;
+  renderGrid();
+});
 tagAnimTargets();
 observe();
 window.addEventListener('scroll', onScroll, { passive:true });
