@@ -18,4 +18,6 @@ Desktop.ini
 
 # Dependencias / build
 node_modules/
+
+# Build de produccion (se regenera con: bash build.sh)
 dist/

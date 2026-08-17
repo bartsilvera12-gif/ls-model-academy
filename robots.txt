@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Fotos y fichas de las modelos: no se indexan
+Disallow: /uploads/
+Disallow: /portada/
+Disallow: /carousel/
+
+Disallow: /privacidad.html
+Disallow: /404.html

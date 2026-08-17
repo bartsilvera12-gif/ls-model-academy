@@ -65,21 +65,21 @@
   }
 
   /* Seccion nosotros con fondo Grainient (shader WebGL) */
-  #nosotros { position: relative; background: #2C313A; color: #F2F4FA; isolation: isolate; overflow: hidden; }
+  #nosotros { position: relative; background: #D9DBDE; color: #14171C; isolation: isolate; overflow: hidden; }
   #nosotros .grainient {
     position: absolute; inset: 0; z-index: 0; display: block;
     width: 100%; height: 100%; pointer-events: none;
   }
   /* Respaldo si no hay WebGL */
-  #nosotros.no-gl { background: linear-gradient(104deg, #262B33 0%, #20242B 34%, #2C313A 68%, #262B33 100%); }
+  #nosotros.no-gl { background: linear-gradient(104deg, #D6D9DD 0%, #CFD2D6 34%, #E4E6E9 68%, #D9DBDE 100%); }
   /* Velo entre el shader y el texto: sin el, el contraste queda en 3.2:1. */
   #nosotros::after {
     content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: rgba(12,15,20,.06);
+    background: rgba(255,255,255,.10);
   }
   #nosotros > * { position: relative; z-index: 2; }
   /* Marca de agua: el logo gigante sangrando por el borde derecho */
-  #nosotros .ls-mark {
+  #nosotros .ls-mark { filter: invert(1);
     position: absolute; z-index: 1; pointer-events: none;
     right: -24%; top: 50%; transform: translateY(-50%);
     height: min(112%, 900px); width: auto; max-width: none;
@@ -94,53 +94,53 @@
   }
   .ls-about__kicker {
     margin: 0 0 26px; font-family: 'Cormorant Garamond', serif; font-style: italic;
-    font-size: 19px; color: rgba(255,255,255,.86);
+    font-size: 19px; color: rgba(20,23,28,.72);
   }
   .ls-about__title {
     margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
     font-size: clamp(34px,5.2vw,72px); line-height: 1.06;
-    text-transform: uppercase; letter-spacing: .005em; color: #F2F4FA;
+    text-transform: uppercase; letter-spacing: .005em; color: #14171C;
   }
-  .ls-about__dash { display: block; width: 64px; height: 1px; background: rgba(242,244,250,.45); margin: 30px 0 30px; }
+  .ls-about__dash { display: block; width: 64px; height: 1px; background: rgba(20,23,28,.45); margin: 30px 0 30px; }
   .ls-about__body {
     margin: 0; max-width: 44ch; font-size: 15px; line-height: 1.95;
-    color: #FFFFFF; font-weight: 300; text-wrap: pretty;
+    color: #2A2F36; font-weight: 300; text-wrap: pretty;
   }
   .ls-about__mark { padding-top: 26px; }
   .ls-about__mark img { height: clamp(66px,6.4vw,104px); width: auto; opacity: .96; }
   .ls-about__mark p {
     margin: 22px 0 0; max-width: 26ch;
     font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
-    font-size: clamp(15px,1.35vw,19px); line-height: 1.5; color: #FFFFFF;
+    font-size: clamp(15px,1.35vw,19px); line-height: 1.5; color: #2A2F36;
   }
 
   /* Valores numerados automaticamente */
   .ls-values {
     display: grid; grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid rgba(242,244,250,.2);
+    border-top: 1px solid rgba(20,23,28,.26);
   }
   .ls-value {
     position: relative;
     padding: clamp(30px,4vh,46px) clamp(20px,2.2vw,34px) clamp(28px,3.6vh,44px);
   }
-  .ls-value + .ls-value { border-left: 1px solid rgba(242,244,250,.16); }
+  .ls-value + .ls-value { border-left: 1px solid rgba(20,23,28,.18); }
   .ls-value h3 {
     margin: 0 0 14px;
-    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #F2F4FA;
+    font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #14171C;
   }
-  .ls-value p { margin: 0; font-size: 13px; line-height: 1.9; color: #FFFFFF; font-weight: 300; }
+  .ls-value p { margin: 0; font-size: 13px; line-height: 1.9; color: #2A2F36; font-weight: 300; }
 
   @media (max-width: 1000px) {
     .ls-about__top { grid-template-columns: 1fr; }
     .ls-about__mark { padding-top: 4px; }
     .ls-values { grid-template-columns: repeat(2, 1fr); }
     .ls-value:nth-child(3) { border-left: none; }
-    .ls-value:nth-child(n+3) { border-top: 1px solid rgba(242,244,250,.16); }
-    #nosotros .ls-mark { right: -38%; opacity: .04; }
+    .ls-value:nth-child(n+3) { border-top: 1px solid rgba(20,23,28,.18); }
+    #nosotros .ls-mark { filter: invert(1); right: -38%; opacity: .04; }
   }
   @media (max-width: 620px) {
     .ls-values { grid-template-columns: 1fr; }
-    .ls-value + .ls-value { border-left: none; border-top: 1px solid rgba(242,244,250,.16); }
+    .ls-value + .ls-value { border-left: none; border-top: 1px solid rgba(20,23,28,.18); }
   }
   /* Círculos celestes de fondo */
   #nosotros .ls-c { position: absolute; z-index: 0 !important; border-radius: 50%; pointer-events: none; }
@@ -168,30 +168,30 @@
   /* Contacto: panel oscuro + panel claro a pantalla partida */
   .ls-ct { display: grid; grid-template-columns: 42% 58%; min-height: 88vh; }
   .ls-ct__left {
-    position: relative; overflow: hidden; background: #0B0B0B; color: #F7F7F4;
+    position: relative; overflow: hidden; background: #E7E5E0; color: #14171C;
     padding: clamp(64px,10vh,110px) clamp(28px,4vw,64px);
     display: flex; flex-direction: column; justify-content: center;
   }
   .ls-ct__mark {
     position: absolute; z-index: 0; pointer-events: none;
     left: -8%; bottom: -18%; height: min(78%, 660px); width: auto; max-width: none;
-    opacity: .085;
+    opacity: .09; filter: invert(1);
   }
   .ls-ct__lead { position: relative; z-index: 1; }
   .ls-ct__kicker {
     margin: 0 0 26px; font-family: 'Cormorant Garamond', serif; font-style: italic;
-    font-size: 19px; color: rgba(247,247,244,.72);
+    font-size: 19px; color: rgba(20,23,28,.7);
   }
   .ls-ct__title {
     margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
     font-size: clamp(36px,4.6vw,66px); line-height: 1.05;
-    text-transform: uppercase; letter-spacing: .005em; color: #F7F7F4;
+    text-transform: uppercase; letter-spacing: .005em; color: #14171C;
   }
-  .ls-ct__dash { display: block; width: 62px; height: 1px; background: rgba(247,247,244,.5); margin: 30px 0; }
-  .ls-ct__body { margin: 0; max-width: 34ch; font-size: 15px; line-height: 1.9; color: rgba(247,247,244,.78); font-weight: 300; }
+  .ls-ct__dash { display: block; width: 62px; height: 1px; background: rgba(20,23,28,.45); margin: 30px 0; }
+  .ls-ct__body { margin: 0; max-width: 34ch; font-size: 15px; line-height: 1.9; color: #2A2F36; font-weight: 300; }
 
   .ls-ct__right {
-    background: #F7F7F4; color: #050505;
+    background: #F2F1ED; color: #14171C;
     padding: clamp(64px,10vh,110px) clamp(28px,4vw,64px);
     display: flex; flex-direction: column; justify-content: center;
   }
@@ -231,14 +231,21 @@
   .ls-ct__cell { position: relative; padding: 0 clamp(14px,1.6vw,26px); color: #050505; }
   .ls-ct__cell:first-child { padding-left: 0; }
   .ls-ct__cell + .ls-ct__cell { border-left: 1px solid rgba(5,5,5,.16); }
-  .ls-ct__k { display: block; margin-bottom: 14px; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #8A8A8A; }
+  .ls-ct__k { display: block; margin-bottom: 14px; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #6A6E74; }
+  /* Subrayado permanente y sin desplazamiento: al moverse, el texto
+     quedaba a mitad de camino y no se llegaba a leer. */
   .ls-ct__v {
-    display: block; font-family: 'Cormorant Garamond', serif; font-weight: 300;
-    font-size: clamp(15px,1.5vw,21px); line-height: 1.3;
+    display: inline-block; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(15px,1.5vw,21px); line-height: 1.4;
     letter-spacing: normal; text-transform: none; word-break: break-word;
-    transition: transform .45s cubic-bezier(.2,.7,.2,1);
+    color: #14171C;
   }
-  .ls-ct__cell:not(.ls-ct__cell--static):hover .ls-ct__v { transform: translateX(6px); }
+  .ls-ct__cell:not(.ls-ct__cell--static) .ls-ct__v {
+    border-bottom: 1px solid rgba(20,23,28,.42);
+    padding-bottom: 3px;
+    transition: border-color .35s ease;
+  }
+  .ls-ct__cell:not(.ls-ct__cell--static):hover .ls-ct__v { border-bottom-color: #14171C; }
   .ls-ct__note { margin: clamp(28px,4vh,44px) 0 0; font-size: 12px; line-height: 1.85; color: #8A8A8A; font-weight: 300; }
 
   @media (max-width: 900px) {
@@ -332,6 +339,33 @@
   .ls-band:hover .ls-dash { width: 104px; }
   @media (max-width: 700px) { .ls-band::before, .ls-band::after, .ls-band .ls-halo { display: none; } }
 
+  /* Formulario: la barra ya NO es sticky. En el celular quedaba flotando
+     sobre los campos al deslizar. Ahora acompania el scroll. */
+  .ls-modal__bar {
+    position: relative; background: #14171C;
+    padding: 14px clamp(18px,5vw,30px);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .ls-modal__bar img { height: 44px; width: auto; }
+  .ls-modal__bar button {
+    width: 44px; height: 44px; background: none; border: 1px solid rgba(247,247,244,.3);
+    border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: #F7F7F4;
+    transition: background .3s ease, color .3s ease;
+  }
+  .ls-modal__bar button:hover { background: #F7F7F4; color: #14171C; }
+  /* Franja de acento bajo la barra, para que no sea un panel blanco liso */
+  .ls-modal__bar::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 4px;
+    background: linear-gradient(90deg, #B9C6D4 0%, #D8CFC4 38%, #C6BDD2 68%, #BFD1C9 100%);
+  }
+  .ls-modal { position: relative; }
+  .ls-modal::before {
+    content: ''; position: absolute; right: -14%; top: 8%;
+    width: 62%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle at 40% 40%, rgba(185,198,212,.42) 0%, rgba(185,198,212,0) 70%);
+  }
+  .ls-modal > *:not(.ls-modal__bar) { position: relative; z-index: 1; }
+
   /* Credito de desarrollo */
   .ls-credit {
     font-size: 11px !important; letter-spacing: .18em !important;
@@ -361,9 +395,23 @@
       justify-content: flex-start !important;
     }
     #dcModelos { min-height: 62vh; }
-    /* Hero: el video ocupa menos alto y los botones respiran */
-    #inicio { min-height: 88vh; }
-    #inicio .ls-inner { max-width: 100% !important; }
+    /* Hero en movil: el video deja de ser pantalla completa y los botones
+       pasan a estar DEBAJO, no encima. Superpuestos quedaban ilegibles. */
+    #inicio { height: auto !important; min-height: 0 !important; }
+    #inicio > video { position: relative !important; height: 62vh !important; }
+    /* El velo cubre solo el video, no el bloque de botones */
+    .hero-veil { height: 62vh !important; bottom: auto !important; }
+    /* Los botones pasan a estar DEBAJO del video: superpuestos sobre
+       las imagenes claras quedaban ilegibles. */
+    .hero-cta {
+      position: relative !important;
+      left: auto !important; right: auto !important; bottom: auto !important;
+      background: #060606;
+      padding: 30px clamp(22px,6vw,34px) 40px !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 20px !important;
+    }
   }
 
   @media (max-width: 620px) {
@@ -399,6 +447,15 @@
     html { scroll-behavior: auto; }
     [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
     *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  }
+
+  /* Rotulos del footer como chip: en gris pequenio se perdian */
+  .fcol-h {
+    display: inline-block; margin-bottom: 6px; padding: 7px 14px;
+    background: rgba(247,247,244,.12); border: 1px solid rgba(247,247,244,.22);
+    border-radius: 999px;
+    font-size: 11px !important; letter-spacing: .24em !important;
+    text-transform: uppercase; color: #F7F7F4 !important; font-weight: 500 !important;
   }
 </style>
 </helmet>
@@ -450,8 +507,8 @@
     <video id="heroVideo" autoplay muted loop playsinline disablepictureinpicture preload="auto" poster="hero-poster.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block;z-index:0">
       <source src="hero.mp4" type="video/mp4" />
     </video>
-    <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,6,.55) 0%,rgba(6,6,6,.12) 32%,rgba(6,6,6,.16) 68%,rgba(6,6,6,.7) 100%)"></div>
-    <div style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 clamp(24px,5vw,64px) clamp(44px,8vh,88px);display:flex;flex-wrap:wrap;gap:40px;animation:lsRise 1.2s cubic-bezier(.2,.7,.2,1) .3s both">
+    <div class="hero-veil" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,6,.55) 0%,rgba(6,6,6,.12) 32%,rgba(6,6,6,.16) 68%,rgba(6,6,6,.7) 100%)"></div>
+    <div class="hero-cta" style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 clamp(24px,5vw,64px) clamp(44px,8vh,88px);display:flex;flex-wrap:wrap;gap:40px;animation:lsRise 1.2s cubic-bezier(.2,.7,.2,1) .3s both">
       <a href="modelos.html" style="display:inline-flex;align-items:center;gap:16px;color:#F7F7F4;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.68">
         Conocer modelos
         <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #F7F7F4;border-radius:50%;font-size:13px">↗</span>
@@ -502,8 +559,8 @@
 
   <section id="nosotros" style="padding:clamp(80px,12vh,130px) clamp(24px,5vw,72px) clamp(80px,12vh,130px);overflow:hidden">
     <canvas class="grainient" id="grainientNosotros" aria-hidden="true"
-            data-color1="#20242B" data-color2="#2C313A" data-color3="#262B33"
-            data-time-speed="0.25" data-color-balance="0"
+            data-color1="#CFD2D6" data-color2="#E4E6E9" data-color3="#D6D9DD"
+            data-time-speed="0.5" data-color-balance="0"
             data-warp-strength="1" data-warp-frequency="5" data-warp-speed="2" data-warp-amplitude="50"
             data-blend-angle="0" data-blend-softness="0.05" data-rotation-amount="500"
             data-noise-scale="2" data-grain-amount="0.05" data-grain-scale="2" data-grain-animated="0"
@@ -575,42 +632,25 @@
     </div>
   </section>
 
-  <div style="background:#F7F7F4">
-    <button type="button" class="ls-band" onClick="{{ openApply }}" aria-label="Quiero formar parte">
-      <span class="ls-halo" aria-hidden="true"></span>
-      <span class="ls-sheen" aria-hidden="true"></span>
-      <span class="ls-inner" style="width:100%;max-width:1100px">
-        <span class="mh" id="mhBand"
-              data-masked="Quiero formar parte"
-              data-media="video" data-src="hero.mp4" data-poster="hero-poster.jpg"
-              data-fill-scale="1.25" data-parallax="26" data-drift="18"
-              data-reveal="rise" data-duration="1.1" data-stagger="0.09"
-              data-text-scale="0.115" data-weight="600" data-tracking="-0.01"
-              aria-hidden="true"></span>
-        <span class="ls-dash" aria-hidden="true"></span>
-      </span>
-    </button>
-  </div>
-
   <footer style="padding:60px 20px 40px;border-top:1px solid rgba(216,216,216,.14)">
     <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
       <div>
         <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto;display:block" />
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
-        <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A">Navegación</span>
+        <span class="fcol-h">Navegación</span>
         <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Inicio</a>
         <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
         <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Nosotros</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
-        <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A">Redes</span>
+        <span class="fcol-h">Redes</span>
         <a href="{{ igLink }}" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">Instagram</a>
         <a href="{{ waLink }}" target="_blank" rel="noopener" style="font-size:13px;color:#D8D8D8">WhatsApp</a>
         <a href="{{ mailLink }}" style="font-size:13px;color:#D8D8D8">Email</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
-        <span style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A">Legal</span>
+        <span class="fcol-h">Legal</span>
         <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
         <a href="#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
       </div>
@@ -672,10 +712,10 @@
 
   <sc-if value="{{ modal }}" hint-placeholder-val="{{ false }}">
     <div role="dialog" aria-modal="true" style="position:fixed;inset:0;z-index:100;background:rgba(5,5,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:0;animation:lsFade .3s ease both">
-      <div style="width:100%;max-width:600px;background:#F7F7F4;color:#050505;margin:auto;min-height:100%;animation:lsRise .5s cubic-bezier(.2,.7,.2,1) both">
-        <div style="position:sticky;top:0;background:rgba(247,247,244,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(5,5,5,.12);padding:10px 18px;display:flex;align-items:center;justify-content:space-between">
-          <img src="assets/logo-black.png" alt="LS Model Management" style="height:42px;width:auto" />
-          <button type="button" onClick="{{ closeModal }}" aria-label="Cerrar formulario" style="width:44px;height:44px;background:none;border:none;font-size:26px;line-height:1;cursor:pointer">×</button>
+      <div class="ls-modal" style="width:100%;max-width:640px;background:#F2F1ED;color:#14171C;margin:auto;min-height:100%;animation:lsRise .5s cubic-bezier(.2,.7,.2,1) both">
+        <div class="ls-modal__bar">
+          <img src="assets/logo-white.png" alt="LS Model Management" />
+          <button type="button" onClick="{{ closeModal }}" aria-label="Cerrar formulario">×</button>
         </div>
         <div style="padding:28px 18px 60px">
           <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
@@ -870,7 +910,9 @@
       cardWidth: 420, cardHeight: 560, radius: 0, tint: '#0d0b09',
       depth: 220, spread: 90, tilt: 22, tiltDirection: 'right',
       visibleCards: 4, falloff: 0.2, blur: 6, duration: 700,
-      loop: true, autoplay: true, autoplayDelay: 3500,
+      // Sin avance automatico: los perfiles cambiaban antes de poder leerlos.
+      // Se navega con las flechas, arrastrando o con la rueda del mouse.
+      loop: true, autoplay: false,
       onChange: function (i) { idx = i; paint(true); }
     });
     if (carousel) el.dataset.dcReady = '1';
