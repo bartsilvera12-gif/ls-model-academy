@@ -52,6 +52,24 @@ for f in portada/*; do
   shrink "$f" "$OUT/$f" 900 4
 done
 
+echo "==> New Faces/ a 1400px"
+for d in "New Faces"/*/; do
+  [ -d "$d" ] || continue
+  mkdir -p "$OUT/$d"
+  for f in "$d"*; do
+    [ -f "$f" ] || continue
+    case "$f" in *Datos.txt) continue;; esac
+    sig=$(head -c 4 "$f" | od -An -tx1 | tr -d " 
+")
+    case "$sig" in
+      ffd8ff*|89504e47|52494646) ;;
+      *) echo "    ! no es una imagen web, se omite: $f"; continue;;
+    esac
+    base="${f##*/}"
+    shrink "$f" "$OUT/$d$base" 1400 4
+  done
+done
+
 echo "==> uploads/ a 1400px (galeria del detalle)"
 for d in uploads/*/; do
   [ -d "$d" ] || continue

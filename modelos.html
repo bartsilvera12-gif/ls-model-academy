@@ -674,7 +674,37 @@ var MODELS = [
     cover:P+'Zuelli Vazquez 21 años.jpeg', pos:'center 52%', dir:'Zueli Vazquez',
     // 1000863508.jpg.jpeg quedo afuera: pese al nombre es un HEIC de 512px
     // (firma ftypheic) que ningun navegador puede mostrar.
-    fotos:['1000863510.jpg.jpeg','1000863513.jpg.jpeg','1000863514.jpg.jpeg','1000863515.jpg.jpeg','1000863517.jpg.jpeg'] }
+    fotos:['1000863510.jpg.jpeg','1000863513.jpg.jpeg','1000863514.jpg.jpeg','1000863515.jpg.jpeg','1000863517.jpg.jpeg'] },
+  /* ---------- New Faces Models ---------- */
+  { name:'Anahí Mosqueira', age:17, alt:'1,62', b:89, c:69, ca:86, calce:'37', ciudad:'Asunción',
+    seg:'newface', base:'New Faces/', dir:'Anahí Mosqueira',
+    cover:'New Faces/Anahí Mosqueira/_MG_3492.JPEG', pos:'center 18%',
+    fotos:['_MG_3492.JPEG','IMG_3501_Original.jpg.jpeg','IMG_3505_Original.jpg.jpeg','IMG_3506_Original.jpg.jpeg'] },
+
+  { name:'Dahiana Riquelme', age:20, alt:'1,67', b:83, c:64, ca:94, ciudad:'Villa Elisa',
+    seg:'newface', base:'New Faces/', dir:'Dahiana Riquelme',
+    cover:'New Faces/Dahiana Riquelme/IMG_7209.JPG.jpeg', pos:'center 20%',
+    fotos:['IMG_7209.JPG.jpeg','IMG_7211.JPG.jpeg','IMG_7214.JPG.jpeg','IMG_7222.JPG.jpeg','IMG_9948.JPG.jpeg','IMG_9949.JPG.jpeg','IMG_9952.JPG.jpeg'] },
+
+  { name:'Dulce Ramírez', age:16, alt:'1,65', b:75, c:60, ca:86, ciudad:'Mariano Roque Alonso',
+    seg:'newface', base:'New Faces/', dir:'Dulce Ramirez',
+    cover:'New Faces/Dulce Ramirez/WhatsApp Image 2026-08-18 at 11.06.57 (1).jpeg', pos:'center 18%',
+    fotos:['WhatsApp Image 2026-08-18 at 11.06.57 (1).jpeg','WhatsApp Image 2026-08-18 at 11.06.57.jpeg','WhatsApp Image 2026-08-18 at 11.06.58.jpeg'] },
+
+  { name:'Jenifer Segovia', age:19, alt:'1,60', b:83, c:63, ca:88, ciudad:'Asunción',
+    seg:'newface', base:'New Faces/', dir:'Jenifer Segovia',
+    cover:'New Faces/Jenifer Segovia/WhatsApp Image 2026-08-18 at 11.22.36 (1).jpeg', pos:'center 20%',
+    fotos:['WhatsApp Image 2026-08-18 at 11.22.36 (1).jpeg','WhatsApp Image 2026-08-18 at 11.22.36 (2).jpeg','WhatsApp Image 2026-08-18 at 11.22.36 (3).jpeg','WhatsApp Image 2026-08-18 at 11.22.36.jpeg'] },
+
+  { name:'Luz López', age:20, alt:'1,80', b:88, c:74, ca:97, calce:'40', vestido:'P/M', pantalon:'40/42', ciudad:'San Lorenzo',
+    seg:'newface', base:'New Faces/', dir:'Luz López',
+    cover:'New Faces/Luz López/1.JPEG', pos:'center 18%',
+    fotos:['1.JPEG','2.JPEG','3.JPEG','4.JPEG','5.JPEG','6.JPEG','7.JPEG','8.JPEG'] },
+
+  { name:'Meliza Villalba', age:18, alt:'1,73', b:80, c:65, ca:92, ciudad:'Luque',
+    seg:'newface', base:'New Faces/', dir:'Meliza Villalba',
+    cover:'New Faces/Meliza Villalba/WhatsApp Image 2026-08-18 at 11.06.27.jpeg', pos:'center 18%',
+    fotos:['WhatsApp Image 2026-08-18 at 11.06.27.jpeg','WhatsApp Image 2026-08-18 at 11.06.27 (1).jpeg','WhatsApp Image 2026-08-18 at 11.06.28.jpeg','WhatsApp Image 2026-08-18 at 11.06.28 (1).jpeg','WhatsApp Image 2026-08-18 at 11.06.28 (2).jpeg','WhatsApp Image 2026-08-18 at 11.06.28 (3).jpeg','WhatsApp Image 2026-08-18 at 11.06.28 (4).jpeg','WhatsApp Image 2026-08-18 at 11.06.29.jpeg','WhatsApp Image 2026-08-18 at 11.06.56.jpeg','WhatsApp Image 2026-08-18 at 11.06.56 (1).jpeg','WhatsApp Image 2026-08-18 at 11.06.57.jpeg','WhatsApp Image 2026-08-18 at 11.06.57 (1).jpeg'] }
 ];
 
 function pad(n){ return (n<10?'0':'')+n; }
@@ -682,7 +712,7 @@ function pad(n){ return (n<10?'0':'')+n; }
 // que codificar por segmento, porque tienen espacios y acentos.
 function esURL(p){ return /^https?:\/\//i.test(String(p)); }
 function enc(p){ return esURL(p) ? p : String(p).split('/').map(encodeURIComponent).join('/'); }
-function photo(m,f){ return esURL(f) ? f : enc(U + m.dir + '/' + f); }
+function photo(m,f){ return esURL(f) ? f : enc((m.base || U) + m.dir + '/' + f); }
 
 /* Supabase redimensiona al vuelo. Las fotos estan guardadas a 1400 px y la
    grilla las muestra a ~400: pedir el original es tirar bytes y tiempo de

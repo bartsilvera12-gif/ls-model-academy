@@ -1,0 +1,8 @@
+Nombre y apellido: Dulce Ramírez
+Edad: 16
+Medidas:
+Busto 75
+Cintura 60
+Cadera 86
+Altura 1.65
+Ciudad: Mariano Roque Alonso

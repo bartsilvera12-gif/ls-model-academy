@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Importar modelos — IS Model Management</title>
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root { --ink:#14171C; --paper:#F7F7F4; --card:#fff; --line:rgba(20,23,28,.14); --muted:#6B6F76; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:'Jost',Helvetica,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; padding:40px 20px 80px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:38px; margin:0 0 6px; }
+  .sub { margin:0 0 30px; color:var(--muted); font-size:14px; }
+  .box { background:var(--card); border:1px solid var(--line); padding:22px 24px; margin-bottom:18px; }
+  .box h2 { margin:0 0 12px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; }
+  .btn {
+    min-height:46px; padding:0 24px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    font:inherit; font-size:11px; letter-spacing:.2em; text-transform:uppercase; cursor:pointer;
+  }
+  .btn--ghost { background:transparent; color:var(--ink); }
+  .btn:disabled { opacity:.45; cursor:default; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .aviso { background:#FDF3DA; border:1px solid #E8D5A0; padding:16px 18px; font-size:13px; line-height:1.8; }
+  .mal { background:#FCE8E8; border:1px solid #E8B4B4; padding:16px 18px; font-size:13px; line-height:1.8; }
+  .bien { background:#E3F5EA; border:1px solid #A8D8BC; padding:16px 18px; font-size:13px; line-height:1.8; }
+  ul { margin:8px 0 0; padding-left:20px; font-size:13px; line-height:1.9; }
+  code { background:#F0F0EE; padding:2px 6px; font-size:12px; }
+  .barra { height:6px; background:#E6E6E3; margin:14px 0 8px; }
+  .barra span { display:block; height:6px; background:var(--ink); width:0; transition:width .3s ease; }
+  .cont { font-size:12px; color:var(--muted); }
+  #log {
+    margin-top:16px; max-height:420px; overflow-y:auto; background:#0E1116; color:#C6CBD3;
+    padding:14px 16px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; line-height:1.7;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  #log b { color:#fff; }
+  #log .ok { color:#7BD3A0; }
+  #log .err { color:#F09B9B; }
+  #log .skip { color:#D9C57E; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Importar modelos</h1>
+  <p class="sub">Carga a Supabase las modelos que hoy están escritas en <code>modelos.html</code>, con sus fotografías. <span id="ver" style="opacity:.6"></span></p>
+
+  <div class="box" id="estado"><h2>Estado</h2><p class="cont">Comprobando…</p></div>
+
+  <div class="box">
+    <h2>Cómo funciona</h2>
+    <ul>
+      <li>Los datos se leen de <code>modelos.html</code>, así no hay dos listas que puedan quedar desfasadas.</li>
+      <li>Cada fotografía se reescala a <b>1400 px</b> en el navegador antes de subirse, para no cargar los originales de hasta 6 MB.</li>
+      <li>Las fotos van al bucket público <code>modelos</code>; las fichas, a <code>ismodel.models</code>.</li>
+      <li>Entran en el <b>segmento que elijas</b> arriba, en el mismo orden en que se ven hoy.</li>
+      <li>Si una modelo ya existe en la base (mismo nombre), se <b>omite</b>: se puede volver a ejecutar sin duplicar.</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>Ejecutar</h2>
+    <div class="row">
+      <label style="display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)">
+        Segmento
+        <select id="segmento" style="min-height:40px;padding:0 10px;font:inherit;font-size:13px;letter-spacing:normal;text-transform:none;border:1px solid var(--line);background:#fff">
+          <option value="staff">Staff Models</option>
+          <option value="newface" selected>New Faces Models</option>
+          <option value="scouting">Scouted Models</option>
+        </select>
+      </label>
+      <button class="btn btn--ghost" id="probar" type="button">Probar conexión</button>
+      <button class="btn btn--ghost" id="simular" type="button">Simular (no escribe nada)</button>
+      <button class="btn" id="importar" type="button">Importar de verdad</button>
+    </div>
+    <div class="barra"><span id="barra"></span></div>
+    <p class="cont" id="progreso">Sin ejecutar.</p>
+    <div id="log" hidden></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var sb = window.lsSupabase;
+  var $ = function (id) { return document.getElementById(id); };
+  // Sirve para confirmar de un vistazo que no se esta ejecutando una
+  // version vieja cacheada del archivo.
+  var VERSION = 'v3 · con selector de segmento';
+  var SEG_IDS = ['staff','newface','scouting'];
+  var MAX_LADO = 1400;      // ningun lado supera esto
+  var CALIDAD = 0.82;       // JPEG
+
+  function log(txt, clase) {
+    var d = $('log'); d.hidden = false;
+    var s = document.createElement('span');
+    if (clase) s.className = clase;
+    s.textContent = txt + '\n';
+    d.appendChild(s); d.scrollTop = d.scrollHeight;
+  }
+  function slug(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+  // Las rutas locales llevan espacios y tildes: hay que codificarlas.
+  function enc(p) { return String(p).split('/').map(encodeURIComponent).join('/'); }
+
+  /* ---------- estado inicial ---------- */
+  if ($('ver')) $('ver').textContent = '(' + VERSION + ')';
+
+  function pintarEstado(html, clase) {
+    $('estado').innerHTML = '<h2>Estado</h2><div class="' + (clase || 'cont') + '">' + html + '</div>';
+  }
+
+  if (!sb) {
+    pintarEstado('Falta completar <code>supabase-config.js</code> con la URL y la anon key.', 'mal');
+    $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
+    return;
+  }
+
+  var sesion = null;
+  sb.auth.getSession().then(function (r) {
+    sesion = r && r.data && r.data.session;
+    if (!sesion) {
+      pintarEstado('No hay sesión abierta. Entrá primero en <a href="admin.html">admin.html</a> y volvé a esta página.', 'mal');
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
+      return;
+    }
+    return sb.from('models').select('nombre').then(function (r2) {
+      if (r2.error) {
+        pintarEstado('No se pudo leer la tabla: ' + r2.error.message, 'mal');
+        $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
+        return;
+      }
+      var n = (r2.data || []).length;
+      pintarEstado(
+        'Sesión: <b>' + sesion.user.email + '</b><br />' +
+        'Modelos ya cargadas en Supabase: <b>' + n + '</b>' +
+        (n ? '<br />Las que coincidan por nombre se van a omitir.' : ''),
+        n ? 'aviso' : 'bien'
+      );
+    });
+  });
+
+  /* ---------- los datos salen de modelos.html ---------- */
+  function leerModelos() {
+    return fetch('modelos.html?v=' + Date.now()).then(function (r) {
+      if (!r.ok) throw new Error('no se pudo leer modelos.html (' + r.status + ')');
+      return r.text();
+    }).then(function (html) {
+      var m = html.match(/var MODELS = (\[[\s\S]*?\n\];)/);
+      if (!m) throw new Error('no se encontro el listado dentro de modelos.html');
+      // U y P son los prefijos de carpeta que usa el propio listado.
+      var fn = new Function('U', 'P', 'return ' + m[1].replace(/;$/, ''));
+      var arr = fn('uploads/', 'portada/');
+      // Solo las del segmento elegido: el listado trae los tres bloques.
+      var quiero = document.getElementById('segmento').value;
+      arr = arr.filter(function(m){
+        return (SEG_IDS.indexOf(m.seg) > -1 ? m.seg : 'staff') === quiero;
+      });
+      if (!Array.isArray(arr) || !arr.length) throw new Error('el listado vino vacio');
+      return arr;
+    });
+  }
+
+  /* ---------- reescalado en el navegador ---------- */
+  function reducir(url) {
+    return new Promise(function (res, rej) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        if (!w || !h) return rej(new Error('imagen vacia'));
+        var f = Math.min(1, MAX_LADO / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(w * f); cv.height = Math.round(h * f);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        cv.toBlob(function (b) {
+          if (!b) return rej(new Error('no se pudo convertir'));
+          res({ blob: b, ancho: cv.width, alto: cv.height });
+        }, 'image/jpeg', CALIDAD);
+      };
+      img.onerror = function () { rej(new Error('LECTURA: el navegador no pudo abrir el archivo local')); };
+      img.src = enc(url);
+    });
+  }
+
+  function subir(blob, ruta) {
+    if (typeof window.lsSubirArchivo !== 'function') {
+      return Promise.reject(new Error('SUBIDA: falta window.lsSubirArchivo. La pagina quedo con una version vieja: recargala con Ctrl+Shift+R.'));
+    }
+    return window.lsSubirArchivo('modelos', ruta, blob, 'image/jpeg').then(function () {
+      return window.lsUrlPublica('modelos', ruta);
+    }, function (e) {
+      throw new Error('SUBIDA: ' + (e.message || e));
+    });
+  }
+
+  /* ---------- el proceso ---------- */
+  var corriendo = false;
+
+  function ejecutar(simulacion) {
+    if (corriendo) return;
+    if (!simulacion && !confirm(
+      'Se van a subir las fotos y crear las fichas en Supabase.\n\n' +
+      'Importante: en cuanto haya modelos publicadas en la base, la pagina ' +
+      'del sitio deja de usar la lista del HTML y muestra solo lo que este ' +
+      'en Supabase.\n\n¿Seguir?'
+    )) return;
+
+    corriendo = true;
+    $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
+    $('log').innerHTML = ''; $('log').hidden = false;
+    log(simulacion ? '=== SIMULACION: no se escribe nada ===' : '=== IMPORTACION REAL ===');
+
+    var existentes = {};
+    var resumen = { creadas: 0, omitidas: 0, fallidas: 0, fotos: 0, bytes: 0 };
+
+    sb.from('models').select('nombre').then(function (r) {
+      (r.data || []).forEach(function (x) { existentes[slug(x.nombre)] = true; });
+      return leerModelos();
+    }).then(function (lista) {
+      log('Modelos en modelos.html: ' + lista.length);
+      log('');
+
+      var i = 0;
+      function siguiente() {
+        if (i >= lista.length) return Promise.resolve();
+        var m = lista[i], n = i + 1;
+        i++;
+        $('barra').style.width = Math.round(n / lista.length * 100) + '%';
+        $('progreso').textContent = 'Modelo ' + n + ' de ' + lista.length + ' — ' + m.name;
+
+        if (existentes[slug(m.name)]) {
+          log('[' + n + '/' + lista.length + '] ' + m.name + ' → ya existe, se omite', 'skip');
+          resumen.omitidas++;
+          return siguiente();
+        }
+
+        var carpeta = slug(m.name) || 'modelo-' + n;
+        // La portada va aparte de la galeria, igual que en el sitio.
+        var rutas = [];
+        if (m.cover) rutas.push({ tipo: 'cover', url: m.cover });
+        (m.fotos || []).forEach(function (f) {
+          rutas.push({ tipo: 'foto', url: (m.base || 'uploads/') + m.dir + '/' + f });
+        });
+
+        log('[' + n + '/' + lista.length + '] ' + m.name + ' — ' + rutas.length + ' imagen(es)');
+
+        var subidas = { cover: null, fotos: [] };
+        var j = 0;
+        function siguienteFoto() {
+          if (j >= rutas.length) return Promise.resolve();
+          var it = rutas[j]; j++;
+          return reducir(it.url).then(function (red) {
+            resumen.bytes += red.blob.size;
+            if (simulacion) {
+              log('      ' + it.tipo + ': ' + red.ancho + 'x' + red.alto + ' · ' + Math.round(red.blob.size/1024) + ' KB (simulado)');
+              if (it.tipo === 'cover') subidas.cover = 'simulado'; else subidas.fotos.push('simulado');
+              resumen.fotos++;
+              return siguienteFoto();
+            }
+            var destino = carpeta + '/' + (it.tipo === 'cover' ? 'portada' : 'g' + String(subidas.fotos.length + 1).padStart(2, '0')) + '-' + Date.now() + '.jpg';
+            return subir(red.blob, destino).then(function (url) {
+              if (it.tipo === 'cover') subidas.cover = url; else subidas.fotos.push(url);
+              resumen.fotos++;
+              log('      ' + it.tipo + ' subida: ' + red.ancho + 'x' + red.alto + ' · ' + Math.round(red.blob.size/1024) + ' KB', 'ok');
+              return siguienteFoto();
+            });
+          }).catch(function (e) {
+            // El paso viene etiquetado desde reducir() o subir(), asi se sabe
+            // si fallo la lectura del archivo local o la subida a Supabase.
+            log('      ! ' + it.tipo + ' omitida (' + it.url + ')', 'err');
+            log('        causa: ' + (e.message || e), 'err');
+            return siguienteFoto();
+          });
+        }
+
+        return siguienteFoto().then(function () {
+          if (!subidas.cover && !subidas.fotos.length) {
+            log('      ! sin ninguna imagen usable, se saltea la ficha', 'err');
+            resumen.fallidas++;
+            return siguiente();
+          }
+          var fila = {
+            nombre: m.name,
+            edad: m.age == null ? null : m.age,
+            altura: m.alt || null,
+            busto: m.b == null ? null : m.b,
+            cintura: m.c == null ? null : m.c,
+            cadera: m.ca == null ? null : m.ca,
+            calce: m.calce || null,
+            vestido: m.vestido || null,
+            pantalon: m.pantalon || null,
+            ciudad: m.ciudad || null,
+            cover: subidas.cover || subidas.fotos[0] || null,
+            cover_pos: m.pos || 'center 20%',
+            fotos: subidas.fotos.length ? subidas.fotos : (subidas.cover ? [subidas.cover] : []),
+            orden: n * 10,
+            segmento: document.getElementById('segmento').value,
+            origen: 'importacion',
+            publicada: true
+          };
+          if (simulacion) {
+            log('      ficha (simulada): orden ' + fila.orden + ', ' + fila.fotos.length + ' foto(s) en galeria', 'ok');
+            resumen.creadas++;
+            return siguiente();
+          }
+          return sb.from('models').insert(fila).then(function (r) {
+            if (r.error) throw r.error;
+            log('      ficha creada', 'ok');
+            resumen.creadas++;
+            return siguiente();
+          }).catch(function (e) {
+            log('      ! no se pudo crear la ficha: ' + (e.message || e), 'err');
+            resumen.fallidas++;
+            return siguiente();
+          });
+        });
+      }
+      return siguiente();
+    }).then(function () {
+      log('');
+      log('=== FIN ===');
+      log('creadas: ' + resumen.creadas + '   omitidas: ' + resumen.omitidas + '   fallidas: ' + resumen.fallidas);
+      log('imagenes procesadas: ' + resumen.fotos + '   total: ' + (resumen.bytes/1048576).toFixed(1) + ' MB');
+      if (!simulacion) log('Revisá el sitio y el panel. Si algo quedó mal, se puede borrar desde la pestaña Modelos.');
+      $('progreso').textContent = 'Terminado. ' + resumen.creadas + ' creada(s), ' + resumen.omitidas + ' omitida(s), ' + resumen.fallidas + ' con error.';
+      corriendo = false;
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = false;
+    }).catch(function (e) {
+      log('');
+      log('!! se corto: ' + (e.message || e), 'err');
+      $('progreso').textContent = 'Se cortó por un error.';
+      corriendo = false;
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = false;
+    });
+  }
+
+  /* Una subida real, chiquita, para ver exactamente donde falla. */
+  $('probar').addEventListener('click', function () {
+    $('log').innerHTML = ''; $('log').hidden = false;
+    log('=== PRUEBA DE CONEXION ===');
+    log('ayudante de subida: ' + typeof window.lsSubirArchivo);
+    if (typeof window.lsSubirArchivo !== 'function') {
+      log('! La pagina quedo con una version vieja. Recargala con Ctrl+Shift+R.', 'err');
+      return;
+    }
+    sb.auth.getSession().then(function (r) {
+      var ses = r && r.data && r.data.session;
+      log('sesion: ' + (ses ? ses.user.email : 'NINGUNA'), ses ? 'ok' : 'err');
+      if (ses) {
+        var t = ses.expires_at ? new Date(ses.expires_at * 1000) : null;
+        log('token vence: ' + (t ? t.toLocaleString() : '?') + (t && t < new Date() ? '  ← VENCIDO' : ''), t && t < new Date() ? 'err' : '');
+      }
+      // 1. leer una imagen local
+      return reducir('portada/Fiona Otiñano 23 años.jpeg').then(function (red) {
+        log('lectura y reescalado: OK — ' + red.ancho + 'x' + red.alto + ', ' + Math.round(red.blob.size/1024) + ' KB', 'ok');
+        // 2. subirla de verdad
+        var ruta = 'prueba-conexion/' + Date.now() + '.jpg';
+        return window.lsSubirArchivo('modelos', ruta, red.blob, 'image/jpeg').then(function () {
+          log('subida al bucket modelos: OK — ' + ruta, 'ok');
+          log('');
+          log('Todo en orden. Se puede importar.', 'ok');
+        }, function (e) {
+          log('subida al bucket modelos: FALLA', 'err');
+          log('  ' + (e.message || e), 'err');
+          log('');
+          log('Si dice "Failed to fetch", el navegador corto la peticion antes de salir (CORS).', 'err');
+          log('Si dice HTTP 4xx, llego al servidor y la rechazo: mirá el texto de la respuesta.', 'err');
+        });
+      }, function (e) {
+        log('lectura: FALLA — ' + (e.message || e), 'err');
+      });
+    });
+  });
+
+  $('simular').addEventListener('click', function () { ejecutar(true); });
+  $('importar').addEventListener('click', function () { ejecutar(false); });
+})();
+</script>
+</body>
+</html>

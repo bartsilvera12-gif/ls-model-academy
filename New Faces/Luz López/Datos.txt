@@ -1,0 +1,13 @@
+Datos para subir: 
+Nombre y apellido: Luz López 
+Edad: 20 
+Medidas 
+Busto: 88 cm 
+Cintura: 74 cm
+Cadera: 97 cm
+Blusa: P, M 
+Pantalón: 40/42
+Vestido: P,M 
+Calce: 40
+Altura: 1.80 m
+Ciudad: San Lorenzo

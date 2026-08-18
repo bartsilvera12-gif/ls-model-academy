@@ -1,0 +1,8 @@
+Nombre y apellido: Meliza Villalba 
+Edad: 18 años 
+Medidas:
+Busto:80
+Cintura: 65
+Cadera:92
+Altura:1.73
+Ciudad: Luque
