@@ -52,7 +52,16 @@
   .nav a.active { font-weight: 500; }
 
   /* --- grid --- */
-  .card { display: block; width: 100%; padding: 0; border: none; background: none; cursor: pointer; text-align: left; position: relative; }
+  .card {
+    display: block; width: 100%; padding: 0; border: none; background: none;
+    cursor: pointer; text-align: left; position: relative;
+    /* Con 27 tarjetas altas, saltear el pintado de las que estan fuera
+       de pantalla es lo que mas se nota al desplazarse. El tamanio
+       estimado evita que la barra de scroll salte. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 620px;
+  }
+  .card[hidden] { display: none; }
   .frame { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; background: var(--paper-2); }
   .frame img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.02); transition: transform 1.1s cubic-bezier(.2,.7,.2,1), filter .7s ease; }
   .card:hover .frame img { transform: scale(1.045); filter: grayscale(0) contrast(1); }
@@ -674,6 +683,17 @@ function pad(n){ return (n<10?'0':'')+n; }
 function esURL(p){ return /^https?:\/\//i.test(String(p)); }
 function enc(p){ return esURL(p) ? p : String(p).split('/').map(encodeURIComponent).join('/'); }
 function photo(m,f){ return esURL(f) ? f : enc(U + m.dir + '/' + f); }
+
+/* Supabase redimensiona al vuelo. Las fotos estan guardadas a 1400 px y la
+   grilla las muestra a ~400: pedir el original es tirar bytes y tiempo de
+   decodificacion. Una portada baja de 92 KB a 42 KB pidiendola a 600.
+   Las rutas locales (sin Supabase) se devuelven tal cual. */
+function alAncho(url, ancho){
+  if (!url || !esURL(url)) return url;
+  if (url.indexOf('/object/public/') < 0) return url;
+  return url.replace('/object/public/', '/render/image/public/') +
+         '?width=' + ancho + '&quality=72';
+}
 function slug(s){
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
           .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -699,10 +719,14 @@ function tarjeta(m, indiceGlobal, posEnBloque){
   b.style.transitionDelay = (posEnBloque%3)*0.09 + 's';
 
   var img = new Image();
-  img.src = enc(m.cover); img.alt = m.name;
+  img.alt = m.name;
   img.loading = posEnBloque<6 ? 'eager' : 'lazy'; img.decoding = 'async';
   img.style.objectPosition = m.pos;
   img.onerror = function(){ b.style.display = 'none'; };
+  // El src se asigna al final, despues de insertar: si se pone antes de
+  // que el nodo este en el documento, loading='lazy' no tiene efecto y
+  // el navegador descarga las 27 de una.
+  b.__src = alAncho(enc(m.cover), 600);
 
   var frame = document.createElement('div'); frame.className = 'frame';
   var num = document.createElement('span'); num.className = 'num'; num.textContent = pad(posEnBloque+1);
@@ -717,6 +741,7 @@ function tarjeta(m, indiceGlobal, posEnBloque){
 
   var rule = document.createElement('div'); rule.className = 'rule';
   b.appendChild(frame); b.appendChild(meta); b.appendChild(rule);
+  b.__img = img;
   return b;
 }
 
@@ -724,30 +749,46 @@ function tarjeta(m, indiceGlobal, posEnBloque){
 function normalizar(t){
   return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
-function coincide(m, q){
-  if (!q) return true;
-  var heno = normalizar([m.name, m.ciudad].filter(Boolean).join(' '));
-  // Todas las palabras tienen que aparecer: "cielo asu" encuentra a
-  // Cielo si es de Asuncion, y no a cualquiera que tenga una sola.
-  return normalizar(q).split(/\s+/).filter(Boolean).every(function(t){ return heno.indexOf(t) > -1; });
+
+/* La grilla se arma UNA vez. Buscar solo muestra y esconde: reconstruirla
+   en cada tecla creaba 27 nodos y 27 imagenes nuevas, y se notaba. */
+function renderGrid(){
+  SEGMENTOS.forEach(function(seg){
+    var grid = document.getElementById(seg.grid);
+    grid.innerHTML = '';
+    var n = 0;
+    MODELS.forEach(function(m, i){
+      if (segDe(m) !== seg.id) return;
+      var b = tarjeta(m, i, n);
+      b.__buscable = normalizar([m.name, m.ciudad].filter(Boolean).join(' '));
+      grid.appendChild(b);
+      // Recien ahora, con el nodo ya en el documento, loading='lazy' sirve.
+      if (b.__img && b.__src) b.__img.src = b.__src;
+      n++;
+    });
+  });
+  document.getElementById('count').textContent = MODELS.length;
+  aplicarFiltro();
 }
 
-function renderGrid(){
+function aplicarFiltro(){
   var campo = document.getElementById('buscar');
-  var q = campo ? campo.value.trim() : '';
+  var q = campo ? normalizar(campo.value.trim()) : '';
+  var terminos = q.split(/\s+/).filter(Boolean);
   var visibles = 0;
 
   SEGMENTOS.forEach(function(seg){
     var grid = document.getElementById(seg.grid);
     var vacio = document.getElementById(seg.vacio);
-    grid.innerHTML = '';
-    var n = 0, total = 0;
-    MODELS.forEach(function(m, i){
-      if (segDe(m) !== seg.id) return;
-      total++;
-      if (!coincide(m, q)) return;
-      grid.appendChild(tarjeta(m, i, n));
-      n++;
+    var n = 0;
+    Array.prototype.forEach.call(grid.children, function(b){
+      var pasa = terminos.every(function(t){ return b.__buscable.indexOf(t) > -1; });
+      b.hidden = !pasa;
+      if (pasa) {
+        n++;
+        var num = b.querySelector('.num');
+        if (num) num.textContent = n < 10 ? '0' + n : String(n);
+      }
     });
     visibles += n;
     document.getElementById(seg.cuenta).textContent = n;
@@ -761,17 +802,16 @@ function renderGrid(){
       // Buscando, el bloque vacio dice otra cosa: no es que no haya
       // perfiles, es que ninguno coincide.
       vacio.hidden = n > 0;
-      if (!n && q) { vacio.dataset.original = vacio.dataset.original || vacio.innerHTML; vacio.textContent = 'Ninguna coincidencia en este bloque.'; }
+      if (!n && terminos.length) { vacio.dataset.original = vacio.dataset.original || vacio.innerHTML; vacio.textContent = 'Ninguna coincidencia en este bloque.'; }
       else if (vacio.dataset.original) { vacio.innerHTML = vacio.dataset.original; }
     }
   });
 
-  document.getElementById('count').textContent = MODELS.length;
   var nota = document.getElementById('notaBusqueda');
   var limpiar = document.getElementById('limpiar');
-  if (limpiar) limpiar.hidden = !q;
+  if (limpiar) limpiar.hidden = !terminos.length;
   if (nota) {
-    nota.hidden = !q;
+    nota.hidden = !terminos.length;
     nota.textContent = visibles === 1 ? '1 modelo encontrada' : visibles + ' modelos encontradas';
   }
   observe();
@@ -789,12 +829,12 @@ document.querySelectorAll('.segnav__b').forEach(function(b){
   var campo = document.getElementById('buscar');
   var limpiar = document.getElementById('limpiar');
   if (!campo) return;
-  campo.addEventListener('input', renderGrid);
+  campo.addEventListener('input', aplicarFiltro);
   campo.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') { campo.value = ''; renderGrid(); }
+    if (e.key === 'Escape') { campo.value = ''; aplicarFiltro(); }
   });
   if (limpiar) limpiar.addEventListener('click', function(){
-    campo.value = ''; campo.focus(); renderGrid();
+    campo.value = ''; campo.focus(); aplicarFiltro();
   });
 })();
 
@@ -851,7 +891,7 @@ function openDetail(i, push){
   // Cambia la foto principal y sincroniza miniatura + contador.
   showPhoto = function(k){
     photoIdx = ((k % total) + total) % total;
-    main.src = photo(m, m.fotos[photoIdx]);
+    main.src = alAncho(photo(m, m.fotos[photoIdx]), 1200);
     // Reinicia la animacion de entrada para que cada cambio haga fundido.
     main.style.animation = 'none'; void main.offsetWidth; main.style.animation = '';
     count.textContent = pad(photoIdx+1) + ' / ' + pad(total);
@@ -871,13 +911,13 @@ function openDetail(i, push){
     var t = document.createElement('button');
     t.type = 'button'; t.className = 'thumb' + (k===0 ? ' sel' : '');
     t.setAttribute('aria-label', 'Foto ' + (k+1) + ' de ' + m.name);
-    var ti = new Image(); ti.src = photo(m,f); ti.alt = ''; ti.loading = 'lazy';
+    var ti = new Image(); ti.src = alAncho(photo(m,f), 200); ti.alt = ''; ti.loading = 'lazy';
     ti.onerror = function(){ t.style.display = 'none'; };
     t.appendChild(ti);
     t.addEventListener('click', function(){ showPhoto(k); startPhotoCycle(total); });
     thumbs.appendChild(t);
   });
-  main.src = photo(m, m.fotos[0]);
+  main.src = alAncho(photo(m, m.fotos[0]), 1200);
   main.alt = m.name;
   count.textContent = pad(1) + ' / ' + pad(total);
   startPhotoCycle(total);
