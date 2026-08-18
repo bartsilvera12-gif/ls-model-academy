@@ -9,8 +9,8 @@
  * NUNCA pegar aca la "service_role key": esa saltea todas las politicas.
  */
 window.LS_SUPABASE = {
-  url: '',      // ej: https://abcdefghijkl.supabase.co
-  anonKey: ''   // ej: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+  url: 'https://api.neura.com.py/',      // ej: https://abcdefghijkl.supabase.co
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc0MTAxNDYxLCJleHAiOjE5MzE3ODE0NjF9.7_wAph8IolPMXtgfpezSwS5XR62IdD__qhqCywLDp3Q'   // ej: eyJhbGciOiJIUzI1NiIsInR5cCI6...
 };
 
 /* Las tablas NO estan en "public" sino en un schema propio.

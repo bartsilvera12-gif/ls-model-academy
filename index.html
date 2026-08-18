@@ -1900,10 +1900,15 @@ class Component extends DCLogic {
       }
     };
     // Enlace directo al formulario desde otras paginas: index.html#postular
-    if (typeof location !== 'undefined' && location.hash === '#postular') {
-      setTimeout(() => this.openModal('apply'), 0);
+    this._abrirPorHash = () => {
+      if (location.hash !== '#postular') return;
+      this.openModal('apply');
+      // Se limpia el hash para que al recargar no se vuelva a abrir.
       if (history.replaceState) history.replaceState(null, '', location.pathname);
-    }
+    };
+    setTimeout(this._abrirPorHash, 0);
+    // Si la pagina ya estaba abierta, el hash cambia sin recargar.
+    window.addEventListener('hashchange', this._abrirPorHash);
 
     document.addEventListener('input', this._onField, true);
     document.addEventListener('change', this._onField, true);
@@ -1930,6 +1935,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('hashchange', this._abrirPorHash);
     document.removeEventListener('input', this._onField, true);
     document.removeEventListener('change', this._onField, true);
     if (this._io) this._io.disconnect();
@@ -2118,7 +2124,10 @@ class Component extends DCLogic {
       presentacion: txt(payload.presentacion),
       fotos: rutas.filter(Boolean),
       tutor: txt(payload.tutor), tutor_wa: txt(payload.tutorWa),
-      tutor_auth: !!payload.tutorAuth
+      tutor_auth: !!payload.tutorAuth,
+      // Todo lo que entra por el formulario del sitio es scouting.
+      // Desde el panel se puede mover a otro bloque.
+      segmento: 'scouting'
     })).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
   }
 
@@ -2166,7 +2175,7 @@ class Component extends DCLogic {
 
     const copy = {
       hire: { kicker: 'Solicitud corporativa', title: 'Solicitar modelos', sub: 'Contanos sobre tu evento o producción y te enviamos una propuesta con los perfiles adecuados.', cta: 'Enviar solicitud', done: 'Recibimos tu solicitud. Te contactamos con la propuesta de perfiles.', note: 'Un aviso interno queda registrado para el equipo de IS Model Management. La notificación por correo y WhatsApp se activa al configurar las credenciales.' },
-      apply: { kicker: 'Postulación', title: 'Quiero formar parte', sub: 'Completá tus datos y adjuntá fotografías actuales sin filtros. Tu postulación se mantiene privada.', cta: 'Enviar postulación', done: 'Recibimos tu postulación correctamente. Nuestro equipo revisará tu perfil y se comunicará contigo.', note: 'Ninguna postulación se publica en el sitio. Las fotografías quedan en almacenamiento privado con enlaces temporales.' },
+      apply: { kicker: 'Scouting Models', title: 'Cargar mis datos', sub: 'Completá tus datos y adjuntá fotografías actuales sin filtros. Tu postulación entra al proceso de scouting y se mantiene privada.', cta: 'Enviar mis datos', done: 'Recibimos tus datos correctamente. Nuestro equipo revisará tu perfil y se comunicará contigo.', note: 'Nada se publica automáticamente. Las fotografías quedan en almacenamiento privado y solo se publican si el equipo te incorpora a Scouting Models.' },
       academy: { kicker: 'Academia', title: 'Consultar por la academia', sub: 'Dejanos tus datos y te enviamos la información de la formación disponible.', cta: 'Enviar consulta', done: 'Recibimos tu consulta. Te enviamos la información de la academia a la brevedad.', note: 'Programas, fechas y aranceles se confirman por WhatsApp o correo.' }
     };
     const c = copy[s.modal] || copy.apply;

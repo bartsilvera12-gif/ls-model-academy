@@ -274,6 +274,11 @@
     return;
   }
 
+  // Los tres bloques del sitio. Se declara arriba porque lo usan tanto
+  // las postulaciones como las modelos.
+  var SEGS = { staff: 'Modelos Staff', newface: 'New Face Model', scouting: 'Scouting Models' };
+  function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
+
   var esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
@@ -355,6 +360,8 @@
         '<h3>' + esc(p.nombre) + (menor ? '<span class="pill pill--menor">Menor</span>' : '') + '</h3>' +
         '<p class="meta">' + fecha(p.created_at) + (p.ciudad ? ' · ' + esc(p.ciudad) : '') + '</p>' +
         '<span class="pill pill--' + esc(p.estado) + '">' + esc(p.estado.replace('_',' ')) + '</span>' +
+        '<span class="pill pill--seg">' + (SEGS[p.segmento] || 'Scouting') + '</span>' +
+        (p.model_id ? '<span class="pill pill--aceptada" style="margin-left:6px">en el sitio</span>' : '') +
         '<dl class="kv" style="margin-top:12px">' +
           (p.edad ? '<dt>Edad</dt><dd>' + p.edad + '</dd>' : '') +
           (p.altura ? '<dt>Altura</dt><dd>' + esc(p.altura) + '</dd>' : '') +
@@ -374,6 +381,14 @@
               return '<option value="' + e + '"' + (p.estado===e?' selected':'') + '>' + e.replace('_',' ') + '</option>';
             }).join('') +
           '</select>' +
+          '<select data-seg-post="' + p.id + '" style="min-width:150px">' +
+            Object.keys(SEGS).map(function (k) {
+              return '<option value="' + k + '"' + ((p.segmento||'scouting')===k?' selected':'') + '>' + SEGS[k] + '</option>';
+            }).join('') +
+          '</select>' +
+          (p.model_id
+            ? '<span class="meta" style="margin:0">Ya publicada</span>'
+            : '<button class="btn btn--sm" data-pub-post="' + p.id + '" type="button">Publicar en el sitio</button>') +
           '<button class="btn btn--sm btn--danger" data-del-post="' + p.id + '" type="button">Eliminar</button>' +
         '</div>' +
       '</div>';
@@ -398,6 +413,18 @@
           .then(function () { cargarPostulaciones(); });
       });
     });
+    document.querySelectorAll('[data-seg-post]').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        sb.from('applications').update({ segmento: sel.value }).eq('id', sel.dataset.segPost)
+          .then(cargarPostulaciones);
+      });
+    });
+    document.querySelectorAll('[data-pub-post]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var post = posts.filter(function (x) { return x.id === b.dataset.pubPost; })[0];
+        if (post) publicarPostulacion(post, b);
+      });
+    });
     document.querySelectorAll('[data-del-post]').forEach(function (b) {
       b.addEventListener('click', function () {
         if (!confirm('¿Eliminar esta postulación? No se puede deshacer.')) return;
@@ -407,6 +434,73 @@
   }
   $('qPost').addEventListener('input', pintarPostulaciones);
   $('fEstado').addEventListener('change', pintarPostulaciones);
+  /* ---------- de postulacion a ficha publicada ----------
+     Las fotos de las postulaciones viven en un bucket PRIVADO. Para
+     que se vean en el sitio hay que copiarlas al bucket publico: no
+     alcanza con referenciar la ruta original. */
+  function publicarPostulacion(post, boton) {
+    var menor = post.edad && post.edad < 18;
+    var aviso = '¿Publicar a ' + post.nombre + ' en ' + (SEGS[post.segmento] || 'Scouting Models') + '?\n\n' +
+                'Se copian sus fotos al almacenamiento publico. La ficha se crea OCULTA: ' +
+                'hay que revisarla y publicarla desde la pestania Modelos.';
+    if (menor) {
+      aviso += '\n\n\u26A0 ES MENOR DE EDAD (' + post.edad + ' anios).' +
+               (post.tutor_auth ? ' Figura autorizacion del tutor.' : ' NO figura autorizacion del tutor.');
+    }
+    if (!confirm(aviso)) return;
+
+    boton.disabled = true;
+    var textoOriginal = boton.textContent;
+    boton.textContent = 'Copiando fotos…';
+
+    var carpeta = slug(post.nombre) || 'scouting';
+    var rutas = (post.fotos || []).filter(Boolean);
+
+    // Se bajan del bucket privado y se suben al publico, en orden.
+    var copias = rutas.map(function (ruta, i) {
+      return sb.storage.from('postulaciones').download(ruta).then(function (r) {
+        if (r.error || !r.data) return null;
+        var ext = (ruta.split('.').pop() || 'jpg').toLowerCase();
+        var destino = carpeta + '/' + Date.now() + '-' + (i + 1) + '.' + ext;
+        return sb.storage.from('modelos').upload(destino, r.data, { upsert: false }).then(function (u) {
+          if (u.error) return null;
+          return sb.storage.from('modelos').getPublicUrl(destino).data.publicUrl;
+        });
+      }).catch(function () { return null; });
+    });
+
+    Promise.all(copias).then(function (urls) {
+      var fotos = urls.filter(Boolean);
+      if (rutas.length && !fotos.length) throw new Error('no se pudo copiar ninguna foto');
+      boton.textContent = 'Creando ficha…';
+      return sb.from('models').insert({
+        nombre: post.nombre,
+        edad: post.edad,
+        altura: post.altura,
+        ciudad: post.ciudad,
+        segmento: post.segmento || 'scouting',
+        origen: 'postulacion',
+        cover: fotos[0] || null,
+        fotos: fotos,
+        orden: 100,
+        // Nace oculta a proposito: nadie llega al sitio sin revision.
+        publicada: false
+      }).select('id').single();
+    }).then(function (r) {
+      if (r.error) throw r.error;
+      return sb.from('applications')
+        .update({ model_id: r.data.id, estado: 'aceptada' })
+        .eq('id', post.id);
+    }).then(function () {
+      alert('Listo. La ficha quedo creada y OCULTA en ' + (SEGS[post.segmento] || 'Scouting Models') + '.\n' +
+            'Revisala en la pestania Modelos y publicala cuando corresponda.');
+      cargarPostulaciones(); cargarModelos();
+    }).catch(function (err) {
+      boton.disabled = false; boton.textContent = textoOriginal;
+      alert('No se pudo publicar: ' + (err.message || err));
+    });
+  }
+
   $('lb').addEventListener('click', function () { $('lb').classList.remove('on'); });
 
   /* ================= EMPRESAS ================= */
@@ -463,8 +557,6 @@
   $('qEmp').addEventListener('input', pintarEmpresas);
 
   /* ================= MODELOS ================= */
-  var SEGS = { staff: 'Modelos Staff', newface: 'New Face Model', scouting: 'Scouting Models' };
-  function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
   var mods = [];
   function cargarModelos() {
     sb.from('models').select('*').order('segmento').order('orden').order('nombre')

@@ -94,6 +94,18 @@
   }
   /* Con el bloque vacio la grilla no debe dejar un hueco */
   .grid:empty { display: none; }
+  /* Acceso al formulario de scouting: visible haya o no perfiles */
+  .seg__cta {
+    display: inline-flex; align-items: center; gap: 18px;
+    margin-top: clamp(26px,4vh,42px); padding: 18px 28px;
+    background: var(--ink); color: var(--cream);
+    font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+    transition: background .4s ease, color .4s ease;
+    border: 1px solid var(--ink);
+  }
+  .seg__cta:hover { background: transparent; color: var(--ink); }
+  .seg__cta-a { transition: transform .4s cubic-bezier(.2,.7,.2,1); }
+  .seg__cta:hover .seg__cta-a { transform: translateX(6px); }
 
   /* --- detalle --- */
   #detail { position: fixed; inset: 0; z-index: 90; background: var(--paper); overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
@@ -358,7 +370,11 @@
         </div>
       </div>
       <div class="grid" id="gridScout"></div>
-      <p class="seg__empty" id="emptyScout" hidden>Todavía no hay perfiles publicados en este bloque. <a href="index.html#postular" style="border-bottom:1px solid currentColor">Postulate acá</a>.</p>
+      <p class="seg__empty" id="emptyScout" hidden>Todavía no hay perfiles publicados en este bloque. Si querés que te consideremos, cargá tus datos.</p>
+      <a class="seg__cta" href="index.html#postular">
+        <span>Cargar mis datos</span>
+        <span class="seg__cta-a" aria-hidden="true">&rarr;</span>
+      </a>
     </div>
 
   </div>
