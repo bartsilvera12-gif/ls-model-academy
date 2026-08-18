@@ -643,7 +643,7 @@
     </div>
     <div class="ls-md" style="display:grid;grid-template-columns:38% 62%;min-height:92vh;position:relative;z-index:1">
       <div class="ls-md__txt" style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
-        <p id="heroKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">Modelo destacada / 01</p>
+        <p id="heroKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">Staff profesional / 01</p>
         <h3 id="heroName" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease">FIONA<br />OTIÑANO</h3>
         <p id="heroAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease">23 años</p>
         <div style="display:flex;flex-direction:column;gap:22px;margin-top:48px">
@@ -914,26 +914,26 @@
                   <div>
                     <sc-if value="{{ f.isCheck }}" hint-placeholder-val="{{ false }}">
                       <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:6px 0;min-height:44px">
-                        <input type="checkbox" checked="{{ f.checked }}" onChange="{{ f.onCheck }}" style="width:20px;height:20px;margin-top:2px;accent-color:#050505;flex:0 0 auto" />
+                        <input type="checkbox" data-f="{{ f.id }}" checked="{{ f.checked }}" onChange="{{ f.onCheck }}" style="width:20px;height:20px;margin-top:2px;accent-color:#050505;flex:0 0 auto" />
                         <span style="font-size:13px;line-height:1.55;color:#8A8A8A;font-weight:300">{{ f.label }}</span>
                       </label>
                     </sc-if>
                     <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}">
                       <label style="display:flex;flex-direction:column;gap:8px">
                         <span style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#8A8A8A">{{ f.label }}</span>
-                        <input type="{{ f.type }}" inputmode="{{ f.inputMode }}" autocomplete="{{ f.autoComplete }}" value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="min-height:48px;padding:0 2px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;border-radius:0" style-focus="border-bottom-color:#050505" />
+                        <input type="{{ f.type }}" data-f="{{ f.id }}" inputmode="{{ f.inputMode }}" autocomplete="{{ f.autoComplete }}" value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="min-height:48px;padding:0 2px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;border-radius:0" style-focus="border-bottom-color:#050505" />
                       </label>
                     </sc-if>
                     <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
                       <label style="display:flex;flex-direction:column;gap:8px">
                         <span style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#8A8A8A">{{ f.label }}</span>
-                        <textarea rows="3" value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="padding:12px 2px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;resize:vertical;border-radius:0" style-focus="border-bottom-color:#050505"></textarea>
+                        <textarea rows="3" data-f="{{ f.id }}" value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="padding:12px 2px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;resize:vertical;border-radius:0" style-focus="border-bottom-color:#050505"></textarea>
                       </label>
                     </sc-if>
                     <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}">
                       <label style="display:flex;flex-direction:column;gap:8px">
                         <span style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#8A8A8A">{{ f.label }}</span>
-                        <select value="{{ f.value }}" onChange="{{ f.onChange }}" style="min-height:48px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;border-radius:0;padding:0 2px">
+                        <select data-f="{{ f.id }}" value="{{ f.value }}" onChange="{{ f.onChange }}" style="min-height:48px;background:transparent;border:none;border-bottom:1px solid rgba(5,5,5,.28);font-size:16px;font-weight:300;outline:none;border-radius:0;padding:0 2px">
                           <option value="">Seleccionar</option>
                           <sc-for list="{{ f.options }}" as="o" hint-placeholder-count="3">
                             <option value="{{ o }}">{{ o }}</option>
@@ -944,7 +944,7 @@
                     <sc-if value="{{ f.isFile }}" hint-placeholder-val="{{ false }}">
                       <label style="display:flex;flex-direction:column;gap:10px">
                         <span style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#8A8A8A">{{ f.label }}</span>
-                        <input type="file" accept="image/*" multiple onChange="{{ f.onFiles }}" style="font-size:13px;font-weight:300;padding:12px 0;border-bottom:1px solid rgba(5,5,5,.28)" />
+                        <input type="file" data-f="{{ f.id }}" accept="image/*" multiple onChange="{{ f.onFiles }}" style="font-size:13px;font-weight:300;padding:12px 0;border-bottom:1px solid rgba(5,5,5,.28)" />
                         <span style="font-size:12px;color:#8A8A8A;font-weight:300">{{ f.fileNote }}</span>
                       </label>
                     </sc-if>
@@ -978,9 +978,11 @@
 <script>
 (function () {
   const HERO_MODELS = [
+    { name: 'Esther Kuhnen', age: 24, dir: 'Esther Kuhnen', file: 'WhatsApp Image 2026-08-18 at 08.07.27.jpeg', pos: 'center 15%' },
     { name: 'Fiona Otiñano', age: 23, file: 'Fiona Otiñano 23 años.jpeg', pos: 'center 20%' },
     { name: 'Alejandra Ortiz', age: 18, file: 'Alejandra Ortiz 18 años.jpeg', pos: 'center 6%' },
     { name: 'Anahí Ledezma', age: 17, file: 'Anahí Ledezma 17 años.jpeg', pos: 'center 22%' },
+    { name: 'Amy Benitez', age: null, dir: 'Amy Benitez', file: '5DA66058-AFCF-490D-9A80-9B622FBC6361.JPG.jpeg', pos: 'center 15%' },
     { name: 'Antonia Lüdicke', age: 20, file: 'Antonia Lüdicke 20 años.jpeg', pos: 'center 25%' },
     { name: 'Araceli Cano', age: 18, file: 'Araceli Cano 18 años.jpeg', pos: 'center 20%' },
     { name: 'Belén Ramírez', age: 20, dir: 'Belén Ramírez', file: 'IMG_4659.PNG', pos: 'center 15%' },
@@ -1045,7 +1047,7 @@
       ageEl.textContent = m.age ? m.age + ' AÑOS' : '';
       ageEl.style.display = m.age ? '' : 'none';
       if (kickerEl) {
-        kickerEl.textContent = 'Modelo destacada / ' + (idx + 1 < 10 ? '0' : '') + (idx + 1);
+        kickerEl.textContent = 'Staff profesional / ' + (idx + 1 < 10 ? '0' : '') + (idx + 1);
         kickerEl.style.opacity = '1';
       }
       nameEl.style.opacity = '1';
@@ -1877,7 +1879,43 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
-    this._onResize = () => this.setState({ width: window.innerWidth });
+    this._onField = (e) => {
+      const el = e.target;
+      if (!el || !el.getAttribute) return;
+      const id = el.getAttribute('data-f');
+      if (!id) return;
+      const v = el.type === 'checkbox' ? el.checked
+              : el.type === 'file' ? Array.from(el.files || [])
+              : el.value;
+      // Mutacion directa a proposito: setState aca re-renderiza el
+      // formulario en cada pulsacion y se pierde el foco y el texto.
+      this.state.vals[id] = v;
+      if (this.state.errors[id]) {
+        this.state.errors[id] = '';
+        const caja = el.closest('div');
+        if (caja) {
+          const msg = caja.querySelector('p');
+          if (msg && /obligatorio|válid|necesario|Adjuntá/i.test(msg.textContent)) msg.remove();
+        }
+      }
+    };
+    // Enlace directo al formulario desde otras paginas: index.html#postular
+    if (typeof location !== 'undefined' && location.hash === '#postular') {
+      setTimeout(() => this.openModal('apply'), 0);
+      if (history.replaceState) history.replaceState(null, '', location.pathname);
+    }
+
+    document.addEventListener('input', this._onField, true);
+    document.addEventListener('change', this._onField, true);
+
+    this._onResize = () => {
+      // Al abrir el teclado en un celular se dispara resize. Si eso
+      // re-renderiza, se borra todo lo escrito: solo interesa el salto
+      // entre movil y escritorio.
+      const w = window.innerWidth;
+      const cruzaElCorte = (w < 900) !== (this.state.width < 900);
+      if (cruzaElCorte) this.setState({ width: w });
+    };
     window.addEventListener('resize', this._onResize);
     this._seen = new WeakSet();
     this._io = new IntersectionObserver((entries) => {
@@ -1892,6 +1930,8 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this._onResize);
+    document.removeEventListener('input', this._onField, true);
+    document.removeEventListener('change', this._onField, true);
     if (this._io) this._io.disconnect();
     if (this._netTimer) clearInterval(this._netTimer);
   }
@@ -2098,6 +2138,7 @@ class Component extends DCLogic {
 
     const defs = s.modal ? this.fieldDefs(s.modal) : [];
     const fields = defs.map((d) => ({
+      id: d.id,
       label: d.label,
       type: d.kind === 'number' ? 'number' : d.kind === 'date' ? 'date' : d.kind === 'tel' ? 'tel' : d.kind === 'email' ? 'email' : 'text',
       inputMode: d.mode || 'text',

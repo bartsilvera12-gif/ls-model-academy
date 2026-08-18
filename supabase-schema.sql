@@ -72,12 +72,26 @@ create table if not exists public.models (
   ciudad      text,
   cover       text,                   -- URL publica de la portada
   cover_pos   text default 'center 20%',
-  fotos       text[] default '{}',    -- URLs publicas de la galeria
+  fotos       text[] default '{}',    -- URLs publicas de la galeria, en el orden
+                                     -- que define el panel: primero el book
+                                     -- profesional, despues los trabajos nuevos
   orden       int  default 100,
+  -- Bloque del sitio en el que aparece, cada uno se muestra por separado:
+  --   staff    = staff profesional de la agencia
+  --   newface  = caras nuevas del casting de LS Model Academy
+  --   scouting = scouting y postulaciones recibidas desde la web
+  segmento    text not null default 'staff',
   publicada   boolean default true
 );
 
-create index if not exists models_orden_idx on public.models (publicada, orden, nombre);
+-- La columna y su restriccion se declaran aparte para que este archivo
+-- se pueda volver a ejecutar sobre una base ya creada sin dar error.
+alter table public.models add column if not exists segmento text not null default 'staff';
+alter table public.models drop constraint if exists models_segmento_chk;
+alter table public.models add constraint models_segmento_chk
+  check (segmento in ('staff','newface','scouting'));
+
+create index if not exists models_orden_idx on public.models (publicada, segmento, orden, nombre);
 create index if not exists applications_fecha_idx on public.applications (created_at desc);
 create index if not exists event_requests_fecha_idx on public.event_requests (created_at desc);
 

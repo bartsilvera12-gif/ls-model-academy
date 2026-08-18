@@ -1,0 +1,4 @@
+Medidas
+Busto: 84
+Cintura: 60
+Cadera: 100

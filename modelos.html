@@ -71,6 +71,30 @@
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(22px,3.4vw,54px); }
   .grid > *:nth-child(3n+2) { transform: translateY(46px); }
 
+  /* --- bloques de segmento: staff y new face no se mezclan --- */
+  .seg + .seg { margin-top: clamp(90px,14vh,170px); }
+  .seg__head {
+    display: grid; grid-template-columns: repeat(auto-fit,minmax(290px,1fr));
+    gap: clamp(20px,4vw,60px); align-items: flex-end;
+    padding-bottom: clamp(26px,4vh,44px); margin-bottom: clamp(34px,5.5vh,64px);
+    border-bottom: 1px solid var(--ink);
+  }
+  .seg__title {
+    margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(30px,4.4vw,62px); line-height: .98;
+    text-transform: uppercase; letter-spacing: -.01em;
+  }
+  .seg__title em { font-style: italic; }
+  .seg__desc { margin: 0 0 16px; max-width: 46ch; font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; }
+  .seg__count { margin: 0; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; }
+  .seg__empty {
+    margin: 0; padding: clamp(38px,7vh,70px) clamp(22px,4vw,44px);
+    border: 1px solid var(--line); background: var(--paper-2);
+    font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; text-align: center;
+  }
+  /* Con el bloque vacio la grilla no debe dejar un hueco */
+  .grid:empty { display: none; }
+
   /* --- detalle --- */
   #detail { position: fixed; inset: 0; z-index: 90; background: var(--paper); overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
   #detail.open { display: block; animation: fade .35s ease both; }
@@ -273,6 +297,7 @@
     <a href="index.html#nosotros">Nosotros</a>
     <a href="index.html#academia">Academia</a>
     <a href="index.html#contacto">Contacto</a>
+    <a href="index.html#postular">Quiero formar parte</a>
   </nav>
 </div>
 
@@ -285,7 +310,7 @@
       </h1>
       <div style="animation:rise 1s cubic-bezier(.2,.7,.2,1) .18s both">
         <p style="margin:0 0 20px;max-width:40ch;font-size:14px;line-height:1.8;color:var(--muted);font-weight:300">
-          Perfiles profesionales representados por LS Model Management. Abrí cada perfil para ver medidas, altura y disponibilidad.
+          Nuestro staff profesional y las caras nuevas que salen del casting de LS Model Academy. Abrí cada perfil para ver medidas, altura y disponibilidad.
         </p>
         <p style="margin:0;font-size:11px;letter-spacing:.26em;text-transform:uppercase"><span id="count">23</span> perfiles · Paraguay</p>
       </div>
@@ -295,11 +320,52 @@
 </section>
 
 <section style="padding:0 clamp(20px,4vw,48px) clamp(110px,16vh,180px)">
-  <div style="max-width:1500px;margin:0 auto"><div class="grid" id="grid"></div></div>
+  <div style="max-width:1500px;margin:0 auto">
+
+    <!-- Bloque 1: el staff profesional de la agencia -->
+    <div class="seg" id="seg-staff">
+      <div class="seg__head">
+        <h2 class="seg__title">Staff de Modelos<br /><em>Profesionales</em></h2>
+        <div class="seg__aside">
+          <p class="seg__desc">Modelos representadas por LS Model Management, con book profesional y disponibilidad para pasarela, campaña y producción.</p>
+          <p class="seg__count"><span id="cStaff">0</span> perfiles</p>
+        </div>
+      </div>
+      <div class="grid" id="gridStaff"></div>
+      <p class="seg__empty" id="emptyStaff" hidden>Todavía no hay modelos en este bloque.</p>
+    </div>
+
+    <!-- Bloque 2: las caras nuevas que salen del casting de la academia -->
+    <div class="seg" id="seg-newface">
+      <div class="seg__head">
+        <h2 class="seg__title">New Face &amp;<br /><em>Model Management</em></h2>
+        <div class="seg__aside">
+          <p class="seg__desc">Talentos emergentes de LS Model Academy, seleccionadas por casting interno y en proceso de desarrollo.</p>
+          <p class="seg__count"><span id="cNew">0</span> perfiles</p>
+        </div>
+      </div>
+      <div class="grid" id="gridNew"></div>
+      <p class="seg__empty" id="emptyNew" hidden>Estamos seleccionando las primeras caras nuevas. Si querés formar parte, escribinos.</p>
+    </div>
+
+    <!-- Bloque 3: scouting y postulaciones recibidas por la web -->
+    <div class="seg" id="seg-scouting">
+      <div class="seg__head">
+        <h2 class="seg__title">Scouting<br /><em>Models</em></h2>
+        <div class="seg__aside">
+          <p class="seg__desc">Perfiles descubiertos mediante scouting y postulaciones recibidas desde la web, en evaluación por nuestro equipo.</p>
+          <p class="seg__count"><span id="cScout">0</span> perfiles</p>
+        </div>
+      </div>
+      <div class="grid" id="gridScout"></div>
+      <p class="seg__empty" id="emptyScout" hidden>Todavía no hay perfiles publicados en este bloque. <a href="index.html#postular" style="border-bottom:1px solid currentColor">Postulate acá</a>.</p>
+    </div>
+
+  </div>
 </section>
 
 <div style="background:var(--paper)">
-  <a class="band" href="index.html#contacto" aria-label="Quiero formar parte">
+  <a class="band" href="index.html#postular" aria-label="Quiero formar parte">
     <span class="halo" aria-hidden="true"></span>
     <span class="sheen" aria-hidden="true"></span>
     <span class="inner">
@@ -383,6 +449,10 @@
 var U = 'uploads/', P = 'portada/';
 
 var MODELS = [
+  { name:'Esther Kuhnen', age:24, alt:'1,73', b:84, c:62, ca:94,
+    cover:U+'Esther Kuhnen/WhatsApp Image 2026-08-18 at 08.07.27.jpeg', pos:'center 15%', dir:'Esther Kuhnen',
+    fotos:['WhatsApp Image 2026-08-18 at 08.07.27.jpeg','WhatsApp Image 2026-08-18 at 08.07.27 (1).jpeg','WhatsApp Image 2026-08-18 at 08.07.28.jpeg','WhatsApp Image 2026-08-18 at 08.07.28 (1).jpeg','WhatsApp Image 2026-08-18 at 08.07.28 (2).jpeg'] },
+
   { name:'Fiona Otiñano', age:23, alt:'1,79', b:84, c:64, ca:97, ciudad:'Oberá, Misiones, Argentina',
     cover:P+'Fiona Otiñano 23 años.jpeg', pos:'center 20%', dir:'Fiona Otiñano',
     fotos:['_MG_6513.jpg.jpeg','_MG_6543.jpg.jpeg','_MG_6581.jpg.jpeg','_MG_7060.jpg.jpeg','_MG_7067.jpg.jpeg'] },
@@ -394,6 +464,10 @@ var MODELS = [
   { name:'Anahí Ledezma', age:17, alt:'1,76', b:82, c:60, ca:90, ciudad:'Capitán Bado, Amambay',
     cover:P+'Anahí Ledezma 17 años.jpeg', pos:'center 22%', dir:'Anahí Ledezma',
     fotos:['IMG_7003.JPG.jpeg','IMG_7004.JPG.jpeg','IMG_7005.JPG.jpeg','IMG_7009.JPG.jpeg','IMG_7011.JPG.jpeg'] },
+
+  { name:'Amy Benitez', age:null, alt:null, b:84, c:60, ca:100,
+    cover:U+'Amy Benitez/5DA66058-AFCF-490D-9A80-9B622FBC6361.JPG.jpeg', pos:'center 15%', dir:'Amy Benitez',
+    fotos:['5DA66058-AFCF-490D-9A80-9B622FBC6361.JPG.jpeg','080051CC-B05C-4DD1-920A-79BEE16FFB45.JPG.jpeg','634B7E55-1861-4C1D-BCA8-41629A7DBEB7.JPG.jpeg','IMG_3129.PNG'] },
 
   { name:'Antonia Lüdicke', age:20, alt:'1,80', b:86, c:66, ca:94, ciudad:'Emboscada',
     cover:P+'Antonia Lüdicke 20 años.jpeg', pos:'center 25%', dir:'Antonia Lüdicke',
@@ -498,33 +572,59 @@ function slug(s){
 }
 
 /* ---------- grid ---------- */
+/* Dos bloques que no se mezclan: el staff profesional y las caras nuevas
+   que salen del casting de LS Model Academy. Una modelo sin segmento
+   definido se considera staff, que es como nacio el listado. */
+var SEGMENTOS = [
+  { id:'staff',    grid:'gridStaff', vacio:'emptyStaff', cuenta:'cStaff' },
+  { id:'newface',  grid:'gridNew',   vacio:'emptyNew',   cuenta:'cNew' },
+  { id:'scouting', grid:'gridScout', vacio:'emptyScout', cuenta:'cScout' }
+];
+var SEG_IDS = SEGMENTOS.map(function(s){ return s.id; });
+function segDe(m){ return SEG_IDS.indexOf(m.seg) > -1 ? m.seg : 'staff'; }
+
+function tarjeta(m, indiceGlobal, posEnBloque){
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'card';
+  // data-i sigue siendo el indice dentro de MODELS: es lo que abre la ficha.
+  b.setAttribute('data-reveal',''); b.setAttribute('data-i', indiceGlobal);
+  b.style.transitionDelay = (posEnBloque%3)*0.09 + 's';
+
+  var img = new Image();
+  img.src = enc(m.cover); img.alt = m.name;
+  img.loading = posEnBloque<6 ? 'eager' : 'lazy'; img.decoding = 'async';
+  img.style.objectPosition = m.pos;
+  img.onerror = function(){ b.style.display = 'none'; };
+
+  var frame = document.createElement('div'); frame.className = 'frame';
+  var num = document.createElement('span'); num.className = 'num'; num.textContent = pad(posEnBloque+1);
+  var view = document.createElement('span'); view.className = 'view'; view.textContent = 'Ver perfil';
+  frame.appendChild(img); frame.appendChild(num); frame.appendChild(view);
+
+  var meta = document.createElement('div'); meta.className = 'meta';
+  var h = document.createElement('h2'); h.className = 'name'; h.textContent = m.name;
+  var sub = document.createElement('span'); sub.className = 'sub';
+  sub.textContent = [m.age, m.alt ? m.alt + ' M' : null].filter(Boolean).join(' · ');
+  meta.appendChild(h); meta.appendChild(sub);
+
+  var rule = document.createElement('div'); rule.className = 'rule';
+  b.appendChild(frame); b.appendChild(meta); b.appendChild(rule);
+  return b;
+}
+
 function renderGrid(){
-  var grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  MODELS.forEach(function(m,i){
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'card';
-    b.setAttribute('data-reveal',''); b.setAttribute('data-i', i);
-    b.style.transitionDelay = (i%3)*0.09 + 's';
-
-    var img = new Image();
-    img.src = enc(m.cover); img.alt = m.name;
-    img.loading = i<6 ? 'eager' : 'lazy'; img.decoding = 'async';
-    img.style.objectPosition = m.pos;
-
-    var frame = document.createElement('div'); frame.className = 'frame';
-    var num = document.createElement('span'); num.className = 'num'; num.textContent = pad(i+1);
-    var view = document.createElement('span'); view.className = 'view'; view.textContent = 'Ver perfil';
-    frame.appendChild(img); frame.appendChild(num); frame.appendChild(view);
-
-    var meta = document.createElement('div'); meta.className = 'meta';
-    var h = document.createElement('h2'); h.className = 'name'; h.textContent = m.name;
-    var s = document.createElement('span'); s.className = 'sub'; s.textContent = m.age + ' · ' + m.alt + ' M';
-    meta.appendChild(h); meta.appendChild(s);
-
-    var rule = document.createElement('div'); rule.className = 'rule';
-    b.appendChild(frame); b.appendChild(meta); b.appendChild(rule);
-    grid.appendChild(b);
+  SEGMENTOS.forEach(function(seg){
+    var grid = document.getElementById(seg.grid);
+    var vacio = document.getElementById(seg.vacio);
+    grid.innerHTML = '';
+    var n = 0;
+    MODELS.forEach(function(m, i){
+      if (segDe(m) !== seg.id) return;
+      grid.appendChild(tarjeta(m, i, n));
+      n++;
+    });
+    document.getElementById(seg.cuenta).textContent = n;
+    if (vacio) vacio.hidden = n > 0;
   });
   document.getElementById('count').textContent = MODELS.length;
   observe();
@@ -557,7 +657,7 @@ function openDetail(i, push){
 
   document.getElementById('dIndex').textContent = 'Perfil ' + pad(cur+1) + ' / ' + pad(n);
   document.getElementById('dName').textContent = m.name;
-  document.getElementById('dAge').textContent = m.age + ' AÑOS';
+  document.getElementById('dAge').textContent = m.age ? m.age + ' AÑOS' : '';
   document.getElementById('dGhost').textContent = pad(cur+1);
 
   document.getElementById('dMeasure').innerHTML =
@@ -566,7 +666,7 @@ function openDetail(i, push){
     '<div><b>'+m.ca+'</b><span>Cadera</span></div>';
 
   document.getElementById('dSpecs').innerHTML =
-    row('Altura', m.alt + ' m') +
+    row('Altura', m.alt ? m.alt + ' m' : '') +
     row('Ciudad', m.ciudad) +
     row('Calce', m.calce) +
     row('Vestido / remera', m.vestido) +
@@ -743,7 +843,7 @@ function desdeSupabase(){
   var sb = window.lsSupabase;
   if (!sb) return Promise.resolve(null);
   return sb.from('models').select('*').eq('publicada', true)
-    .order('orden').order('nombre')
+    .order('segmento').order('orden').order('nombre')
     .then(function(r){
       if (r.error || !r.data || !r.data.length) return null;
       return r.data.map(function(m){
@@ -752,6 +852,7 @@ function desdeSupabase(){
           b: m.busto, c: m.cintura, ca: m.cadera,
           calce: m.calce, vestido: m.vestido, pantalon: m.pantalon,
           ciudad: m.ciudad,
+          seg: m.segmento,
           cover: m.cover || (m.fotos && m.fotos[0]) || '',
           pos: m.cover_pos || 'center 20%',
           dir: '', fotos: (m.fotos && m.fotos.length) ? m.fotos : (m.cover ? [m.cover] : [])

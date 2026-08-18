@@ -84,8 +84,32 @@
   .pill--aceptada { background:#E3F5EA; color:#1E7A46; }
   .pill--descartada { background:#F0F0F0; color:#6B6B6B; }
   .pill--menor { background:#FCE8E8; color:#9B2C2C; margin-left:6px; }
+  .pill--seg { background:#161A21; color:#F7F7F4; margin-left:6px; }
   .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
   .empty { padding:60px 20px; text-align:center; color:var(--muted); font-size:14px; }
+
+  /* ---------- gestor de galeria ---------- */
+  .gal { border:1px solid var(--line); padding:14px; margin-bottom:16px; }
+  .gal__bar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .gal__t { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  .gal__add { cursor:pointer; margin:0; }
+  .gal__hint { margin:10px 0 12px; font-size:12px; line-height:1.7; color:var(--muted); }
+  .gal__empty { margin:6px 0 0; padding:26px 12px; text-align:center; font-size:13px; color:var(--muted); background:#FAFAF8; border:1px dashed var(--line); }
+  .gal__list { display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:10px; }
+
+  .ph { position:relative; border:1px solid var(--line); background:#F0F0EE; cursor:grab; }
+  .ph.drag { opacity:.35; }
+  .ph.over { outline:2px solid var(--ink); outline-offset:2px; }
+  .ph img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; pointer-events:none; }
+  .ph__n { position:absolute; top:4px; left:5px; font-size:10px; letter-spacing:.1em; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.7); }
+  .ph__acts { display:flex; border-top:1px solid var(--line); }
+  .ph__acts button { flex:1; padding:6px 2px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; background:#fff; border:none; cursor:pointer; }
+  .ph__acts button + button { border-left:1px solid var(--line); }
+  .ph__acts button:hover { background:#F0F0EE; }
+  .ph__acts .del { color:#9B2C2C; }
+  .ph__tag { position:absolute; top:4px; right:5px; padding:2px 6px; border-radius:999px; background:var(--ink); color:#fff; font-size:8px; letter-spacing:.12em; text-transform:uppercase; }
+  .ph--cover { outline:2px solid var(--ink); outline-offset:-1px; }
+  .ph__wait { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.72); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
 
   /* ---------- aviso de configuracion ---------- */
   .setup { background:#FDF3DA; border:1px solid #E8D5A0; padding:22px 24px; margin-bottom:22px; }
@@ -155,6 +179,12 @@
       <div class="bar">
         <button class="btn" id="newModel" type="button">+ Nueva modelo</button>
         <input type="search" id="qMod" placeholder="Buscar por nombre…" />
+        <select id="fSeg">
+          <option value="">Todos los segmentos</option>
+          <option value="staff">Staff de Modelos Profesionales</option>
+          <option value="newface">New Face &amp; Model Management</option>
+          <option value="scouting">Scouting Models</option>
+        </select>
         <span class="count" id="cMod"></span>
       </div>
       <div class="grid" id="listMod"></div>
@@ -187,8 +217,26 @@
       <label><span>Ciudad</span><input id="mCiudad" /></label>
       <label><span>Orden</span><input id="mOrden" type="number" value="100" /></label>
     </div>
-    <label><span>Foto de portada</span><input id="mCover" type="file" accept="image/*" /></label>
-    <label><span>Galería (se pueden elegir varias)</span><input id="mFotos" type="file" accept="image/*" multiple /></label>
+    <label><span>Categoría / Segmento *</span>
+      <select id="mSegmento">
+        <option value="staff">Staff de Modelos Profesionales</option>
+        <option value="newface">New Face &amp; Model Management</option>
+        <option value="scouting">Scouting Models</option>
+      </select>
+    </label>
+
+    <div class="gal">
+      <div class="gal__bar">
+        <span class="gal__t">Galería · <b id="galN">0</b> fotos</span>
+        <label class="btn btn--sm btn--ghost gal__add">
+          + Agregar fotos
+          <input id="mFotos" type="file" accept="image/*" multiple hidden />
+        </label>
+      </div>
+      <p class="gal__hint">Las nuevas se agregan al final. Arrastrá para reordenar y mantener primero el book profesional. La marcada como <b>portada</b> es la que se ve en el listado del sitio.</p>
+      <div class="gal__list" id="galList"></div>
+      <p class="gal__empty" id="galEmpty">Todavía no hay fotos cargadas.</p>
+    </div>
     <label style="display:flex;align-items:center;gap:10px">
       <input type="checkbox" id="mPub" checked style="width:auto" />
       <span style="margin:0;letter-spacing:.1em">Visible en el sitio</span>
@@ -414,9 +462,11 @@
   $('qEmp').addEventListener('input', pintarEmpresas);
 
   /* ================= MODELOS ================= */
+  var SEGS = { staff: 'Staff', newface: 'New Face', scouting: 'Scouting' };
+  function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
   var mods = [];
   function cargarModelos() {
-    sb.from('models').select('*').order('orden').order('nombre')
+    sb.from('models').select('*').order('segmento').order('orden').order('nombre')
       .then(function (r) {
         if (r.error) { $('listMod').innerHTML = '<p class="empty">' + esc(r.error.message) + '</p>'; return; }
         mods = r.data || []; pintarModelos();
@@ -424,7 +474,11 @@
   }
   function pintarModelos() {
     var q = $('qMod').value.toLowerCase().trim();
-    var l = mods.filter(function (m) { return !q || (m.nombre||'').toLowerCase().indexOf(q) > -1; });
+    var seg = $('fSeg').value;
+    var l = mods.filter(function (m) {
+      if (seg && segDe(m) !== seg) return false;
+      return !q || (m.nombre||'').toLowerCase().indexOf(q) > -1;
+    });
     $('cMod').textContent = l.length + ' de ' + mods.length;
     if (!l.length) { $('listMod').innerHTML = '<p class="empty">Todavía no hay modelos cargadas.</p>'; return; }
     $('listMod').innerHTML = l.map(function (m) {
@@ -433,6 +487,7 @@
         '<h3>' + esc(m.nombre) + '</h3>' +
         '<p class="meta">' + (m.edad ? m.edad + ' años' : '') + (m.ciudad ? ' · ' + esc(m.ciudad) : '') + '</p>' +
         '<span class="pill pill--' + (m.publicada ? 'aceptada' : 'descartada') + '">' + (m.publicada ? 'visible' : 'oculta') + '</span>' +
+        '<span class="pill pill--seg">' + SEGS[segDe(m)] + '</span>' +
         '<dl class="kv" style="margin-top:12px">' +
           (m.altura ? '<dt>Altura</dt><dd>' + esc(m.altura) + '</dd>' : '') +
           ((m.busto&&m.cintura&&m.cadera) ? '<dt>Medidas</dt><dd>' + m.busto + '-' + m.cintura + '-' + m.cadera + '</dd>' : '') +
@@ -464,7 +519,111 @@
     });
   }
   $('qMod').addEventListener('input', pintarModelos);
+  $('fSeg').addEventListener('change', pintarModelos);
 
+  /* ---------- gestor de galeria ----------
+     Cada item es { key, url, file }. Las fotos que ya estan en Supabase
+     llegan con file = null; las recien elegidas guardan el File y una
+     URL temporal para poder verlas, ordenarlas o descartarlas ANTES de
+     guardar. Asi no queda basura en el storage si se cancela la edicion. */
+  var galeria = [];
+  var portadaKey = null;
+  var seqFoto = 0;
+
+  function itemRemoto(url) { return { key: 'r' + (seqFoto++), url: url, file: null }; }
+  function itemNuevo(file) { return { key: 'n' + (seqFoto++), url: URL.createObjectURL(file), file: file }; }
+
+  function liberarBlobs() {
+    galeria.forEach(function (it) { if (it.file) URL.revokeObjectURL(it.url); });
+  }
+
+  function idxDe(key) {
+    for (var i = 0; i < galeria.length; i++) if (galeria[i].key === key) return i;
+    return -1;
+  }
+  function mover(de, a) {
+    if (de < 0 || a < 0 || a >= galeria.length || de === a) return;
+    galeria.splice(a, 0, galeria.splice(de, 1)[0]);
+    pintarGaleria();
+  }
+
+  function pintarGaleria() {
+    var cont = $('galList');
+    $('galN').textContent = galeria.length;
+    $('galEmpty').style.display = galeria.length ? 'none' : '';
+    cont.innerHTML = galeria.map(function (it, i) {
+      var esPortada = it.key === portadaKey;
+      return '<div class="ph' + (esPortada ? ' ph--cover' : '') + '" draggable="true" data-key="' + it.key + '">' +
+        '<img src="' + esc(it.url) + '" alt="" />' +
+        '<span class="ph__n">' + (i + 1) + '</span>' +
+        (esPortada ? '<span class="ph__tag">Portada</span>' : '') +
+        (it.file ? '<span class="ph__wait">Sin subir</span>' : '') +
+        '<div class="ph__acts">' +
+          '<button type="button" data-cover="' + it.key + '"' + (esPortada ? ' disabled' : '') + '>Portada</button>' +
+          '<button type="button" data-mv="-1" data-k="' + it.key + '" title="Mover antes">&larr;</button>' +
+          '<button type="button" data-mv="1" data-k="' + it.key + '" title="Mover despues">&rarr;</button>' +
+          '<button type="button" class="del" data-rm="' + it.key + '">&times;</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    cont.querySelectorAll('[data-cover]').forEach(function (b) {
+      b.addEventListener('click', function () { portadaKey = b.dataset.cover; pintarGaleria(); });
+    });
+    cont.querySelectorAll('[data-rm]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = idxDe(b.dataset.rm);
+        if (i < 0) return;
+        if (galeria[i].file) URL.revokeObjectURL(galeria[i].url);
+        var eraPortada = galeria[i].key === portadaKey;
+        galeria.splice(i, 1);
+        if (eraPortada) portadaKey = galeria.length ? galeria[0].key : null;
+        pintarGaleria();
+      });
+    });
+    // Flechas: en pantallas tactiles arrastrar no funciona de forma fiable
+    cont.querySelectorAll('[data-mv]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var de = idxDe(b.dataset.k);
+        mover(de, de + parseInt(b.dataset.mv, 10));
+      });
+    });
+
+    /* arrastrar y soltar */
+    var origen = null;
+    cont.querySelectorAll('.ph').forEach(function (el) {
+      el.addEventListener('dragstart', function (e) {
+        origen = el.dataset.key; el.classList.add('drag');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', origen); } catch (x) {}
+      });
+      el.addEventListener('dragend', function () {
+        el.classList.remove('drag');
+        cont.querySelectorAll('.ph').forEach(function (x) { x.classList.remove('over'); });
+      });
+      el.addEventListener('dragover', function (e) {
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        if (el.dataset.key !== origen) el.classList.add('over');
+      });
+      el.addEventListener('dragleave', function () { el.classList.remove('over'); });
+      el.addEventListener('drop', function (e) {
+        e.preventDefault();
+        el.classList.remove('over');
+        if (!origen || origen === el.dataset.key) return;
+        mover(idxDe(origen), idxDe(el.dataset.key));
+      });
+    });
+  }
+
+  // Las nuevas SIEMPRE al final: el book profesional queda primero.
+  $('mFotos').addEventListener('change', function (e) {
+    Array.from(e.target.files || []).forEach(function (f) { galeria.push(itemNuevo(f)); });
+    if (!portadaKey && galeria.length) portadaKey = galeria[0].key;
+    e.target.value = '';
+    pintarGaleria();
+  });
+
+  /* ---------- editor ---------- */
   function abrirEditor(m) {
     m = m || {};
     $('ovTitle').textContent = m.id ? 'Editar modelo' : 'Nueva modelo';
@@ -473,12 +632,31 @@
       $('m' + k).value = m[k.toLowerCase()] == null ? '' : m[k.toLowerCase()];
     });
     $('mOrden').value = m.orden == null ? 100 : m.orden;
+    $('mSegmento').value = SEGS[m.segmento] ? m.segmento : 'staff';
     $('mPub').checked = m.publicada !== false;
-    $('mCover').value = ''; $('mFotos').value = ''; $('ovMsg').textContent = '';
+
+    liberarBlobs();
+    seqFoto = 0;
+    var urls = (m.fotos || []).slice();
+    // La portada puede no estar en la galeria (modelos cargadas antes de
+    // este gestor): se antepone para no perderla.
+    if (m.cover && urls.indexOf(m.cover) < 0) urls.unshift(m.cover);
+    galeria = urls.map(itemRemoto);
+    portadaKey = null;
+    if (m.cover) {
+      for (var i = 0; i < galeria.length; i++) if (galeria[i].url === m.cover) { portadaKey = galeria[i].key; break; }
+    }
+    if (!portadaKey && galeria.length) portadaKey = galeria[0].key;
+
+    $('mFotos').value = ''; $('ovMsg').textContent = '';
+    pintarGaleria();
     $('ov').classList.add('on');
   }
   $('newModel').addEventListener('click', function () { abrirEditor(null); });
-  $('ovCancel').addEventListener('click', function () { $('ov').classList.remove('on'); });
+  $('ovCancel').addEventListener('click', function () {
+    liberarBlobs(); galeria = []; portadaKey = null;
+    $('ov').classList.remove('on');
+  });
 
   function subir(file, carpeta) {
     var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
@@ -500,21 +678,29 @@
       busto: num('mBusto'), cintura: num('mCintura'), cadera: num('mCadera'),
       calce: $('mCalce').value.trim() || null, ciudad: $('mCiudad').value.trim() || null,
       orden: num('mOrden') == null ? 100 : num('mOrden'),
+      segmento: SEGS[$('mSegmento').value] ? $('mSegmento').value : 'staff',
       publicada: $('mPub').checked
     };
-    var tareas = [];
-    if ($('mCover').files[0]) tareas.push(subir($('mCover').files[0], carpeta).then(function (u) { datos.cover = u; }));
-    var gal = Array.from($('mFotos').files || []);
-    if (gal.length) {
-      tareas.push(Promise.all(gal.map(function (f) { return subir(f, carpeta); })).then(function (us) { datos.fotos = us; }));
-    }
 
-    Promise.all(tareas).then(function () {
+    // Se suben solo las nuevas; el orden final es el de la galeria.
+    var pendientes = galeria.filter(function (it) { return it.file; });
+    if (pendientes.length) $('ovMsg').textContent = 'Subiendo ' + pendientes.length + ' foto(s)…';
+
+    Promise.all(pendientes.map(function (it) {
+      return subir(it.file, carpeta).then(function (u) { it.subida = u; });
+    })).then(function () {
+      datos.fotos = galeria.map(function (it) { return it.file ? it.subida : it.url; });
+      var elegida = null;
+      for (var i = 0; i < galeria.length; i++) {
+        if (galeria[i].key === portadaKey) { elegida = galeria[i].file ? galeria[i].subida : galeria[i].url; break; }
+      }
+      datos.cover = elegida || datos.fotos[0] || null;
       var id = $('mId').value;
       return id ? sb.from('models').update(datos).eq('id', id) : sb.from('models').insert(datos);
     }).then(function (r) {
       b.disabled = false;
       if (r && r.error) { $('ovMsg').textContent = 'No se pudo guardar: ' + r.error.message; return; }
+      liberarBlobs(); galeria = []; portadaKey = null;
       $('ov').classList.remove('on'); cargarModelos();
     }).catch(function (err) {
       b.disabled = false;
