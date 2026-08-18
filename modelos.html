@@ -722,7 +722,18 @@ function alAncho(url, ancho){
   if (!url || !esURL(url)) return url;
   if (url.indexOf('/object/public/') < 0) return url;
   return url.replace('/object/public/', '/render/image/public/') +
-         '?width=' + ancho + '&quality=72';
+         '?width=' + ancho + '&quality=80';
+}
+
+/* En una pantalla retina cada pixel CSS son dos fisicos: pedir 600 para
+   una tarjeta de 410 se veia pixelado. Se sube por una escalera fija en
+   vez de un numero exacto, para que la cache del servidor sirva de algo,
+   y se corta en 2x: a 3x la diferencia ya no se nota y pesa el doble. */
+function anchoPara(anchoCSS){
+  var real = anchoCSS * Math.min(window.devicePixelRatio || 1, 2);
+  var escalera = [480, 720, 960, 1200, 1400];
+  for (var i = 0; i < escalera.length; i++) if (escalera[i] >= real) return escalera[i];
+  return 1400;
 }
 function slug(s){
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
@@ -753,10 +764,9 @@ function tarjeta(m, indiceGlobal, posEnBloque){
   img.loading = posEnBloque<6 ? 'eager' : 'lazy'; img.decoding = 'async';
   img.style.objectPosition = m.pos;
   img.onerror = function(){ b.style.display = 'none'; };
-  // El src se asigna al final, despues de insertar: si se pone antes de
-  // que el nodo este en el documento, loading='lazy' no tiene efecto y
-  // el navegador descarga las 27 de una.
-  b.__src = alAncho(enc(m.cover), 600);
+  // La portada se guarda sin transformar: el ancho se decide despues de
+  // insertar, cuando ya se sabe cuanto mide la tarjeta en pantalla.
+  b.__cover = enc(m.cover);
 
   var frame = document.createElement('div'); frame.className = 'frame';
   var num = document.createElement('span'); num.className = 'num'; num.textContent = pad(posEnBloque+1);
@@ -792,11 +802,19 @@ function renderGrid(){
       var b = tarjeta(m, i, n);
       b.__buscable = normalizar([m.name, m.ciudad].filter(Boolean).join(' '));
       grid.appendChild(b);
-      // Recien ahora, con el nodo ya en el documento, loading='lazy' sirve.
-      if (b.__img && b.__src) b.__img.src = b.__src;
       n++;
     });
   });
+
+  // Con las tarjetas ya en el documento se conoce su ancho real, y recien
+  // ahi se piden las imagenes: antes de insertar, loading='lazy' no sirve
+  // y todavia no se sabe que tamanio hace falta.
+  var muestra = document.querySelector('.grid .card');
+  var ancho = anchoPara(muestra ? muestra.getBoundingClientRect().width || 420 : 420);
+  document.querySelectorAll('.grid .card').forEach(function(b){
+    if (b.__img && b.__cover) b.__img.src = alAncho(b.__cover, ancho);
+  });
+
   document.getElementById('count').textContent = MODELS.length;
   aplicarFiltro();
 }
@@ -921,7 +939,7 @@ function openDetail(i, push){
   // Cambia la foto principal y sincroniza miniatura + contador.
   showPhoto = function(k){
     photoIdx = ((k % total) + total) % total;
-    main.src = alAncho(photo(m, m.fotos[photoIdx]), 1200);
+    main.src = alAncho(photo(m, m.fotos[photoIdx]), 1400);
     // Reinicia la animacion de entrada para que cada cambio haga fundido.
     main.style.animation = 'none'; void main.offsetWidth; main.style.animation = '';
     count.textContent = pad(photoIdx+1) + ' / ' + pad(total);
@@ -947,7 +965,7 @@ function openDetail(i, push){
     t.addEventListener('click', function(){ showPhoto(k); startPhotoCycle(total); });
     thumbs.appendChild(t);
   });
-  main.src = alAncho(photo(m, m.fotos[0]), 1200);
+  main.src = alAncho(photo(m, m.fotos[0]), 1400);
   main.alt = m.name;
   count.textContent = pad(1) + ' / ' + pad(total);
   startPhotoCycle(total);
