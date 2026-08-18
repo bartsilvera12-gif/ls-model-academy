@@ -462,10 +462,9 @@
         if (r.error || !r.data) return null;
         var ext = (ruta.split('.').pop() || 'jpg').toLowerCase();
         var destino = carpeta + '/' + Date.now() + '-' + (i + 1) + '.' + ext;
-        return sb.storage.from('modelos').upload(destino, r.data, { upsert: false }).then(function (u) {
-          if (u.error) return null;
-          return sb.storage.from('modelos').getPublicUrl(destino).data.publicUrl;
-        });
+        return window.lsSubirArchivo('modelos', destino, r.data, 'image/jpeg').then(function () {
+          return window.lsUrlPublica('modelos', destino);
+        }).catch(function () { return null; });
       }).catch(function () { return null; });
     });
 
@@ -754,9 +753,8 @@
   function subir(file, carpeta) {
     var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
     var ruta = carpeta + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
-    return sb.storage.from('modelos').upload(ruta, file, { upsert:false }).then(function (r) {
-      if (r.error) throw r.error;
-      return sb.storage.from('modelos').getPublicUrl(ruta).data.publicUrl;
+    return window.lsSubirArchivo('modelos', ruta, file).then(function () {
+      return window.lsUrlPublica('modelos', ruta);
     });
   }
 

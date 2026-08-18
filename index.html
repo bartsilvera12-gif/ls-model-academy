@@ -2112,23 +2112,32 @@ class Component extends DCLogic {
     const subidas = fotos.map((f, i) => {
       const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
       const ruta = carpeta + '/' + sello + '-' + (i + 1) + '.' + ext;
-      return sb.storage.from('postulaciones').upload(ruta, f, { upsert: false })
-        .then((r) => (r.error ? null : ruta));
+      return window.lsSubirArchivo('postulaciones', ruta, f)
+        .then(() => ruta)
+        .catch(() => null);
     });
 
-    return Promise.all(subidas).then((rutas) => sb.from('applications').insert({
-      nombre: txt(payload.nombre), edad: num(payload.edad), ciudad: txt(payload.ciudad),
-      whatsapp: txt(payload.whatsapp), email: txt(payload.email),
-      instagram: txt(payload.instagram), altura: txt(payload.altura),
-      experiencia: txt(payload.experiencia), categoria: txt(payload.categoria),
-      presentacion: txt(payload.presentacion),
-      fotos: rutas.filter(Boolean),
-      tutor: txt(payload.tutor), tutor_wa: txt(payload.tutorWa),
-      tutor_auth: !!payload.tutorAuth,
-      // Todo lo que entra por el formulario del sitio es scouting.
-      // Desde el panel se puede mover a otro bloque.
-      segmento: 'scouting'
-    })).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
+    return Promise.all(subidas).then((rutas) => {
+      const subieron = rutas.filter(Boolean);
+      // Si adjunto fotos y ninguna llego, la postulacion no sirve: se avisa
+      // en vez de guardar una ficha vacia que parece correcta.
+      if (fotos.length && !subieron.length) {
+        return 'error:no pudimos subir tus fotografías. Probá de nuevo o escribinos por Instagram.';
+      }
+      return sb.from('applications').insert({
+        nombre: txt(payload.nombre), edad: num(payload.edad), ciudad: txt(payload.ciudad),
+        whatsapp: txt(payload.whatsapp), email: txt(payload.email),
+        instagram: txt(payload.instagram), altura: txt(payload.altura),
+        experiencia: txt(payload.experiencia), categoria: txt(payload.categoria),
+        presentacion: txt(payload.presentacion),
+        fotos: subieron,
+        tutor: txt(payload.tutor), tutor_wa: txt(payload.tutorWa),
+        tutor_auth: !!payload.tutorAuth,
+        // Todo lo que entra por el formulario del sitio es scouting.
+        // Desde el panel se puede mover a otro bloque.
+        segmento: 'scouting'
+      }).then((r) => (r.error ? 'error:' + r.error.message : 'ok'));
+    });
   }
 
   renderVals() {

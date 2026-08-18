@@ -31,3 +31,53 @@ window.lsSupabase = (function () {
     db: { schema: window.LS_SCHEMA || 'ismodel' }
   });
 })();
+
+/* Subida de archivos al storage, sin usar sb.storage.upload().
+ *
+ * El cliente de Supabase manda las cabeceras x-upsert y cache-control en
+ * cada subida. El CORS de esta instancia no las admite, asi que el
+ * navegador corta la peticion en el preflight y devuelve un escueto
+ * "Failed to fetch" que parece un problema de red.
+ *
+ * Con las cabeceras que si estan permitidas (apikey, Authorization y
+ * Content-Type) la misma peticion responde 200. Esto hace exactamente eso.
+ *
+ * Se puede volver a sb.storage.upload() el dia que se agreguen x-upsert y
+ * cache-control a Access-Control-Allow-Headers en el servidor.
+ */
+window.lsSubirArchivo = function (bucket, ruta, archivo, contentType) {
+  var c = window.LS_SUPABASE || {};
+  var sb = window.lsSupabase;
+  if (!sb) return Promise.reject(new Error('sin conexion con Supabase'));
+
+  var base = String(c.url || '').replace(/\/+$/, '');
+  var destino = base + '/storage/v1/object/' + bucket + '/' +
+                String(ruta).split('/').map(encodeURIComponent).join('/');
+
+  // Con sesion iniciada hay que usar SU token: la anon key no tiene
+  // permiso para escribir en el bucket de modelos.
+  return sb.auth.getSession().then(function (r) {
+    var sesion = r && r.data && r.data.session;
+    return fetch(destino, {
+      method: 'POST',
+      body: archivo,
+      headers: {
+        apikey: c.anonKey,
+        Authorization: 'Bearer ' + ((sesion && sesion.access_token) || c.anonKey),
+        'Content-Type': contentType || archivo.type || 'application/octet-stream'
+      }
+    });
+  }).then(function (resp) {
+    if (resp.ok) return ruta;
+    return resp.text().then(function (t) {
+      throw new Error('HTTP ' + resp.status + ' — ' + t.slice(0, 200));
+    });
+  });
+};
+
+/* URL publica de un archivo ya subido. */
+window.lsUrlPublica = function (bucket, ruta) {
+  var c = window.LS_SUPABASE || {};
+  return String(c.url || '').replace(/\/+$/, '') + '/storage/v1/object/public/' +
+         bucket + '/' + String(ruta).split('/').map(encodeURIComponent).join('/');
+};

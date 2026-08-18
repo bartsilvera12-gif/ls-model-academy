@@ -168,11 +168,9 @@
   }
 
   function subir(blob, ruta) {
-    return sb.storage.from('modelos').upload(ruta, blob, { contentType: 'image/jpeg', upsert: false })
-      .then(function (r) {
-        if (r.error) throw r.error;
-        return sb.storage.from('modelos').getPublicUrl(ruta).data.publicUrl;
-      });
+    return window.lsSubirArchivo('modelos', ruta, blob, 'image/jpeg').then(function () {
+      return window.lsUrlPublica('modelos', ruta);
+    });
   }
 
   /* ---------- el proceso ---------- */
