@@ -379,6 +379,8 @@
   }
   .dc:active { cursor: grabbing; }
   .dc:focus-visible { outline: 1px solid rgba(6,6,6,.45); outline-offset: 4px; }
+  .dc__host { position: absolute; inset: 0; }
+  .mh__host { display: block; }
   .dc__stage { position: absolute; inset: 0; transform-style: preserve-3d; }
   .dc__card {
     position: absolute; top: 50%; left: 50%; transform-origin: center center;
@@ -609,7 +611,7 @@
 
   <section id="inicio" style="padding:0;position:relative;background:#060606;height:100vh;overflow:hidden">
     <video id="heroVideo" autoplay muted loop playsinline disablepictureinpicture preload="auto" poster="hero-poster.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block;z-index:0">
-      <source src="hero.mp4" type="video/mp4" />
+      <source src="hero-720.mp4" type="video/mp4" />
     </video>
     <div class="hero-veil" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,6,.55) 0%,rgba(6,6,6,.12) 32%,rgba(6,6,6,.16) 68%,rgba(6,6,6,.7) 100%)"></div>
     <div class="hero-cta" style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 clamp(24px,5vw,64px) clamp(44px,8vh,88px);display:flex;flex-wrap:wrap;gap:40px;animation:lsRise 1.2s cubic-bezier(.2,.7,.2,1) .3s both">
@@ -769,7 +771,7 @@
       <span class="ls-inner" style="width:100%;max-width:1100px">
         <span class="mh" id="mhBand"
               data-masked="Quiero formar parte"
-              data-media="video" data-src="hero.mp4" data-poster="hero-poster.jpg"
+              data-media="video" data-src="hero-720.mp4" data-poster="hero-poster.jpg"
               data-fill-scale="1.25" data-parallax="26" data-drift="18"
               data-mh-reveal="rise" data-duration="1.1" data-stagger="0.09"
               data-text-scale="0.115" data-weight="600" data-tracking="-0.01"
@@ -1090,9 +1092,12 @@
 
   let carousel = null;
 
+  // Hasta que se sepa de donde salen las modelos, no se arma nada.
+  let portadaDecidida = false;
+
   function initCarousel() {
     const el = document.getElementById('dcModelos');
-    if (!el) return;
+    if (!el || !portadaDecidida) return;
     // Ya construido y con su contenido intacto: nada que hacer.
     if (el.dataset.dcReady === '1' && el.querySelector('.dc__stage')) return;
     // El framework re-renderizo y lo vacio: se corta el autoplay viejo
@@ -1149,7 +1154,10 @@
     }).catch(() => null);
   }
 
+  // Queda para rehacer la portada en caliente si alguna vez hace falta.
+  // El arranque ya no lo usa: arma una sola vez.
   function reemplazarModelos(lista) {
+    portadaDecidida = true;
     HERO_MODELS = lista;
     idx = 0;
     const el = document.getElementById('dcModelos');
@@ -1291,14 +1299,27 @@
 
   function initSlideshow() {
     if (!document.getElementById('heroName')) { setTimeout(initSlideshow, 150); return; }
-    initCarousel();
-    paint(false);
-    // La base tarda: se muestra la lista de respaldo y, si hay respuesta,
-    // se rehace el carrusel con lo que este cargado en el panel.
-    if (!window.__portadaPedida) {
-      window.__portadaPedida = true;
-      desdePanel().then((lista) => { if (lista) reemplazarModelos(lista); });
-    }
+    if (portadaDecidida) { initCarousel(); paint(false); return; }
+    if (window.__portadaPedida) return;
+    window.__portadaPedida = true;
+
+    const armar = (lista) => {
+      if (lista && lista.length) HERO_MODELS = lista;
+      idx = 0;
+      portadaDecidida = true;
+      initCarousel();
+      paint(false);
+    };
+
+    // Sin conexion con la base, se usa la lista de respaldo enseguida.
+    if (!window.lsSupabase) return armar(null);
+    // Con conexion, se espera: armarlo dos veces significaba pedir las
+    // fotos de las 36 modelos en dos direcciones distintas.
+    let resuelto = false;
+    const unaVez = (lista) => { if (!resuelto) { resuelto = true; armar(lista); } };
+    desdePanel().then(unaVez).catch(() => unaVez(null));
+    // Si la base no contesta en 2,5 s, no se deja la portada vacia.
+    setTimeout(() => unaVez(null), 2500);
   }
 
   /* ---------- MaskedHeading (port vanilla, sin React ni GSAP) ----------
@@ -1489,10 +1510,18 @@
     const cl = function (v, a, b) { return v < a ? a : v > b ? b : v; };
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    root.innerHTML = '';
+    // Nunca se vacia 'root': lo creo React y puede tener nodos suyos.
+    // Se trabaja dentro de un contenedor propio.
+    let host = root.querySelector(':scope > .dc__host');
+    if (!host) {
+      host = document.createElement('div');
+      host.className = 'dc__host';
+      root.appendChild(host);
+    }
+    host.innerHTML = '';
     const stage = document.createElement('div');
     stage.className = 'dc__stage';
-    root.appendChild(stage);
+    host.appendChild(stage);
 
     const cards = [], tints = [];
     o.items.forEach(function (it, i) {
@@ -1506,10 +1535,15 @@
 
       const img = new Image();
       img.className = 'dc__img';
-      img.src = it.image; img.alt = it.alt || '';
+      img.alt = it.alt || '';
       img.draggable = false;
-      img.loading = i < 5 ? 'eager' : 'lazy';
+      img.decoding = 'async';
       if (it.pos) img.style.objectPosition = it.pos;
+      // La direccion se guarda pero NO se asigna: con 36 tarjetas eso
+      // eran 36 descargas al abrir la portada. Se piden a medida que
+      // se acercan al frente.
+      c.__src = it.image;
+      c.__img = img;
       c.appendChild(img);
 
       if (it.caption) {
@@ -1540,7 +1574,21 @@
 
     let pos = 0, focus = 0, scale = 1, raf = 0, drag = null, wheelT = 0, autoT = 0;
 
+    // Pide la foto de las tarjetas que estan por verse. Una vez pedida
+    // queda en el navegador, asi que no se repite.
+    function cargarCercanas(p) {
+      const margen = o.visibleCards + 2;
+      for (let k = 0; k < n; k++) {
+        const c = cards[k];
+        if (!c.__src) continue;
+        let d = k - p;
+        if (o.loop && n > 1) { d = ((d % n) + n) % n; if (d > n / 2) d -= n; }
+        if (Math.abs(d) <= margen) { c.__img.src = c.__src; c.__src = null; }
+      }
+    }
+
     function layout(p) {
+      cargarCercanas(p);
       const dir = o.tiltDirection === 'left' ? -1 : 1;
       for (let i = 0; i < n; i++) {
         const el = cards[i];
@@ -1637,6 +1685,16 @@
       scale = cl(Math.min(w / needed, porAlto), 0.4, 1);
       layout(pos);
     }
+    // Las lejanas se piden cuando la pagina ya termino de cargar, para
+    // que arrastrar rapido no muestre huecos. Con requestIdleCallback a
+    // secas el navegador se declara libre enseguida y las pedia todas.
+    const cargarElResto = function () {
+      cards.forEach(function (c) { if (c.__src) { c.__img.src = c.__src; c.__src = null; } });
+    };
+    const alFinal = function () { setTimeout(cargarElResto, 1800); };
+    if (document.readyState === 'complete') alFinal();
+    else window.addEventListener('load', alFinal, { once: true });
+
     if (window.ResizeObserver) new ResizeObserver(fit).observe(root);
 
     root.addEventListener('wheel', function (e) {
@@ -1731,7 +1789,15 @@
     const uid = 'mhclip-' + Math.abs(words.join('').length * 7919 + root.offsetTop);
     const SVGNS = 'http://www.w3.org/2000/svg';
 
-    root.innerHTML = '';
+    // Mismo criterio que el carrusel: no se vacia el nodo de React.
+    // Se llama 'caja' porque mas abajo ya hay un 'host' con otro sentido.
+    let caja = root.querySelector(':scope > .mh__host');
+    if (!caja) {
+      caja = document.createElement('span');
+      caja.className = 'mh__host';
+      root.appendChild(caja);
+    }
+    caja.innerHTML = '';
     root.style.fontWeight = d.weight || 600;
     root.style.letterSpacing = (num('tracking', -0.01)) + 'em';
     root.style.lineHeight = num('lineHeight', 1.06);
@@ -1750,7 +1816,7 @@
       measure.appendChild(s);
       wordEls.push(s); baseEls.push(i);
     });
-    root.appendChild(measure);
+    caja.appendChild(measure);
 
     const svg = document.createElementNS(SVGNS, 'svg');
     svg.setAttribute('class', 'mh__defs');
@@ -1765,7 +1831,7 @@
       cp.appendChild(t);
       return t;
     });
-    defs.appendChild(cp); svg.appendChild(defs); root.appendChild(svg);
+    defs.appendChild(cp); svg.appendChild(defs); caja.appendChild(svg);
 
     const reveal = document.createElement('span');
     reveal.className = 'mh__reveal';
@@ -1790,7 +1856,7 @@
     src.className = 'mh__src';
     src.src = d.src || '';
     media.appendChild(src); clip.appendChild(media);
-    reveal.appendChild(clip); root.appendChild(reveal);
+    reveal.appendChild(clip); caja.appendChild(reveal);
 
     if (src.tagName === 'VIDEO') {
       const go = function () { src.muted = true; const p = src.play(); if (p && p.catch) p.catch(function () {}); };

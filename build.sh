@@ -22,7 +22,7 @@ cp index.html modelos.html privacidad.html 404.html support.js "$OUT"/
 # El panel y su configuracion tambien van al servidor: sin
 # supabase-config.js el sitio no puede leer ni escribir nada.
 cp admin.html supabase-config.js "$OUT"/
-cp hero.mp4 hero-poster.jpg "$OUT"/
+cp hero-720.mp4 hero-poster.jpg "$OUT"/
 cp favicon.ico favicon-16.png favicon-32.png favicon-512.png apple-touch-icon.png "$OUT"/
 cp .htaccess "$OUT"/ 2>/dev/null || true
 cp robots.txt "$OUT"/ 2>/dev/null || true
