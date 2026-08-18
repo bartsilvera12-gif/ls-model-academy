@@ -133,6 +133,45 @@
   .sheet { width:100%; max-width:600px; background:var(--card); padding:28px; margin:auto; }
   .sheet h2 { margin:0 0 20px; font-family:'Cormorant Garamond',serif; font-weight:300; font-size:26px; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  /* Desplegable propio: la lista del <select> nativo la dibuja el sistema
+     operativo, con su resaltado azul y su tipografia, y no hay CSS que la
+     alcance. El <select> real sigue existiendo, oculto, para no tocar el
+     resto del codigo que lee su value. */
+  .sel { position:relative; display:block; }
+  .sel select { display:none; }
+  .sel__b {
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; background:#fff; border:1px solid var(--line); border-radius:2px;
+    font-size:16px; text-align:left; cursor:pointer; color:var(--ink);
+  }
+  .sel__b:hover { border-color:#C9CBD0; }
+  .sel.abierto .sel__b, .sel__b:focus-visible { border-color:var(--ink); outline:none; }
+  .sel__b i { flex:0 0 auto; width:8px; height:8px; border-right:1.5px solid var(--muted); border-bottom:1.5px solid var(--muted); transform:rotate(45deg) translate(-2px,-2px); transition:transform .2s; }
+  .sel.abierto .sel__b i { transform:rotate(225deg) translate(-3px,-3px); }
+  .sel__v { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sel__lista {
+    position:absolute; z-index:70; left:0; right:0; top:calc(100% + 4px);
+    background:#fff; border:1px solid var(--ink); border-radius:2px; padding:4px;
+    max-height:min(300px,50vh); overflow-y:auto; display:none;
+    box-shadow:0 14px 34px rgba(14,17,22,.16);
+  }
+  .sel.abierto .sel__lista { display:block; }
+  .sel.arriba .sel__lista { top:auto; bottom:calc(100% + 4px); }
+  .sel__o {
+    display:block; width:100%; padding:10px 12px; border:none; background:none;
+    text-align:left; font-size:14px; cursor:pointer; border-radius:2px; color:var(--ink);
+  }
+  .sel__o:hover, .sel__o.marcada { background:#F0F0EE; }
+  .sel__o.elegida { background:var(--ink); color:#fff; }
+  /* Los que van dentro de una tarjeta son mas chicos */
+  .row .sel { display:inline-block; min-width:150px; width:auto; }
+  .row .sel__b { padding:8px 12px; font-size:12px; }
+  .row .sel__lista { min-width:100%; width:max-content; max-width:260px; }
+  .row .sel__o { font-size:12px; padding:8px 10px; }
+  .bar .sel { display:inline-block; width:auto; min-width:190px; }
+  .bar .sel__b { padding:10px 12px; font-size:13px; }
+  .bar .sel__o { font-size:13px; }
+
   /* Dialogo propio, en lugar del confirm() del navegador */
   .dlg { position:fixed; inset:0; z-index:90; background:rgba(14,17,22,.72); display:none; align-items:center; justify-content:center; padding:24px; }
   .dlg.on { display:flex; animation:dlgFondo .18s ease both; }
@@ -338,6 +377,101 @@
   var SEGS = { staff: 'Staff Models', newface: 'New Faces Models', scouting: 'Scouted Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
 
+  /* ---------- desplegables propios ----------
+     Envuelve cada <select> en un boton con su lista. El select original
+     queda oculto y sigue siendo la fuente de verdad: se le escribe el
+     value y se le dispara change, asi todo lo que ya escuchaba sigue
+     funcionando sin cambios. */
+  var selAbierto = null;
+
+  function cerrarSelects() {
+    if (selAbierto) { selAbierto.classList.remove('abierto'); selAbierto = null; }
+  }
+  document.addEventListener('click', function (e) {
+    if (selAbierto && !selAbierto.contains(e.target)) cerrarSelects();
+  });
+
+  function refrescarSelect(sel) {
+    var caja = sel.__caja;
+    if (!caja) return;
+    var lista = caja.querySelector('.sel__lista');
+    lista.innerHTML = '';
+    Array.prototype.forEach.call(sel.options, function (o, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sel__o' + (i === sel.selectedIndex ? ' elegida' : '');
+      b.textContent = o.textContent;
+      b.dataset.i = i;
+      b.addEventListener('click', function () {
+        sel.selectedIndex = i;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        refrescarSelect(sel);
+        cerrarSelects();
+        caja.__boton.focus();
+      });
+      lista.appendChild(b);
+    });
+    var elegida = sel.options[sel.selectedIndex];
+    caja.__valor.textContent = elegida ? elegida.textContent : '';
+  }
+
+  function integrarSelects(raiz) {
+    (raiz || document).querySelectorAll('select:not([data-integrado])').forEach(function (sel) {
+      sel.setAttribute('data-integrado', '1');
+      var caja = document.createElement('div');
+      caja.className = 'sel';
+      sel.parentNode.insertBefore(caja, sel);
+      caja.appendChild(sel);
+
+      var boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'sel__b';
+      boton.setAttribute('aria-haspopup', 'listbox');
+      var valor = document.createElement('span');
+      valor.className = 'sel__v';
+      boton.appendChild(valor);
+      boton.appendChild(document.createElement('i'));
+
+      var lista = document.createElement('div');
+      lista.className = 'sel__lista';
+      lista.setAttribute('role', 'listbox');
+
+      caja.appendChild(boton); caja.appendChild(lista);
+      caja.__boton = boton; caja.__valor = valor;
+      sel.__caja = caja;
+
+      boton.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var estaba = caja.classList.contains('abierto');
+        cerrarSelects();
+        if (estaba) return;
+        // Si no entra abajo, se despliega hacia arriba.
+        var r = boton.getBoundingClientRect();
+        caja.classList.toggle('arriba', window.innerHeight - r.bottom < 240 && r.top > 240);
+        caja.classList.add('abierto');
+        selAbierto = caja;
+        var act = lista.querySelector('.elegida');
+        if (act) act.scrollIntoView({ block: 'nearest' });
+      });
+
+      boton.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { cerrarSelects(); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          var paso = e.key === 'ArrowDown' ? 1 : -1;
+          var i = Math.min(Math.max(sel.selectedIndex + paso, 0), sel.options.length - 1);
+          if (i !== sel.selectedIndex) {
+            sel.selectedIndex = i;
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+            refrescarSelect(sel);
+          }
+        }
+      });
+
+      refrescarSelect(sel);
+    });
+  }
+
   /* ---------- dialogo propio ----------
      Reemplaza confirm() y alert(), que el navegador dibuja a su manera y
      rompen la estetica del panel. Devuelve una promesa: true si se
@@ -454,6 +588,7 @@
   });
 
   function abrirPanel(user) {
+    setTimeout(function () { integrarSelects(document); }, 0);
     $('login').style.display = 'none';
     $('app').style.display = 'block';
     $('who').textContent = user && user.email ? user.email : '';
@@ -600,6 +735,9 @@
         });
       });
     });
+
+    // Cada repintado crea selects nuevos dentro de las tarjetas.
+    integrarSelects($('listPost'));
   }
   $('qPost').addEventListener('input', pintarPostulaciones);
   $('fEstado').addEventListener('change', pintarPostulaciones);
@@ -738,6 +876,9 @@
         });
       });
     });
+
+    // Cada repintado crea selects nuevos dentro de las tarjetas.
+    integrarSelects($('listEmp'));
   }
   $('qEmp').addEventListener('input', pintarEmpresas);
 
@@ -822,6 +963,9 @@
         });
       });
     });
+
+    // Cada repintado crea selects nuevos dentro de las tarjetas.
+    integrarSelects($('listMod'));
   }
   $('qMod').addEventListener('input', pintarModelos);
   $('fSeg').addEventListener('change', pintarModelos);
@@ -991,6 +1135,10 @@
     if (!portadaKey && galeria.length) portadaKey = galeria[0].key;
 
     $('mFotos').value = ''; $('ovMsg').textContent = '';
+    // El de encuadre pudo sumar la opcion del ajuste guardado.
+    integrarSelects($('modelForm'));
+    refrescarSelect($('mSegmento'));
+    refrescarSelect($('mCoverPos'));
     pintarGaleria();
     $('ov').classList.add('on');
   }
