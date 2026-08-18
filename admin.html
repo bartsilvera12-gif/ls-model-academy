@@ -181,9 +181,9 @@
         <input type="search" id="qMod" placeholder="Buscar por nombre…" />
         <select id="fSeg">
           <option value="">Todos los segmentos</option>
-          <option value="staff">Modelos Staff</option>
-          <option value="newface">New Face Model</option>
-          <option value="scouting">Scouting Models</option>
+          <option value="staff">Staff Models</option>
+          <option value="newface">New Faces</option>
+          <option value="scouting">Scouted Models</option>
         </select>
         <span class="count" id="cMod"></span>
       </div>
@@ -219,9 +219,9 @@
     </div>
     <label><span>Categoría / Segmento *</span>
       <select id="mSegmento">
-        <option value="staff">Modelos Staff</option>
-        <option value="newface">New Face Model</option>
-        <option value="scouting">Scouting Models</option>
+        <option value="staff">Staff Models</option>
+        <option value="newface">New Faces</option>
+        <option value="scouting">Scouted Models</option>
       </select>
     </label>
 
@@ -276,7 +276,7 @@
 
   // Los tres bloques del sitio. Se declara arriba porque lo usan tanto
   // las postulaciones como las modelos.
-  var SEGS = { staff: 'Modelos Staff', newface: 'New Face Model', scouting: 'Scouting Models' };
+  var SEGS = { staff: 'Staff Models', newface: 'New Faces', scouting: 'Scouted Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
 
   var esc = function (s) {
@@ -440,7 +440,7 @@
      alcanza con referenciar la ruta original. */
   function publicarPostulacion(post, boton) {
     var menor = post.edad && post.edad < 18;
-    var aviso = '¿Publicar a ' + post.nombre + ' en ' + (SEGS[post.segmento] || 'Scouting Models') + '?\n\n' +
+    var aviso = '¿Publicar a ' + post.nombre + ' en ' + (SEGS[post.segmento] || 'Scouted Models') + '?\n\n' +
                 'Se copian sus fotos al almacenamiento publico. La ficha se crea OCULTA: ' +
                 'hay que revisarla y publicarla desde la pestania Modelos.';
     if (menor) {
@@ -491,7 +491,7 @@
         .update({ model_id: r.data.id, estado: 'aceptada' })
         .eq('id', post.id);
     }).then(function () {
-      alert('Listo. La ficha quedo creada y OCULTA en ' + (SEGS[post.segmento] || 'Scouting Models') + '.\n' +
+      alert('Listo. La ficha quedo creada y OCULTA en ' + (SEGS[post.segmento] || 'Scouted Models') + '.\n' +
             'Revisala en la pestania Modelos y publicala cuando corresponda.');
       cargarPostulaciones(); cargarModelos();
     }).catch(function (err) {
