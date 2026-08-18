@@ -133,6 +133,21 @@
   .sheet { width:100%; max-width:600px; background:var(--card); padding:28px; margin:auto; }
   .sheet h2 { margin:0 0 20px; font-family:'Cormorant Garamond',serif; font-weight:300; font-size:26px; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  /* Dialogo propio, en lugar del confirm() del navegador */
+  .dlg { position:fixed; inset:0; z-index:90; background:rgba(14,17,22,.72); display:none; align-items:center; justify-content:center; padding:24px; }
+  .dlg.on { display:flex; animation:dlgFondo .18s ease both; }
+  .dlg__caja { width:100%; max-width:440px; background:var(--card); padding:26px 28px 22px; border-radius:2px; animation:dlgEntra .22s cubic-bezier(.2,.7,.2,1) both; }
+  .dlg__t { margin:0 0 14px; font-family:'Cormorant Garamond',serif; font-weight:400; font-size:25px; line-height:1.2; }
+  .dlg__p { margin:0 0 12px; font-size:14px; line-height:1.75; color:#41464E; }
+  .dlg__p:last-of-type { margin-bottom:0; }
+  .dlg__ojo { margin:16px 0 0; padding:12px 14px; background:#FCE8E8; border:1px solid #E8B4B4; font-size:13px; line-height:1.7; color:#7C2222; }
+  .dlg__nota { margin:16px 0 0; padding:12px 14px; background:#FDF3DA; border:1px solid #E8D5A0; font-size:13px; line-height:1.7; color:#6B531A; }
+  .dlg__pie { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; flex-wrap:wrap; }
+  .dlg__si--peligro { background:#9B2C2C; border-color:#9B2C2C; color:#fff; }
+  @keyframes dlgFondo { from { opacity:0; } to { opacity:1; } }
+  @keyframes dlgEntra { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @media (max-width:480px){ .dlg__pie { flex-direction:column-reverse; } .dlg__pie .btn { width:100%; } }
+
   .lightbox { position:fixed; inset:0; z-index:80; background:rgba(14,17,22,.92); display:none; align-items:center; justify-content:center; padding:24px; }
   .lightbox.on { display:flex; }
   .lightbox img { max-width:100%; max-height:90vh; width:auto; object-fit:contain; }
@@ -282,6 +297,17 @@
   </form>
 </div>
 
+<div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT">
+  <div class="dlg__caja">
+    <h2 class="dlg__t" id="dlgT"></h2>
+    <div id="dlgCuerpo"></div>
+    <div class="dlg__pie">
+      <button class="btn btn--ghost" type="button" id="dlgNo">Cancelar</button>
+      <button class="btn" type="button" id="dlgSi">Aceptar</button>
+    </div>
+  </div>
+</div>
+
 <div class="lightbox" id="lb"><img id="lbImg" alt="" /></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -311,6 +337,66 @@
   // las postulaciones como las modelos.
   var SEGS = { staff: 'Staff Models', newface: 'New Faces Models', scouting: 'Scouted Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
+
+  /* ---------- dialogo propio ----------
+     Reemplaza confirm() y alert(), que el navegador dibuja a su manera y
+     rompen la estetica del panel. Devuelve una promesa: true si se
+     acepta, false si se cancela. Sin boton de cancelar queda como aviso. */
+  var dlgCerrar = null;
+
+  function dialogo(o) {
+    o = o || {};
+    return new Promise(function (resolver) {
+      var caja = $('dlg');
+      $('dlgT').textContent = o.titulo || '';
+
+      var cuerpo = [];
+      String(o.texto || '').split('\n').filter(function (l) { return l.trim(); })
+        .forEach(function (l) { cuerpo.push('<p class="dlg__p">' + esc(l) + '</p>'); });
+      if (o.ojo)  cuerpo.push('<p class="dlg__ojo">' + esc(o.ojo) + '</p>');
+      if (o.nota) cuerpo.push('<p class="dlg__nota">' + esc(o.nota) + '</p>');
+      $('dlgCuerpo').innerHTML = cuerpo.join('');
+
+      var si = $('dlgSi'), no = $('dlgNo');
+      si.textContent = o.aceptar || 'Aceptar';
+      si.className = 'btn' + (o.peligro ? ' dlg__si--peligro' : '');
+      no.textContent = o.cancelar || 'Cancelar';
+      no.style.display = o.soloAviso ? 'none' : '';
+
+      function cerrar(valor) {
+        caja.classList.remove('on');
+        si.removeEventListener('click', alSi);
+        no.removeEventListener('click', alNo);
+        document.removeEventListener('keydown', alTeclado, true);
+        dlgCerrar = null;
+        resolver(valor);
+      }
+      function alSi() { cerrar(true); }
+      function alNo() { cerrar(false); }
+      function alTeclado(e) {
+        if (e.key === 'Escape') { e.preventDefault(); cerrar(false); }
+        if (e.key === 'Enter') { e.preventDefault(); cerrar(true); }
+      }
+
+      dlgCerrar = cerrar;
+      si.addEventListener('click', alSi);
+      no.addEventListener('click', alNo);
+      document.addEventListener('keydown', alTeclado, true);
+      caja.classList.add('on');
+      // En algo que borra, el foco arranca en Cancelar: un Enter de mas
+      // no tiene que destruir nada.
+      (o.peligro && !o.soloAviso ? no : si).focus();
+    });
+  }
+
+  function avisar(titulo, texto, nota) {
+    return dialogo({ titulo: titulo, texto: texto, nota: nota, soloAviso: true, aceptar: 'Entendido' });
+  }
+
+  // Un clic en el fondo tambien cancela.
+  $('dlg').addEventListener('click', function (e) {
+    if (e.target === $('dlg') && dlgCerrar) dlgCerrar(false);
+  });
 
   /* ---------- borrado ----------
      Borrar una fila no borra sus fotos: quedan huerfanas en el bucket y
@@ -489,24 +575,28 @@
         if (!post) return;
         var fotos = (post.fotos || []).filter(Boolean);
 
-        var aviso = '¿Eliminar la postulación de ' + post.nombre + '?';
-        if (fotos.length) aviso += '\n\nSe borran tambien sus ' + fotos.length + ' fotografía(s) del almacenamiento privado.';
-        if (post.model_id) aviso += '\n\nOJO: ya tiene una ficha publicada en el sitio. Esa ficha NO se borra, queda por separado.';
-        aviso += '\n\nNo se puede deshacer.';
-        if (!confirm(aviso)) return;
-
+        dialogo({
+          titulo: 'Eliminar postulación',
+          texto: '¿Eliminar la postulación de ' + post.nombre + '?' +
+                 (fotos.length ? '\nSe borran también sus ' + fotos.length + ' fotografía(s) del almacenamiento privado.' : '') +
+                 '\nEsta acción no se puede deshacer.',
+          nota: post.model_id ? 'Ya tiene una ficha publicada en el sitio. Esa ficha no se borra, queda por separado en la pestaña Modelos.' : null,
+          aceptar: 'Eliminar', peligro: true
+        }).then(function (ok) {
+          if (!ok) return;
         b.disabled = true; b.textContent = 'Eliminando…';
         borrarFotos('postulaciones', fotos).then(function (fallaron) {
           return sb.from('applications').delete().eq('id', post.id).then(function (r) {
             // Antes esto se ignoraba: si el borrado fallaba, la lista se
             // recargaba con la fila intacta y parecia que el boton no hacia nada.
             if (r.error) throw r.error;
-            if (fallaron) alert('La postulación se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
+            if (fallaron) avisar('Se eliminó, con una salvedad', 'La postulación se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
             cargarPostulaciones();
           });
         }).catch(function (e) {
           b.disabled = false; b.textContent = 'Eliminar';
-          alert('No se pudo eliminar: ' + (e.message || e));
+          avisar('No se pudo eliminar', String(e.message || e));
+        });
         });
       });
     });
@@ -519,15 +609,16 @@
      alcanza con referenciar la ruta original. */
   function publicarPostulacion(post, boton) {
     var menor = post.edad && post.edad < 18;
-    var aviso = '¿Publicar a ' + post.nombre + ' en ' + (SEGS[post.segmento] || 'Scouted Models') + '?\n\n' +
-                'Se copian sus fotos al almacenamiento publico. La ficha se crea OCULTA: ' +
-                'hay que revisarla y publicarla desde la pestania Modelos.';
-    if (menor) {
-      aviso += '\n\n\u26A0 ES MENOR DE EDAD (' + post.edad + ' anios).' +
-               (post.tutor_auth ? ' Figura autorizacion del tutor.' : ' NO figura autorizacion del tutor.');
-    }
-    if (!confirm(aviso)) return;
-
+    dialogo({
+      titulo: 'Publicar en el sitio',
+      texto: '¿Publicar a ' + post.nombre + ' en ' + (SEGS[post.segmento] || 'Scouted Models') + '?' +
+             '\nSe copian sus fotos al almacenamiento público.' +
+             '\nLa ficha se crea oculta: hay que revisarla y publicarla desde la pestaña Modelos.',
+      ojo: menor ? ('Es menor de edad (' + post.edad + ' años). ' +
+                    (post.tutor_auth ? 'Figura la autorización del tutor.' : 'NO figura la autorización del tutor.')) : null,
+      aceptar: 'Publicar', peligro: !!menor
+    }).then(function (ok) {
+      if (!ok) return;
     boton.disabled = true;
     var textoOriginal = boton.textContent;
     boton.textContent = 'Copiando fotos…';
@@ -571,12 +662,13 @@
         .update({ model_id: r.data.id, estado: 'aceptada' })
         .eq('id', post.id);
     }).then(function () {
-      alert('Listo. La ficha quedo creada y OCULTA en ' + (SEGS[post.segmento] || 'Scouted Models') + '.\n' +
-            'Revisala en la pestania Modelos y publicala cuando corresponda.');
+      avisar('Ficha creada', 'Quedó en ' + (SEGS[post.segmento] || 'Scouted Models') + ', oculta.',
+             'Revisala en la pestaña Modelos y publicala cuando corresponda.');
       cargarPostulaciones(); cargarModelos();
     }).catch(function (err) {
       boton.disabled = false; boton.textContent = textoOriginal;
-      alert('No se pudo publicar: ' + (err.message || err));
+      avisar('No se pudo publicar', String(err.message || err));
+    });
     });
   }
 
@@ -628,15 +720,21 @@
     });
     document.querySelectorAll('[data-del-emp]').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (!confirm('¿Eliminar esta solicitud? No se puede deshacer.')) return;
-        b.disabled = true; b.textContent = 'Eliminando…';
-        sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(function (r) {
-          if (r.error) {
-            b.disabled = false; b.textContent = 'Eliminar';
-            alert('No se pudo eliminar: ' + r.error.message);
-            return;
-          }
-          cargarEmpresas();
+        dialogo({
+          titulo: 'Eliminar solicitud',
+          texto: '¿Eliminar esta solicitud de empresa?\nEsta acción no se puede deshacer.',
+          aceptar: 'Eliminar', peligro: true
+        }).then(function (ok) {
+          if (!ok) return;
+          b.disabled = true; b.textContent = 'Eliminando…';
+          sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(function (r) {
+            if (r.error) {
+              b.disabled = false; b.textContent = 'Eliminar';
+              avisar('No se pudo eliminar', r.error.message);
+              return;
+            }
+            cargarEmpresas();
+          });
         });
       });
     });
@@ -702,21 +800,25 @@
           if (r && rutas.indexOf(r) < 0) rutas.push(r);
         });
 
-        var aviso = '¿Eliminar a ' + m.nombre + ' del sitio?';
-        if (rutas.length) aviso += '\n\nSe borran tambien sus ' + rutas.length + ' foto(s).';
-        aviso += '\n\nNo se puede deshacer.';
-        if (!confirm(aviso)) return;
-
+        dialogo({
+          titulo: 'Eliminar modelo',
+          texto: '¿Eliminar a ' + m.nombre + ' del sitio?' +
+                 (rutas.length ? '\nSe borran también sus ' + rutas.length + ' foto(s).' : '') +
+                 '\nEsta acción no se puede deshacer.',
+          aceptar: 'Eliminar', peligro: true
+        }).then(function (ok) {
+          if (!ok) return;
         b.disabled = true; b.textContent = 'Eliminando…';
         borrarFotos('modelos', rutas).then(function (fallaron) {
           return sb.from('models').delete().eq('id', m.id).then(function (r) {
             if (r.error) throw r.error;
-            if (fallaron) alert('La modelo se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
+            if (fallaron) avisar('Se eliminó, con una salvedad', 'La modelo se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
             cargarModelos();
           });
         }).catch(function (e) {
           b.disabled = false; b.textContent = 'Eliminar';
-          alert('No se pudo eliminar: ' + (e.message || e));
+          avisar('No se pudo eliminar', String(e.message || e));
+        });
         });
       });
     });
