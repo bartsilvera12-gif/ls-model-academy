@@ -182,7 +182,7 @@
         <select id="fSeg">
           <option value="">Todos los segmentos</option>
           <option value="staff">Staff Models</option>
-          <option value="newface">New Faces</option>
+          <option value="newface">New Faces Models</option>
           <option value="scouting">Scouted Models</option>
         </select>
         <span class="count" id="cMod"></span>
@@ -220,7 +220,7 @@
     <label><span>Categoría / Segmento *</span>
       <select id="mSegmento">
         <option value="staff">Staff Models</option>
-        <option value="newface">New Faces</option>
+        <option value="newface">New Faces Models</option>
         <option value="scouting">Scouted Models</option>
       </select>
     </label>
@@ -276,7 +276,7 @@
 
   // Los tres bloques del sitio. Se declara arriba porque lo usan tanto
   // las postulaciones como las modelos.
-  var SEGS = { staff: 'Staff Models', newface: 'New Faces', scouting: 'Scouted Models' };
+  var SEGS = { staff: 'Staff Models', newface: 'New Faces Models', scouting: 'Scouted Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
 
   var esc = function (s) {
