@@ -56,10 +56,13 @@
     display: block; width: 100%; padding: 0; border: none; background: none;
     cursor: pointer; text-align: left; position: relative;
     /* Con 27 tarjetas altas, saltear el pintado de las que estan fuera
-       de pantalla es lo que mas se nota al desplazarse. El tamanio
-       estimado evita que la barra de scroll salte. */
+       de pantalla es lo que mas se nota al desplazarse. El alto estimado
+       evita que la barra de scroll salte.
+       Solo el ALTO: contain-intrinsic-size con un unico valor fija
+       tambien el ancho, y las tarjetas fuera de pantalla se plantaban
+       en 620 px, desbordando la grilla. */
     content-visibility: auto;
-    contain-intrinsic-size: auto 620px;
+    contain-intrinsic-height: auto 620px;
   }
   .card[hidden] { display: none; }
   .frame { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; background: var(--paper-2); }
@@ -81,23 +84,20 @@
   .grid > *:nth-child(3n+2) { transform: translateY(46px); }
 
   /* --- bloques de segmento: staff y new face no se mezclan --- */
-  .seg + .seg { margin-top: clamp(64px,10vh,120px); }
-  /* El titulo de bloque es secundario: el de la pagina ya dice Modelos.
-     Si compite en tamanio, las fotos se van abajo de todo. */
+  .seg + .seg { margin-top: clamp(90px,14vh,170px); }
   .seg__head {
-    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
-    gap: 8px clamp(20px,3vw,44px);
-    padding-bottom: clamp(14px,2vh,20px); margin-bottom: clamp(20px,3vh,32px);
+    display: grid; grid-template-columns: repeat(auto-fit,minmax(290px,1fr));
+    gap: clamp(20px,4vw,60px); align-items: flex-end;
+    padding-bottom: clamp(26px,4vh,44px); margin-bottom: clamp(34px,5.5vh,64px);
     border-bottom: 1px solid var(--ink);
   }
   .seg__title {
     margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
-    font-size: clamp(24px,2.8vw,38px); line-height: 1.05;
-    text-transform: uppercase; letter-spacing: -.005em;
+    font-size: clamp(30px,4.4vw,62px); line-height: .98;
+    text-transform: uppercase; letter-spacing: -.01em;
   }
-  .seg__aside { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
   .seg__title em { font-style: italic; }
-  .seg__desc { margin: 0; max-width: 52ch; font-size: 13px; line-height: 1.7; color: var(--muted); font-weight: 300; }
+  .seg__desc { margin: 0 0 16px; max-width: 46ch; font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; }
   .seg__count { margin: 0; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; }
   .seg__empty {
     margin: 0; padding: clamp(38px,7vh,70px) clamp(22px,4vw,44px);
@@ -438,7 +438,7 @@
     <!-- Bloque 1: el staff profesional de la agencia -->
     <div class="seg" id="seg-staff">
       <div class="seg__head">
-        <h2 class="seg__title">Staff <em>Models</em></h2>
+        <h2 class="seg__title">Staff<br /><em>Models</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Modelos profesionales que forman parte oficialmente del staff de IS Model Management.</p>
           <p class="seg__count"><span id="cStaff">0</span> perfiles</p>
@@ -451,7 +451,7 @@
     <!-- Bloque 2: las caras nuevas que salen del casting de la academia -->
     <div class="seg" id="seg-newface">
       <div class="seg__head">
-        <h2 class="seg__title">New <em>Faces</em></h2>
+        <h2 class="seg__title">New<br /><em>Faces</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Alumnas y modelos destacadas de IS Model Academy que comienzan a proyectarse profesionalmente dentro de la industria.</p>
           <p class="seg__count"><span id="cNew">0</span> perfiles</p>
@@ -464,7 +464,7 @@
     <!-- Bloque 3: scouting y postulaciones recibidas por la web -->
     <div class="seg" id="seg-scouting">
       <div class="seg__head">
-        <h2 class="seg__title">Scouted <em>Models</em></h2>
+        <h2 class="seg__title">Scouted<br /><em>Models</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Nuevos talentos seleccionados mediante el scouting de IS Model Management, aunque todavía no pertenezcan a la agencia ni a la academia.</p>
           <p class="seg__count"><span id="cScout">0</span> perfiles</p>
