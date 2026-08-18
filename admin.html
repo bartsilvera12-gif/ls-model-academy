@@ -312,6 +312,31 @@
   var SEGS = { staff: 'Staff Models', newface: 'New Faces Models', scouting: 'Scouted Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
 
+  /* ---------- borrado ----------
+     Borrar una fila no borra sus fotos: quedan huerfanas en el bucket y
+     el almacenamiento crece sin que nadie lo note. Estas dos funciones
+     se encargan de limpiar tambien los archivos. */
+
+  // De la URL publica de una foto a su ruta dentro del bucket.
+  function rutaDeUrl(url, bucket) {
+    var t = String(url || '');
+    var corte = t.split('/object/public/' + bucket + '/')[1] ||
+                t.split('/render/image/public/' + bucket + '/')[1];
+    if (!corte) return null;
+    try { return decodeURIComponent(corte.split('?')[0]); }
+    catch (e) { return corte.split('?')[0]; }
+  }
+
+  // Devuelve cuantas no se pudieron borrar, sin cortar el proceso: la
+  // fila tiene que poder borrarse igual aunque el storage falle.
+  function borrarFotos(bucket, rutas) {
+    var lista = (rutas || []).filter(Boolean);
+    if (!lista.length) return Promise.resolve(0);
+    return sb.storage.from(bucket).remove(lista)
+      .then(function (r) { return r.error ? lista.length : 0; })
+      .catch(function () { return lista.length; });
+  }
+
   var esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
@@ -460,8 +485,29 @@
     });
     document.querySelectorAll('[data-del-post]').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (!confirm('¿Eliminar esta postulación? No se puede deshacer.')) return;
-        sb.from('applications').delete().eq('id', b.dataset.delPost).then(cargarPostulaciones);
+        var post = posts.filter(function (x) { return x.id === b.dataset.delPost; })[0];
+        if (!post) return;
+        var fotos = (post.fotos || []).filter(Boolean);
+
+        var aviso = '¿Eliminar la postulación de ' + post.nombre + '?';
+        if (fotos.length) aviso += '\n\nSe borran tambien sus ' + fotos.length + ' fotografía(s) del almacenamiento privado.';
+        if (post.model_id) aviso += '\n\nOJO: ya tiene una ficha publicada en el sitio. Esa ficha NO se borra, queda por separado.';
+        aviso += '\n\nNo se puede deshacer.';
+        if (!confirm(aviso)) return;
+
+        b.disabled = true; b.textContent = 'Eliminando…';
+        borrarFotos('postulaciones', fotos).then(function (fallaron) {
+          return sb.from('applications').delete().eq('id', post.id).then(function (r) {
+            // Antes esto se ignoraba: si el borrado fallaba, la lista se
+            // recargaba con la fila intacta y parecia que el boton no hacia nada.
+            if (r.error) throw r.error;
+            if (fallaron) alert('La postulación se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
+            cargarPostulaciones();
+          });
+        }).catch(function (e) {
+          b.disabled = false; b.textContent = 'Eliminar';
+          alert('No se pudo eliminar: ' + (e.message || e));
+        });
       });
     });
   }
@@ -582,8 +628,16 @@
     });
     document.querySelectorAll('[data-del-emp]').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (!confirm('¿Eliminar esta solicitud?')) return;
-        sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(cargarEmpresas);
+        if (!confirm('¿Eliminar esta solicitud? No se puede deshacer.')) return;
+        b.disabled = true; b.textContent = 'Eliminando…';
+        sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(function (r) {
+          if (r.error) {
+            b.disabled = false; b.textContent = 'Eliminar';
+            alert('No se pudo eliminar: ' + r.error.message);
+            return;
+          }
+          cargarEmpresas();
+        });
       });
     });
   }
@@ -639,8 +693,31 @@
     });
     document.querySelectorAll('[data-del-mod]').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (!confirm('¿Eliminar esta modelo del sitio?')) return;
-        sb.from('models').delete().eq('id', b.dataset.delMod).then(cargarModelos);
+        var m = mods.filter(function (x) { return x.id === b.dataset.delMod; })[0];
+        if (!m) return;
+        // La portada suele estar tambien en la galeria: se deduplica.
+        var rutas = [];
+        [m.cover].concat(m.fotos || []).forEach(function (u) {
+          var r = rutaDeUrl(u, 'modelos');
+          if (r && rutas.indexOf(r) < 0) rutas.push(r);
+        });
+
+        var aviso = '¿Eliminar a ' + m.nombre + ' del sitio?';
+        if (rutas.length) aviso += '\n\nSe borran tambien sus ' + rutas.length + ' foto(s).';
+        aviso += '\n\nNo se puede deshacer.';
+        if (!confirm(aviso)) return;
+
+        b.disabled = true; b.textContent = 'Eliminando…';
+        borrarFotos('modelos', rutas).then(function (fallaron) {
+          return sb.from('models').delete().eq('id', m.id).then(function (r) {
+            if (r.error) throw r.error;
+            if (fallaron) alert('La modelo se borró, pero ' + fallaron + ' foto(s) quedaron en el almacenamiento.');
+            cargarModelos();
+          });
+        }).catch(function (e) {
+          b.disabled = false; b.textContent = 'Eliminar';
+          alert('No se pudo eliminar: ' + (e.message || e));
+        });
       });
     });
   }
