@@ -72,53 +72,57 @@
   .grid > *:nth-child(3n+2) { transform: translateY(46px); }
 
   /* --- bloques de segmento: staff y new face no se mezclan --- */
-  .seg + .seg { margin-top: clamp(90px,14vh,170px); }
+  .seg + .seg { margin-top: clamp(64px,10vh,120px); }
+  /* El titulo de bloque es secundario: el de la pagina ya dice Modelos.
+     Si compite en tamanio, las fotos se van abajo de todo. */
   .seg__head {
-    display: grid; grid-template-columns: repeat(auto-fit,minmax(290px,1fr));
-    gap: clamp(20px,4vw,60px); align-items: flex-end;
-    padding-bottom: clamp(26px,4vh,44px); margin-bottom: clamp(34px,5.5vh,64px);
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+    gap: 8px clamp(20px,3vw,44px);
+    padding-bottom: clamp(14px,2vh,20px); margin-bottom: clamp(20px,3vh,32px);
     border-bottom: 1px solid var(--ink);
   }
   .seg__title {
     margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
-    font-size: clamp(30px,4.4vw,62px); line-height: .98;
-    text-transform: uppercase; letter-spacing: -.01em;
+    font-size: clamp(24px,2.8vw,38px); line-height: 1.05;
+    text-transform: uppercase; letter-spacing: -.005em;
   }
+  .seg__aside { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
   .seg__title em { font-style: italic; }
-  .seg__desc { margin: 0 0 16px; max-width: 46ch; font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; }
+  .seg__desc { margin: 0; max-width: 52ch; font-size: 13px; line-height: 1.7; color: var(--muted); font-weight: 300; }
   .seg__count { margin: 0; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; }
   .seg__empty {
     margin: 0; padding: clamp(38px,7vh,70px) clamp(22px,4vw,44px);
     border: 1px solid var(--line); background: var(--paper-2);
     font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; text-align: center;
   }
-  /* --- cabecera del listado --- */
-  .roster__kicker {
-    margin: 0 0 clamp(20px,3vh,30px); font-family: 'Cormorant Garamond', serif; font-style: italic;
-    font-size: 19px; color: var(--muted); animation: rise .9s cubic-bezier(.2,.7,.2,1) both;
-  }
-  .roster__top {
-    display: grid; grid-template-columns: minmax(0,1.35fr) minmax(0,1fr);
-    gap: clamp(24px,4vw,72px); align-items: end;
+  /* --- cabecera del listado ---
+     Compacta a proposito: antes el titular ocupaba 115 px y la primera
+     foto arrancaba a 825 px, o sea que en una pantalla de 900 no se veia
+     ninguna modelo sin bajar. */
+  .roster__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px 28px;
+    animation: rise .8s cubic-bezier(.2,.7,.2,1) both;
   }
   .roster__title {
     margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
-    font-size: clamp(46px,8vw,118px); line-height: .86;
-    text-transform: uppercase; letter-spacing: -.02em;
-    animation: rise 1s cubic-bezier(.2,.7,.2,1) .08s both;
+    font-size: clamp(38px,5vw,68px); line-height: .95;
+    text-transform: uppercase; letter-spacing: -.015em;
   }
-  .roster__title em { font-style: italic; }
-  .roster__aside { animation: rise 1s cubic-bezier(.2,.7,.2,1) .18s both; padding-bottom: 6px; }
-  .roster__intro { margin: 0 0 18px; max-width: 42ch; font-size: 14px; line-height: 1.85; color: var(--muted); font-weight: 300; }
-  .roster__meta { margin: 0; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; }
+  .roster__meta { margin: 0; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); }
+  .roster__intro {
+    margin: 14px 0 0; max-width: 68ch; font-size: 14px; line-height: 1.8;
+    color: var(--muted); font-weight: 300;
+    animation: rise .8s cubic-bezier(.2,.7,.2,1) .08s both;
+  }
 
   /* Barra con el buscador y los atajos a cada bloque */
   .roster__bar {
     display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
-    gap: clamp(20px,3vw,48px);
-    margin-top: clamp(34px,5.5vh,60px); padding-bottom: clamp(18px,2.5vh,26px);
+    gap: 16px clamp(20px,3vw,48px);
+    margin-top: clamp(22px,3vh,32px); padding-bottom: clamp(14px,2vh,20px);
     border-bottom: 1px solid var(--ink);
-    animation: rise 1s cubic-bezier(.2,.7,.2,1) .26s both;
+    animation: rise .8s cubic-bezier(.2,.7,.2,1) .16s both;
   }
   .segnav { display: flex; flex-wrap: wrap; gap: clamp(14px,2.4vw,34px); }
   .segnav__b {
@@ -139,8 +143,6 @@
   .segnav__b[data-vacio]:hover span { color: var(--muted); }
 
   @media (max-width: 860px) {
-    .roster__top { grid-template-columns: 1fr; align-items: start; }
-    .roster__aside { padding-bottom: 0; }
     .roster__bar { flex-direction: column; align-items: stretch; }
   }
 
@@ -395,17 +397,13 @@
   </nav>
 </div>
 
-<section style="padding:clamp(130px,18vh,190px) clamp(20px,4vw,48px) clamp(46px,7vh,76px)">
+<section style="padding:clamp(104px,13vh,136px) clamp(20px,4vw,48px) clamp(26px,4vh,40px)">
   <div style="max-width:1500px;margin:0 auto">
-    <p class="roster__kicker">— El listado</p>
-
-    <div class="roster__top">
-      <h1 class="roster__title">Nuestras<br /><em>modelos</em></h1>
-      <div class="roster__aside">
-        <p class="roster__intro">Nuestro staff profesional y las caras nuevas que salen del casting de IS Model Academy. Abrí cada perfil para ver medidas, altura y disponibilidad.</p>
-        <p class="roster__meta"><span id="count">0</span> perfiles · Paraguay</p>
-      </div>
+    <div class="roster__head">
+      <h1 class="roster__title">Modelos</h1>
+      <p class="roster__meta"><span id="count">0</span> perfiles · Paraguay</p>
     </div>
+    <p class="roster__intro">Staff profesional y caras nuevas del casting de IS Model Academy. Abrí cada perfil para ver medidas, altura y disponibilidad.</p>
 
     <div class="roster__bar">
       <div class="buscador">
@@ -425,13 +423,13 @@
   </div>
 </section>
 
-<section style="padding:0 clamp(20px,4vw,48px) clamp(110px,16vh,180px)">
+<section style="padding:clamp(30px,4.5vh,48px) clamp(20px,4vw,48px) clamp(110px,16vh,180px)">
   <div style="max-width:1500px;margin:0 auto">
 
     <!-- Bloque 1: el staff profesional de la agencia -->
     <div class="seg" id="seg-staff">
       <div class="seg__head">
-        <h2 class="seg__title">Modelos<br /><em>Staff</em></h2>
+        <h2 class="seg__title">Modelos <em>Staff</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Modelos representadas por IS Model Management, con book profesional y disponibilidad para pasarela, campaña y producción.</p>
           <p class="seg__count"><span id="cStaff">0</span> perfiles</p>
@@ -444,7 +442,7 @@
     <!-- Bloque 2: las caras nuevas que salen del casting de la academia -->
     <div class="seg" id="seg-newface">
       <div class="seg__head">
-        <h2 class="seg__title">New Face<br /><em>Model</em></h2>
+        <h2 class="seg__title">New Face <em>Model</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Talentos emergentes de IS Model Academy, seleccionadas por casting interno y en proceso de desarrollo.</p>
           <p class="seg__count"><span id="cNew">0</span> perfiles</p>
@@ -457,7 +455,7 @@
     <!-- Bloque 3: scouting y postulaciones recibidas por la web -->
     <div class="seg" id="seg-scouting">
       <div class="seg__head">
-        <h2 class="seg__title">Scouting<br /><em>Models</em></h2>
+        <h2 class="seg__title">Scouting <em>Models</em></h2>
         <div class="seg__aside">
           <p class="seg__desc">Perfiles descubiertos mediante scouting y postulaciones recibidas desde la web, en evaluación por nuestro equipo.</p>
           <p class="seg__count"><span id="cScout">0</span> perfiles</p>
