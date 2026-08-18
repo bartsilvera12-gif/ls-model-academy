@@ -426,17 +426,6 @@
       #232932 0%, #171C23 18%, #2C333D 34%, #1A1F27 52%,
       #262D37 68%, #191E25 84%, #2F3742 100%);
   }
-  .ls-band::before, .ls-band::after {
-    content: ''; position: absolute; border-radius: 50%; pointer-events: none;
-    border: 1px solid rgba(255,255,255,.16); z-index: 0;
-  }
-  .ls-band::before { width: 260px; height: 260px; left: 2%; top: -46%; }
-  .ls-band::after  { width: 190px; height: 190px; left: 9%; top: 22%; }
-  .ls-band .ls-halo {
-    position: absolute; z-index: 0; pointer-events: none; border-radius: 50%;
-    width: 150px; height: 150px; left: 15%; top: -30%;
-    border: 1px solid rgba(255,255,255,.12);
-  }
   .ls-band .ls-sheen {
     position: absolute; inset: 0; z-index: 0; pointer-events: none;
     background: linear-gradient(76deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.09) 55%, rgba(255,255,255,0) 68%);
@@ -449,7 +438,6 @@
   .ls-band:hover .ls-label { letter-spacing: .4em; }
   .ls-band .ls-dash { display: block; width: 62px; height: 1px; margin: 18px auto 0; background: rgba(247,247,244,.5); transition: width .5s cubic-bezier(.2,.7,.2,1); }
   .ls-band:hover .ls-dash { width: 104px; }
-  @media (max-width: 700px) { .ls-band::before, .ls-band::after, .ls-band .ls-halo { display: none; } }
 
   /* Formulario: la barra ya NO es sticky. En el celular quedaba flotando
      sobre los campos al deslizar. Ahora acompania el scroll. */
@@ -777,7 +765,6 @@
 
   <div style="background:#F2F1ED">
     <button type="button" class="ls-band" onClick="{{ openApply }}" aria-label="Quiero formar parte">
-      <span class="ls-halo" aria-hidden="true"></span>
       <span class="ls-sheen" aria-hidden="true"></span>
       <span class="ls-inner" style="width:100%;max-width:1100px">
         <span class="mh" id="mhBand"
