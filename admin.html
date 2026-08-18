@@ -779,10 +779,23 @@
     });
     $('mOrden').value = m.orden == null ? 100 : m.orden;
     $('mSegmento').value = SEGS[m.segmento] ? m.segmento : 'staff';
-    // Si el valor guardado no esta entre las opciones, se cae al habitual.
+    // El encuadre guardado puede ser un ajuste fino que no figura entre
+    // las opciones ("center 6%", "center 52%"). Se agrega como opcion
+    // propia en vez de caer al habitual: abrir una ficha y guardarla sin
+    // tocar nada no le tiene que cambiar el recorte.
+    var sel = $('mCoverPos');
+    var previa = sel.querySelector('option[data-extra]');
+    if (previa) previa.parentNode.removeChild(previa);
     var pos = m.cover_pos || 'center 20%';
-    var opciones = Array.prototype.map.call($('mCoverPos').options, function (o) { return o.value; });
-    $('mCoverPos').value = opciones.indexOf(pos) > -1 ? pos : 'center 20%';
+    var opciones = Array.prototype.map.call(sel.options, function (o) { return o.value; });
+    if (opciones.indexOf(pos) < 0) {
+      var o = document.createElement('option');
+      o.value = pos;
+      o.textContent = 'Ajuste guardado (' + String(pos).replace('center ', '') + ')';
+      o.setAttribute('data-extra', '');
+      sel.insertBefore(o, sel.firstChild);
+    }
+    sel.value = pos;
     $('mPub').checked = m.publicada !== false;
 
     liberarBlobs();
