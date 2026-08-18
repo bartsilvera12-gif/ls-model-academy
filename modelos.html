@@ -92,6 +92,25 @@
     border: 1px solid var(--line); background: var(--paper-2);
     font-size: 14px; line-height: 1.8; color: var(--muted); font-weight: 300; text-align: center;
   }
+  /* --- buscador --- */
+  .buscador { position: relative; display: flex; align-items: center; max-width: 420px; border-bottom: 1px solid var(--ink); }
+  .buscador__lupa { flex: 0 0 auto; width: 17px; height: 17px; fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .buscador input {
+    flex: 1; min-width: 0; min-height: 46px; padding: 0 6px 0 12px;
+    background: transparent; border: none; outline: none; border-radius: 0;
+    font: inherit; font-size: 15px; font-weight: 300; color: var(--ink);
+    -webkit-appearance: none; appearance: none;
+  }
+  .buscador input::placeholder { color: var(--muted); font-weight: 300; }
+  /* La X nativa de Safari y Chrome duplica el boton propio */
+  .buscador input::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .buscador button {
+    flex: 0 0 auto; width: 34px; height: 34px; padding: 0; cursor: pointer;
+    background: none; border: none; font-size: 22px; line-height: 1; color: var(--muted);
+  }
+  .buscador button:hover { color: var(--ink); }
+  .buscador__nota { margin: 14px 0 0; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+
   /* Con el bloque vacio la grilla no debe dejar un hueco */
   .grid:empty { display: none; }
   /* Acceso al formulario de scouting: visible haya o no perfiles */
@@ -324,7 +343,13 @@
         <p style="margin:0 0 20px;max-width:40ch;font-size:14px;line-height:1.8;color:var(--muted);font-weight:300">
           Nuestro staff profesional y las caras nuevas que salen del casting de IS Model Academy. Abrí cada perfil para ver medidas, altura y disponibilidad.
         </p>
-        <p style="margin:0;font-size:11px;letter-spacing:.26em;text-transform:uppercase"><span id="count">23</span> perfiles · Paraguay</p>
+        <p style="margin:0 0 18px;font-size:11px;letter-spacing:.26em;text-transform:uppercase"><span id="count">23</span> perfiles · Paraguay</p>
+        <div class="buscador">
+          <svg class="buscador__lupa" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="21" y2="21" /></svg>
+          <input type="search" id="buscar" placeholder="Buscar por nombre o ciudad" aria-label="Buscar modelos" autocomplete="off" />
+          <button type="button" id="limpiar" aria-label="Limpiar búsqueda" hidden>&times;</button>
+        </div>
+        <p class="buscador__nota" id="notaBusqueda" hidden></p>
       </div>
     </div>
     <div style="margin-top:clamp(36px,6vh,64px);height:1px;background:var(--ink)"></div>
@@ -628,23 +653,69 @@ function tarjeta(m, indiceGlobal, posEnBloque){
   return b;
 }
 
+/* Se comparan sin tildes ni mayusculas: "otinano" encuentra a Otiñano. */
+function normalizar(t){
+  return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+function coincide(m, q){
+  if (!q) return true;
+  var heno = normalizar([m.name, m.ciudad].filter(Boolean).join(' '));
+  // Todas las palabras tienen que aparecer: "cielo asu" encuentra a
+  // Cielo si es de Asuncion, y no a cualquiera que tenga una sola.
+  return normalizar(q).split(/\s+/).filter(Boolean).every(function(t){ return heno.indexOf(t) > -1; });
+}
+
 function renderGrid(){
+  var campo = document.getElementById('buscar');
+  var q = campo ? campo.value.trim() : '';
+  var visibles = 0;
+
   SEGMENTOS.forEach(function(seg){
     var grid = document.getElementById(seg.grid);
     var vacio = document.getElementById(seg.vacio);
     grid.innerHTML = '';
-    var n = 0;
+    var n = 0, total = 0;
     MODELS.forEach(function(m, i){
       if (segDe(m) !== seg.id) return;
+      total++;
+      if (!coincide(m, q)) return;
       grid.appendChild(tarjeta(m, i, n));
       n++;
     });
+    visibles += n;
     document.getElementById(seg.cuenta).textContent = n;
-    if (vacio) vacio.hidden = n > 0;
+    if (vacio) {
+      // Buscando, el bloque vacio dice otra cosa: no es que no haya
+      // perfiles, es que ninguno coincide.
+      vacio.hidden = n > 0;
+      if (!n && q) { vacio.dataset.original = vacio.dataset.original || vacio.innerHTML; vacio.textContent = 'Ninguna coincidencia en este bloque.'; }
+      else if (vacio.dataset.original) { vacio.innerHTML = vacio.dataset.original; }
+    }
   });
+
   document.getElementById('count').textContent = MODELS.length;
+  var nota = document.getElementById('notaBusqueda');
+  var limpiar = document.getElementById('limpiar');
+  if (limpiar) limpiar.hidden = !q;
+  if (nota) {
+    nota.hidden = !q;
+    nota.textContent = visibles === 1 ? '1 modelo encontrada' : visibles + ' modelos encontradas';
+  }
   observe();
 }
+
+(function(){
+  var campo = document.getElementById('buscar');
+  var limpiar = document.getElementById('limpiar');
+  if (!campo) return;
+  campo.addEventListener('input', renderGrid);
+  campo.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') { campo.value = ''; renderGrid(); }
+  });
+  if (limpiar) limpiar.addEventListener('click', function(){
+    campo.value = ''; campo.focus(); renderGrid();
+  });
+})();
 
 /* ---------- detalle ---------- */
 var cur = -1;
@@ -893,10 +964,24 @@ window.addEventListener('load', checkReveal);
 onScroll();
 setTimeout(checkReveal, 400);
 
-if (location.hash){
+/* Abre la ficha que pida el hash. El carrusel del inicio usa nombres mas
+   cortos que el listado ("cecilia-caffarena" por "cecilia-caffarena-clerch"),
+   asi que se acepta un prefijo mientras apunte a una sola modelo. */
+function abrirPorHash(){
   var want = location.hash.slice(1);
-  MODELS.forEach(function(m,i){ if (slug(m.name) === want) openDetail(i, false); });
+  if (!want) return;
+  var exacto = -1, porPrefijo = [];
+  MODELS.forEach(function(m,i){
+    var sl = slug(m.name);
+    if (sl === want) exacto = i;
+    else if (sl.indexOf(want + '-') === 0) porPrefijo.push(i);
+  });
+  var elegida = exacto > -1 ? exacto : (porPrefijo.length === 1 ? porPrefijo[0] : -1);
+  if (elegida > -1) openDetail(elegida, false);
 }
+abrirPorHash();
+// Tambien si el hash cambia con la pagina ya abierta.
+window.addEventListener('hashchange', abrirPorHash);
 </script>
 
 </body>

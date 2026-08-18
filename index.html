@@ -1009,6 +1009,12 @@
 
   // Version liviana (900px) para el carrusel. Las originales llegan a
   // 4160x6240 y decodificarlas 23 veces con blur traba la animacion.
+  // Mismo formato que usa modelos.html para el hash del perfil.
+  function slugPerfil(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
   function thumbOf(m) {
     const base = m.dir ? m.dir : m.file.replace(/\.[^.]+$/, '');
     return 'carousel/' + encodeURIComponent(base) + '.jpg';
@@ -1072,7 +1078,11 @@
       // Sin avance automatico: los perfiles cambiaban antes de poder leerlos.
       // Se navega con las flechas, arrastrando o con la rueda del mouse.
       loop: true, autoplay: false,
-      onChange: function (i) { idx = i; paint(true); }
+      onChange: function (i) { idx = i; paint(true); },
+      onCardClick: function (i) {
+        var m = HERO_MODELS[i];
+        if (m) window.location.href = 'modelos.html#' + (m.perfil || slugPerfil(m.name));
+      }
     });
     if (carousel) el.dataset.dcReady = '1';
   }
@@ -1432,7 +1442,17 @@
       t.style.background = o.tint;
       c.appendChild(t);
 
-      c.addEventListener('click', function () { if (!drag || !drag.moved) setFocus(i, true); });
+      c.addEventListener('click', function () {
+        if (drag && drag.moved) return;   // veniamos arrastrando, no es un clic
+        // La que ya esta al frente abre el perfil. Las de los costados
+        // primero se centran: si no, un clic al pasar abriria cualquiera.
+        //
+        // Se mira la clase, no la variable focus: focus se adelanta al
+        // final de la animacion y durante el giro no coincide con la
+        // tarjeta que la persona esta viendo adelante.
+        if (c.classList.contains('is-front') && typeof o.onCardClick === 'function') o.onCardClick(i);
+        else setFocus(i, true);
+      });
       stage.appendChild(c);
       cards.push(c); tints.push(t);
     });
