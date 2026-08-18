@@ -1911,7 +1911,13 @@
     onScroll();
     // El framework re-renderiza: se vuelve a etiquetar lo que aparezca después.
     setInterval(function () {
-      tagAnimTargets(); revealAnims(); initMasked(); initCarousel(); initGrainients();
+      // Todo esto escribe dentro de nodos que renderiza el framework.
+      // Si alguno falla, no puede llevarse la pagina entera por delante:
+      // el error queda en la consola y el resto sigue funcionando.
+      [tagAnimTargets, revealAnims, initMasked, initCarousel, initGrainients]
+        .forEach(function (fn) {
+          try { fn(); } catch (e) { if (window.console) console.warn("fallo " + fn.name + ":", e); }
+        });
       // Tambien aca: si solo se procesara al hacer scroll y el observer no
       // dispara, el titular de la franja queda fuera de cuadro y no se ve.
       for (let i = pendingReveals.length - 1; i >= 0; i--) {
