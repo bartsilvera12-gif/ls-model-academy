@@ -216,7 +216,6 @@
     <div class="tabs">
       <button class="tab on" data-tab="post" type="button">Postulaciones</button>
       <button class="tab" data-tab="mod" type="button">Modelos</button>
-      <button class="tab" data-tab="emp" type="button">Empresas</button>
       <button class="tab" id="logout" type="button" style="color:#fff">Salir</button>
     </div>
   </div>
@@ -254,14 +253,6 @@
       <div class="grid" id="listMod"></div>
     </section>
 
-    <!-- ---------- Empresas ---------- -->
-    <section id="tab-emp" style="display:none">
-      <div class="bar">
-        <input type="search" id="qEmp" placeholder="Buscar por empresa…" />
-        <span class="count" id="cEmp"></span>
-      </div>
-      <div class="grid" id="listEmp"></div>
-    </section>
   </div>
 </div>
 
@@ -592,7 +583,7 @@
     $('login').style.display = 'none';
     $('app').style.display = 'block';
     $('who').textContent = user && user.email ? user.email : '';
-    cargarPostulaciones(); cargarModelos(); cargarEmpresas();
+    cargarPostulaciones(); cargarModelos();
   }
 
   sb.auth.getSession().then(function (r) {
@@ -604,7 +595,7 @@
     t.addEventListener('click', function () {
       document.querySelectorAll('.tab[data-tab]').forEach(function (x) { x.classList.remove('on'); });
       t.classList.add('on');
-      ['post','mod','emp'].forEach(function (k) {
+      ['post','mod'].forEach(function (k) {
         $('tab-' + k).style.display = (k === t.dataset.tab) ? 'block' : 'none';
       });
     });
@@ -811,76 +802,6 @@
   }
 
   $('lb').addEventListener('click', function () { $('lb').classList.remove('on'); });
-
-  /* ================= EMPRESAS ================= */
-  var emps = [];
-  function cargarEmpresas() {
-    sb.from('event_requests').select('*').order('created_at', { ascending:false })
-      .then(function (r) {
-        if (r.error) { $('listEmp').innerHTML = '<p class="empty">' + esc(r.error.message) + '</p>'; return; }
-        emps = r.data || []; pintarEmpresas();
-      });
-  }
-  function pintarEmpresas() {
-    var q = $('qEmp').value.toLowerCase().trim();
-    var l = emps.filter(function (e) { return !q || (e.empresa||'').toLowerCase().indexOf(q) > -1; });
-    $('cEmp').textContent = l.length + ' de ' + emps.length;
-    if (!l.length) { $('listEmp').innerHTML = '<p class="empty">No hay solicitudes.</p>'; return; }
-    $('listEmp').innerHTML = l.map(function (e) {
-      return '<div class="card">' +
-        '<h3>' + esc(e.empresa) + '</h3>' +
-        '<p class="meta">' + fecha(e.created_at) + (e.tipo ? ' · ' + esc(e.tipo) : '') + '</p>' +
-        '<span class="pill pill--' + esc(e.estado === 'cerrada' ? 'aceptada' : e.estado) + '">' + esc(e.estado.replace('_',' ')) + '</span>' +
-        '<dl class="kv" style="margin-top:12px">' +
-          (e.responsable ? '<dt>Contacto</dt><dd>' + esc(e.responsable) + '</dd>' : '') +
-          (e.whatsapp ? '<dt>WhatsApp</dt><dd><a href="https://wa.me/' + esc(String(e.whatsapp).replace(/\D/g,'')) + '" target="_blank" rel="noopener">' + esc(e.whatsapp) + '</a></dd>' : '') +
-          (e.email ? '<dt>Email</dt><dd><a href="mailto:' + esc(e.email) + '">' + esc(e.email) + '</a></dd>' : '') +
-          (e.fecha ? '<dt>Fecha</dt><dd>' + esc(e.fecha) + '</dd>' : '') +
-          (e.ciudad ? '<dt>Ciudad</dt><dd>' + esc(e.ciudad) + '</dd>' : '') +
-          (e.cantidad ? '<dt>Cantidad</dt><dd>' + e.cantidad + '</dd>' : '') +
-          (e.modelo ? '<dt>Modelo</dt><dd>' + esc(e.modelo) + '</dd>' : '') +
-        '</dl>' +
-        (e.perfil ? '<p style="font-size:13px;line-height:1.7;color:#41464E">' + esc(e.perfil) + '</p>' : '') +
-        '<div class="row">' +
-          '<select data-emp="' + e.id + '" style="min-width:150px">' +
-            ['nueva','en_revision','cerrada','descartada'].map(function (x) {
-              return '<option value="' + x + '"' + (e.estado===x?' selected':'') + '>' + x.replace('_',' ') + '</option>';
-            }).join('') +
-          '</select>' +
-          '<button class="btn btn--sm btn--danger" data-del-emp="' + e.id + '" type="button">Eliminar</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    document.querySelectorAll('[data-emp]').forEach(function (s) {
-      s.addEventListener('change', function () {
-        sb.from('event_requests').update({ estado: s.value }).eq('id', s.dataset.emp).then(cargarEmpresas);
-      });
-    });
-    document.querySelectorAll('[data-del-emp]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        dialogo({
-          titulo: 'Eliminar solicitud',
-          texto: '¿Eliminar esta solicitud de empresa?\nEsta acción no se puede deshacer.',
-          aceptar: 'Eliminar', peligro: true
-        }).then(function (ok) {
-          if (!ok) return;
-          b.disabled = true; b.textContent = 'Eliminando…';
-          sb.from('event_requests').delete().eq('id', b.dataset.delEmp).then(function (r) {
-            if (r.error) {
-              b.disabled = false; b.textContent = 'Eliminar';
-              avisar('No se pudo eliminar', r.error.message);
-              return;
-            }
-            cargarEmpresas();
-          });
-        });
-      });
-    });
-
-    // Cada repintado crea selects nuevos dentro de las tarjetas.
-    integrarSelects($('listEmp'));
-  }
-  $('qEmp').addEventListener('input', pintarEmpresas);
 
   /* ================= MODELOS ================= */
   var mods = [];
