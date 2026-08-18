@@ -2012,7 +2012,7 @@ const MODELS = [
    Es el UNICO lugar donde se define: alimenta el enlace del pie y los dos
    botones de IS Model Academy. Mientras este vacio, esos botones abren el
    formulario de contacto en vez de WhatsApp. */
-const WHATSAPP = '';
+const WHATSAPP = '595973411125';   // 0973 411 125, en formato internacional
 
 /* Mensajes que quedan escritos al abrir el chat, para que el equipo sepa
    de entrada por que area consulta la persona. */
@@ -2370,7 +2370,7 @@ class Component extends DCLogic {
       menuOpen: s.menuOpen,
       showSticky: isMobile && !s.modal && !s.profileId && (p.showStickyCta !== false),
       waLink: wa ? 'https://wa.me/' + wa : '#contacto',
-      waLabel: p.whatsappNumber || WHATSAPP || '[ pendiente ]',
+      waLabel: p.whatsappNumber || '0973 411 125',
       acWa: waWith(WA_ACADEMY) || '#contacto',
       acWaInfo: waWith(WA_ACADEMY_INFO) || '#contacto',
       acTarget: wa ? '_blank' : '_self',
