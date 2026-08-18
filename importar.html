@@ -47,7 +47,7 @@
 <body>
 <div class="wrap">
   <h1>Importar modelos</h1>
-  <p class="sub">Carga a Supabase las modelos que hoy están escritas en <code>modelos.html</code>, con sus fotografías.</p>
+  <p class="sub">Carga a Supabase las modelos que hoy están escritas en <code>modelos.html</code>, con sus fotografías. <span id="ver" style="opacity:.6"></span></p>
 
   <div class="box" id="estado"><h2>Estado</h2><p class="cont">Comprobando…</p></div>
 
@@ -65,6 +65,7 @@
   <div class="box">
     <h2>Ejecutar</h2>
     <div class="row">
+      <button class="btn btn--ghost" id="probar" type="button">Probar conexión</button>
       <button class="btn btn--ghost" id="simular" type="button">Simular (no escribe nada)</button>
       <button class="btn" id="importar" type="button">Importar de verdad</button>
     </div>
@@ -78,6 +79,9 @@
 (function () {
   var sb = window.lsSupabase;
   var $ = function (id) { return document.getElementById(id); };
+  // Sirve para confirmar de un vistazo que no se esta ejecutando una
+  // version vieja cacheada del archivo.
+  var VERSION = 'v2 · subida por fetch directo';
   var MAX_LADO = 1400;      // ningun lado supera esto
   var CALIDAD = 0.82;       // JPEG
 
@@ -96,13 +100,15 @@
   function enc(p) { return String(p).split('/').map(encodeURIComponent).join('/'); }
 
   /* ---------- estado inicial ---------- */
+  if ($('ver')) $('ver').textContent = '(' + VERSION + ')';
+
   function pintarEstado(html, clase) {
     $('estado').innerHTML = '<h2>Estado</h2><div class="' + (clase || 'cont') + '">' + html + '</div>';
   }
 
   if (!sb) {
     pintarEstado('Falta completar <code>supabase-config.js</code> con la URL y la anon key.', 'mal');
-    $('simular').disabled = $('importar').disabled = true;
+    $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
     return;
   }
 
@@ -111,13 +117,13 @@
     sesion = r && r.data && r.data.session;
     if (!sesion) {
       pintarEstado('No hay sesión abierta. Entrá primero en <a href="admin.html">admin.html</a> y volvé a esta página.', 'mal');
-      $('simular').disabled = $('importar').disabled = true;
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
       return;
     }
     return sb.from('models').select('nombre').then(function (r2) {
       if (r2.error) {
         pintarEstado('No se pudo leer la tabla: ' + r2.error.message, 'mal');
-        $('simular').disabled = $('importar').disabled = true;
+        $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
         return;
       }
       var n = (r2.data || []).length;
@@ -162,14 +168,19 @@
           res({ blob: b, ancho: cv.width, alto: cv.height });
         }, 'image/jpeg', CALIDAD);
       };
-      img.onerror = function () { rej(new Error('no se pudo cargar')); };
+      img.onerror = function () { rej(new Error('LECTURA: el navegador no pudo abrir el archivo local')); };
       img.src = enc(url);
     });
   }
 
   function subir(blob, ruta) {
+    if (typeof window.lsSubirArchivo !== 'function') {
+      return Promise.reject(new Error('SUBIDA: falta window.lsSubirArchivo. La pagina quedo con una version vieja: recargala con Ctrl+Shift+R.'));
+    }
     return window.lsSubirArchivo('modelos', ruta, blob, 'image/jpeg').then(function () {
       return window.lsUrlPublica('modelos', ruta);
+    }, function (e) {
+      throw new Error('SUBIDA: ' + (e.message || e));
     });
   }
 
@@ -186,7 +197,7 @@
     )) return;
 
     corriendo = true;
-    $('simular').disabled = $('importar').disabled = true;
+    $('simular').disabled = $('importar').disabled = $('probar').disabled = true;
     $('log').innerHTML = ''; $('log').hidden = false;
     log(simulacion ? '=== SIMULACION: no se escribe nada ===' : '=== IMPORTACION REAL ===');
 
@@ -245,7 +256,10 @@
               return siguienteFoto();
             });
           }).catch(function (e) {
-            log('      ! ' + it.tipo + ' omitida (' + it.url + '): ' + (e.message || e), 'err');
+            // El paso viene etiquetado desde reducir() o subir(), asi se sabe
+            // si fallo la lectura del archivo local o la subida a Supabase.
+            log('      ! ' + it.tipo + ' omitida (' + it.url + ')', 'err');
+            log('        causa: ' + (e.message || e), 'err');
             return siguienteFoto();
           });
         }
@@ -301,15 +315,53 @@
       if (!simulacion) log('Revisá el sitio y el panel. Si algo quedó mal, se puede borrar desde la pestaña Modelos.');
       $('progreso').textContent = 'Terminado. ' + resumen.creadas + ' creada(s), ' + resumen.omitidas + ' omitida(s), ' + resumen.fallidas + ' con error.';
       corriendo = false;
-      $('simular').disabled = $('importar').disabled = false;
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = false;
     }).catch(function (e) {
       log('');
       log('!! se corto: ' + (e.message || e), 'err');
       $('progreso').textContent = 'Se cortó por un error.';
       corriendo = false;
-      $('simular').disabled = $('importar').disabled = false;
+      $('simular').disabled = $('importar').disabled = $('probar').disabled = false;
     });
   }
+
+  /* Una subida real, chiquita, para ver exactamente donde falla. */
+  $('probar').addEventListener('click', function () {
+    $('log').innerHTML = ''; $('log').hidden = false;
+    log('=== PRUEBA DE CONEXION ===');
+    log('ayudante de subida: ' + typeof window.lsSubirArchivo);
+    if (typeof window.lsSubirArchivo !== 'function') {
+      log('! La pagina quedo con una version vieja. Recargala con Ctrl+Shift+R.', 'err');
+      return;
+    }
+    sb.auth.getSession().then(function (r) {
+      var ses = r && r.data && r.data.session;
+      log('sesion: ' + (ses ? ses.user.email : 'NINGUNA'), ses ? 'ok' : 'err');
+      if (ses) {
+        var t = ses.expires_at ? new Date(ses.expires_at * 1000) : null;
+        log('token vence: ' + (t ? t.toLocaleString() : '?') + (t && t < new Date() ? '  ← VENCIDO' : ''), t && t < new Date() ? 'err' : '');
+      }
+      // 1. leer una imagen local
+      return reducir('portada/Fiona Otiñano 23 años.jpeg').then(function (red) {
+        log('lectura y reescalado: OK — ' + red.ancho + 'x' + red.alto + ', ' + Math.round(red.blob.size/1024) + ' KB', 'ok');
+        // 2. subirla de verdad
+        var ruta = 'prueba-conexion/' + Date.now() + '.jpg';
+        return window.lsSubirArchivo('modelos', ruta, red.blob, 'image/jpeg').then(function () {
+          log('subida al bucket modelos: OK — ' + ruta, 'ok');
+          log('');
+          log('Todo en orden. Se puede importar.', 'ok');
+        }, function (e) {
+          log('subida al bucket modelos: FALLA', 'err');
+          log('  ' + (e.message || e), 'err');
+          log('');
+          log('Si dice "Failed to fetch", el navegador corto la peticion antes de salir (CORS).', 'err');
+          log('Si dice HTTP 4xx, llego al servidor y la rechazo: mirá el texto de la respuesta.', 'err');
+        });
+      }, function (e) {
+        log('lectura: FALLA — ' + (e.message || e), 'err');
+      });
+    });
+  });
 
   $('simular').addEventListener('click', function () { ejecutar(true); });
   $('importar').addEventListener('click', function () { ejecutar(false); });
