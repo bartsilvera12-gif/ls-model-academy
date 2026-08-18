@@ -1,5 +1,5 @@
 -- =====================================================================
--- LS Model Management — esquema de Supabase
+-- IS Model Management — esquema de Supabase
 --
 -- Todo vive en el schema "ismodel", NO en "public".
 -- Ejecutar UNA vez en: Supabase → SQL Editor → New query → Run
@@ -87,7 +87,7 @@ create table if not exists ismodel.models (
   orden       int  default 100,
   -- Bloque del sitio en el que aparece, cada uno se muestra por separado:
   --   staff    = staff profesional de la agencia
-  --   newface  = caras nuevas del casting de LS Model Academy
+  --   newface  = caras nuevas del casting de IS Model Academy
   --   scouting = scouting y postulaciones recibidas desde la web
   segmento    text not null default 'staff',
   publicada   boolean default true

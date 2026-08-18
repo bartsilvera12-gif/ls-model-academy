@@ -1,4 +1,4 @@
-/* LS Model Management — conexion con Supabase
+/* IS Model Management — conexion con Supabase
  *
  * Completar con los datos de: Supabase → Project Settings → API
  *

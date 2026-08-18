@@ -1,5 +1,5 @@
 -- =====================================================================
--- LS Model Management — mover todo al schema propio "ismodel"
+-- IS Model Management — mover todo al schema propio "ismodel"
 -- =====================================================================
 --
 -- CUANDO USAR ESTE ARCHIVO

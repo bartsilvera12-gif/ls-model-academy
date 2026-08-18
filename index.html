@@ -11,9 +11,9 @@
 <x-dc>
 <helmet>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LS Model Management — Agencia de modelos</title>
-<meta name="description" content="LS Model Management representa modelos profesionales para marcas, producciones y eventos. LS Model Academy forma a quienes quieren dedicarse al modelaje." />
-<meta property="og:title" content="LS Model Management" />
+<title>IS Model Management — Agencia de modelos</title>
+<meta name="description" content="IS Model Management representa modelos profesionales para marcas, producciones y eventos. IS Model Academy forma a quienes quieren dedicarse al modelaje." />
+<meta property="og:title" content="IS Model Management" />
 <meta property="og:description" content="Elegancia, actitud y presencia. Modelos profesionales para eventos, campañas y pasarelas." />
 <meta property="og:type" content="website" />
 <link rel="icon" href="favicon.ico" sizes="any" />
@@ -178,7 +178,7 @@
     #nosotros .ls-c--b, #nosotros .ls-c--d { display: none; }
   }
 
-  /* ---- LS Model Academy ----
+  /* ---- IS Model Academy ----
      Fondo oscuro a proposito: separa visualmente la escuela de la agencia,
      que ocupa las secciones claras de arriba y abajo. */
   .ls-ac {
@@ -579,7 +579,7 @@
   <header style="position:fixed;top:0;left:0;right:0;z-index:60;background:transparent">
     <div style="max-width:1440px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px">
       <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="display:flex;align-items:center;gap:12px;min-height:44px">
-        <img src="assets/logo-white.png" alt="LS Model Management" style="height:58px;width:auto;display:block" />
+        <img src="assets/logo-white.png" alt="IS Model Management" style="height:58px;width:auto;display:block" />
       </a>
       <nav style="display:flex;align-items:center;gap:30px">
         <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
@@ -605,7 +605,7 @@
   <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:80;background:#050505;animation:lsFade .35s ease both;display:flex;flex-direction:column">
       <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(216,216,216,.14)">
-        <img src="assets/logo-white.png" alt="LS Model Management" style="height:58px;width:auto" />
+        <img src="assets/logo-white.png" alt="IS Model Management" style="height:58px;width:auto" />
         <button type="button" onClick="{{ toggleMenu }}" aria-label="Cerrar menú" style="width:44px;height:44px;background:none;border:none;font-size:26px;line-height:1;color:#F7F7F4;cursor:pointer">×</button>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 24px 40px">
@@ -690,7 +690,7 @@
           <h2 class="ls-about__title">Formamos talento.<br />Construimos carreras.</h2>
           <span class="ls-about__dash" aria-hidden="true"></span>
           <p class="ls-about__body">Trabajamos el desarrollo de cada perfil con criterio profesional y presentamos a marcas y productoras talentos preparados para responder a lo que un proyecto exige.</p>
-          <p class="ls-about__area"><strong>LS Model Management</strong> es el área de representación: gestiona la carrera de cada modelo y su vínculo con marcas y producciones.</p>
+          <p class="ls-about__area"><strong>IS Model Management</strong> es el área de representación: gestiona la carrera de cada modelo y su vínculo con marcas y producciones.</p>
         </div>
       </div>
 
@@ -706,16 +706,16 @@
     </div>
   </section>
 
-  <!-- LS Model Academy: la escuela. Es un area distinta de Management, por
+  <!-- IS Model Academy: la escuela. Es un area distinta de Management, por
        eso tiene su propio logo, su propio fondo oscuro y su propio CTA. -->
   <section id="academia" class="ls-ac">
     <img class="ls-ac__mark" src="assets/academy-white.png" alt="" aria-hidden="true" />
     <div class="ls-ac__wrap">
       <div data-reveal class="ls-ac__lead">
         <p class="ls-ac__kicker">— Nuestra escuela</p>
-        <img class="ls-ac__logo" src="assets/academy-white.png" alt="LS Model Academy" />
+        <img class="ls-ac__logo" src="assets/academy-white.png" alt="IS Model Academy" />
         <span class="ls-ac__dash" aria-hidden="true"></span>
-        <p class="ls-ac__body">La formación es un área propia dentro de LS. En <strong>Model Academy</strong> preparamos a quienes recién empiezan y a quienes quieren profesionalizarse, con o sin experiencia previa.</p>
+        <p class="ls-ac__body">La formación es un área propia dentro de IS. En <strong>Model Academy</strong> preparamos a quienes recién empiezan y a quienes quieren profesionalizarse, con o sin experiencia previa.</p>
         <p class="ls-ac__note">Formarte en la academia no implica ser representada por la agencia: son dos caminos distintos que pueden encontrarse.</p>
       </div>
 
@@ -796,10 +796,10 @@
     <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
       <!-- Las dos areas, una al lado de la otra: agencia y escuela -->
       <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
-        <img src="assets/logo-white.png" alt="LS Model Management" style="height:78px;width:auto;display:block" />
+        <img src="assets/logo-white.png" alt="IS Model Management" style="height:78px;width:auto;display:block" />
         <span aria-hidden="true" style="width:1px;height:52px;background:rgba(247,247,244,.20)"></span>
         <a href="#academia" data-target="academia" onClick="{{ nav }}" style="display:block">
-          <img src="assets/academy-white.png" alt="LS Model Academy" style="height:74px;width:auto;display:block" />
+          <img src="assets/academy-white.png" alt="IS Model Academy" style="height:74px;width:auto;display:block" />
         </a>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
@@ -823,7 +823,7 @@
     </div>
 
     <div class="ls-foot__base" style="max-width:1440px;margin:48px auto 0;padding-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
-      <span style="font-size:11px;color:#8A8A8A">© {{ year }} LS Model Management</span>
+      <span style="font-size:11px;color:#8A8A8A">© {{ year }} IS Model Management</span>
       <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
         Desarrollado por <strong>Neura</strong>
       </a>
@@ -839,7 +839,7 @@
   <sc-if value="{{ profile }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:90;background:#F7F7F4;color:#050505;overflow-y:auto;animation:lsFade .4s ease both;-webkit-overflow-scrolling:touch">
       <div style="position:sticky;top:0;z-index:2;background:rgba(247,247,244,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(5,5,5,.12);padding:10px 18px;display:flex;align-items:center;justify-content:space-between">
-        <img src="assets/logo-black.png" alt="LS Model Management" style="height:44px;width:auto" />
+        <img src="assets/logo-black.png" alt="IS Model Management" style="height:44px;width:auto" />
         <button type="button" onClick="{{ closeProfile }}" aria-label="Cerrar perfil" style="min-height:44px;padding:0 16px;background:none;border:1px solid rgba(5,5,5,.28);font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">Cerrar</button>
       </div>
       <div style="max-width:1200px;margin:0 auto;padding:28px 18px 80px">
@@ -880,7 +880,7 @@
     <div role="dialog" aria-modal="true" style="position:fixed;inset:0;z-index:100;background:rgba(5,5,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:0;animation:lsFade .3s ease both">
       <div class="ls-modal" style="width:100%;max-width:640px;background:#F2F1ED;color:#14171C;margin:auto;min-height:100%;animation:lsRise .5s cubic-bezier(.2,.7,.2,1) both">
         <div class="ls-modal__bar">
-          <img src="assets/logo-white.png" alt="LS Model Management" />
+          <img src="assets/logo-white.png" alt="IS Model Management" />
           <button type="button" onClick="{{ closeModal }}" aria-label="Cerrar formulario">×</button>
         </div>
         <div style="padding:28px 18px 60px">
@@ -1850,14 +1850,14 @@ const MODELS = [
 
 /* Numero de WhatsApp de la agencia, en formato internacional sin signos.
    Es el UNICO lugar donde se define: alimenta el enlace del pie y los dos
-   botones de LS Model Academy. Mientras este vacio, esos botones abren el
+   botones de IS Model Academy. Mientras este vacio, esos botones abren el
    formulario de contacto en vez de WhatsApp. */
 const WHATSAPP = '';
 
 /* Mensajes que quedan escritos al abrir el chat, para que el equipo sepa
    de entrada por que area consulta la persona. */
-const WA_ACADEMY = 'Hola, quiero formarme como modelo en LS Model Academy.';
-const WA_ACADEMY_INFO = 'Hola, quisiera recibir informes sobre LS Model Academy.';
+const WA_ACADEMY = 'Hola, quiero formarme como modelo en IS Model Academy.';
+const WA_ACADEMY_INFO = 'Hola, quisiera recibir informes sobre IS Model Academy.';
 
 const EVENT_TYPES = ['Evento corporativo', 'Lanzamiento de producto', 'Campaña publicitaria', 'Producción audiovisual', 'Pasarela o desfile', 'Activación comercial', 'Promotoras', 'Otro'];
 const COURSES = ['Pasarela', 'Postura y presencia', 'Expresión corporal', 'Fotografía', 'Imagen profesional', 'Preparación para castings', 'Desenvolvimiento frente a cámaras'];
@@ -2165,7 +2165,7 @@ class Component extends DCLogic {
     }));
 
     const copy = {
-      hire: { kicker: 'Solicitud corporativa', title: 'Solicitar modelos', sub: 'Contanos sobre tu evento o producción y te enviamos una propuesta con los perfiles adecuados.', cta: 'Enviar solicitud', done: 'Recibimos tu solicitud. Te contactamos con la propuesta de perfiles.', note: 'Un aviso interno queda registrado para el equipo de LS Model Management. La notificación por correo y WhatsApp se activa al configurar las credenciales.' },
+      hire: { kicker: 'Solicitud corporativa', title: 'Solicitar modelos', sub: 'Contanos sobre tu evento o producción y te enviamos una propuesta con los perfiles adecuados.', cta: 'Enviar solicitud', done: 'Recibimos tu solicitud. Te contactamos con la propuesta de perfiles.', note: 'Un aviso interno queda registrado para el equipo de IS Model Management. La notificación por correo y WhatsApp se activa al configurar las credenciales.' },
       apply: { kicker: 'Postulación', title: 'Quiero formar parte', sub: 'Completá tus datos y adjuntá fotografías actuales sin filtros. Tu postulación se mantiene privada.', cta: 'Enviar postulación', done: 'Recibimos tu postulación correctamente. Nuestro equipo revisará tu perfil y se comunicará contigo.', note: 'Ninguna postulación se publica en el sitio. Las fotografías quedan en almacenamiento privado con enlaces temporales.' },
       academy: { kicker: 'Academia', title: 'Consultar por la academia', sub: 'Dejanos tus datos y te enviamos la información de la formación disponible.', cta: 'Enviar consulta', done: 'Recibimos tu consulta. Te enviamos la información de la academia a la brevedad.', note: 'Programas, fechas y aranceles se confirman por WhatsApp o correo.' }
     };
