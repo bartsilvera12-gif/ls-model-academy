@@ -16,7 +16,7 @@ window.LS_SUPABASE = {
 /* Las tablas NO estan en "public" sino en un schema propio.
    Si se cambia aca, hay que cambiarlo tambien en supabase-schema.sql
    y volver a declararlo en Settings → API → Exposed schemas. */
-window.LS_SCHEMA = 'ls';
+window.LS_SCHEMA = 'ismodel';
 
 /* Devuelve el cliente, o null si todavia no se configuro.
    El sitio sigue funcionando sin credenciales: las secciones caen a los
@@ -25,9 +25,9 @@ window.lsSupabase = (function () {
   var c = window.LS_SUPABASE || {};
   if (!c.url || !c.anonKey) return null;
   if (typeof window.supabase === 'undefined') return null;
-  // db.schema hace que .from('models') apunte a ls.models.
+  // db.schema hace que .from('models') apunte a ismodel.models.
   // storage y auth no dependen de esto: viven en sus propios schemas.
   return window.supabase.createClient(c.url, c.anonKey, {
-    db: { schema: window.LS_SCHEMA || 'ls' }
+    db: { schema: window.LS_SCHEMA || 'ismodel' }
   });
 })();

@@ -181,8 +181,8 @@
         <input type="search" id="qMod" placeholder="Buscar por nombre…" />
         <select id="fSeg">
           <option value="">Todos los segmentos</option>
-          <option value="staff">Staff de Modelos Profesionales</option>
-          <option value="newface">New Face &amp; Model Management</option>
+          <option value="staff">Modelos Staff</option>
+          <option value="newface">New Face Model</option>
           <option value="scouting">Scouting Models</option>
         </select>
         <span class="count" id="cMod"></span>
@@ -219,8 +219,8 @@
     </div>
     <label><span>Categoría / Segmento *</span>
       <select id="mSegmento">
-        <option value="staff">Staff de Modelos Profesionales</option>
-        <option value="newface">New Face &amp; Model Management</option>
+        <option value="staff">Modelos Staff</option>
+        <option value="newface">New Face Model</option>
         <option value="scouting">Scouting Models</option>
       </select>
     </label>
@@ -265,8 +265,8 @@
       '<h2>Falta conectar Supabase</h2>' +
       '<ol>' +
       '<li>Crear un proyecto en <code>supabase.com</code>.</li>' +
-      '<li>Abrir <b>SQL Editor</b>, pegar el contenido de <code>supabase-schema.sql</code> y ejecutarlo. Crea todo en el schema <code>ls</code>, no en <code>public</code>.</li>' +
-      '<li>En <b>Settings → API → Exposed schemas</b>, agregar <code>ls</code>. Sin esto la API no ve las tablas.</li>' +
+      '<li>Abrir <b>SQL Editor</b>, pegar el contenido de <code>supabase-schema.sql</code> y ejecutarlo. Crea todo en el schema <code>ismodel</code>, no en <code>public</code>.</li>' +
+      '<li>En <b>Settings → API → Exposed schemas</b>, agregar <code>ismodel</code>. Sin esto la API no ve las tablas.</li>' +
       '<li>En <b>Authentication → Providers → Email</b>, desactivar <i>Enable email signups</i>.</li>' +
       '<li>En <b>Authentication → Users</b>, crear la cuenta del equipo a mano.</li>' +
       '<li>Copiar <b>Project URL</b> y <b>anon key</b> (Project Settings → API) dentro de <code>supabase-config.js</code>.</li>' +
@@ -463,7 +463,7 @@
   $('qEmp').addEventListener('input', pintarEmpresas);
 
   /* ================= MODELOS ================= */
-  var SEGS = { staff: 'Staff', newface: 'New Face', scouting: 'Scouting' };
+  var SEGS = { staff: 'Modelos Staff', newface: 'New Face Model', scouting: 'Scouting Models' };
   function segDe(m) { return SEGS[m.segmento] ? m.segmento : 'staff'; }
   var mods = [];
   function cargarModelos() {
