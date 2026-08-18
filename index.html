@@ -964,7 +964,20 @@
 </x-dc>
 <script>
 (function () {
-  const HERO_MODELS = [
+  /* Que modelos entran en la portada. null = todas las publicadas.
+     Para dejar solo el staff: ['staff'] */
+  const SEGMENTOS_EN_PORTADA = null;
+
+  const NOMBRE_SEG = {
+    staff: 'Staff Models',
+    newface: 'New Faces Models',
+    scouting: 'Scouted Models'
+  };
+
+  /* Lista de respaldo, con las imagenes locales de carousel/. Se usa si
+     no hay conexion con Supabase; si la hay, la reemplaza lo que este
+     cargado en el panel. */
+  let HERO_MODELS = [
     { name: 'Esther Kuhnen', age: 24, dir: 'Esther Kuhnen', file: 'WhatsApp Image 2026-08-18 at 08.07.27.jpeg', pos: 'center 15%' },
     { name: 'Fiona Otiñano', age: 23, file: 'Fiona Otiñano 23 años.jpeg', pos: 'center 20%' },
     { name: 'Alejandra Ortiz', age: 18, file: 'Alejandra Ortiz 18 años.jpeg', pos: 'center 6%' },
@@ -1008,6 +1021,22 @@
       : 'portada/' + encodeURIComponent(m.file);
   }
 
+  /* Supabase redimensiona al vuelo. En pantalla retina cada pixel CSS
+     son dos fisicos, asi que se pide por una escalera fija segun la
+     densidad, cortando en 2x. */
+  function alAncho(url, ancho) {
+    if (!url || !/^https?:\/\//i.test(url)) return url;
+    if (url.indexOf('/object/public/') < 0) return url;
+    return url.replace('/object/public/', '/render/image/public/') +
+           '?width=' + ancho + '&quality=80';
+  }
+  function anchoPara(anchoCSS) {
+    const real = anchoCSS * Math.min(window.devicePixelRatio || 1, 2);
+    const escalera = [480, 720, 960, 1200, 1400];
+    for (let i = 0; i < escalera.length; i++) if (escalera[i] >= real) return escalera[i];
+    return 1400;
+  }
+
   // Version liviana (900px) para el carrusel. Las originales llegan a
   // 4160x6240 y decodificarlas 23 veces con blur traba la animacion.
   // Mismo formato que usa modelos.html para el hash del perfil.
@@ -1017,6 +1046,8 @@
   }
 
   function thumbOf(m) {
+    // Las que vienen del panel ya traen su URL resuelta.
+    if (m.thumb) return m.thumb;
     const base = m.dir ? m.dir : m.file.replace(/\.[^.]+$/, '');
     return 'carousel/' + encodeURIComponent(base) + '.jpg';
   }
@@ -1041,7 +1072,7 @@
       ageEl.textContent = m.age ? m.age + ' AÑOS' : '';
       ageEl.style.display = m.age ? '' : 'none';
       if (kickerEl) {
-        kickerEl.textContent = 'Staff Models / ' + (idx + 1 < 10 ? '0' : '') + (idx + 1);
+        kickerEl.textContent = (NOMBRE_SEG[m.seg] || 'Staff Models') + ' / ' + (idx + 1 < 10 ? '0' : '') + (idx + 1);
         kickerEl.style.opacity = '1';
       }
       nameEl.style.opacity = '1';
@@ -1086,6 +1117,49 @@
       }
     });
     if (carousel) el.dataset.dcReady = '1';
+  }
+
+  /* Lo que este publicado en el panel manda sobre la lista de arriba.
+     Si no hay conexion, o la tabla esta vacia, se queda la de respaldo. */
+  function desdePanel() {
+    const sb = window.lsSupabase;
+    if (!sb) return Promise.resolve(null);
+    let q = sb.from('models').select('nombre,edad,cover,fotos,segmento,cover_pos,orden').eq('publicada', true);
+    if (SEGMENTOS_EN_PORTADA) q = q.in('segmento', SEGMENTOS_EN_PORTADA);
+    return q.order('orden').order('nombre').then((r) => {
+      if (r.error || !r.data || !r.data.length) return null;
+      const ancho = anchoPara(420);   // el ancho de tarjeta del carrusel
+      // La portada abre por el staff. Ordenar por segmento en la consulta
+      // los pondria alfabeticamente y arrancaria por New Faces.
+      const rango = { staff: 0, newface: 1, scouting: 2 };
+      const filas = r.data.slice().sort((a, b) => {
+        const ra = rango[a.segmento] == null ? 9 : rango[a.segmento];
+        const rb = rango[b.segmento] == null ? 9 : rango[b.segmento];
+        if (ra !== rb) return ra - rb;
+        if ((a.orden || 0) !== (b.orden || 0)) return (a.orden || 0) - (b.orden || 0);
+        return String(a.nombre).localeCompare(String(b.nombre), 'es');
+      });
+      return filas.map((m) => ({
+        name: m.nombre,
+        age: m.edad,
+        seg: m.segmento || 'staff',
+        pos: m.cover_pos || 'center 20%',
+        thumb: alAncho(m.cover || (m.fotos && m.fotos[0]) || '', ancho)
+      })).filter((m) => m.thumb);
+    }).catch(() => null);
+  }
+
+  function reemplazarModelos(lista) {
+    HERO_MODELS = lista;
+    idx = 0;
+    const el = document.getElementById('dcModelos');
+    // Se marca como no construido para que initCarousel lo rehaga con
+    // la lista nueva, cortando antes el carrusel viejo.
+    if (el) el.dataset.dcReady = '';
+    if (carousel && carousel.stopAuto) carousel.stopAuto();
+    carousel = null;
+    initCarousel();
+    paint(false);
   }
 
   function tick() { if (carousel) carousel.next(); }
@@ -1219,6 +1293,12 @@
     if (!document.getElementById('heroName')) { setTimeout(initSlideshow, 150); return; }
     initCarousel();
     paint(false);
+    // La base tarda: se muestra la lista de respaldo y, si hay respuesta,
+    // se rehace el carrusel con lo que este cargado en el panel.
+    if (!window.__portadaPedida) {
+      window.__portadaPedida = true;
+      desdePanel().then((lista) => { if (lista) reemplazarModelos(lista); });
+    }
   }
 
   /* ---------- MaskedHeading (port vanilla, sin React ni GSAP) ----------
