@@ -265,7 +265,8 @@
       '<h2>Falta conectar Supabase</h2>' +
       '<ol>' +
       '<li>Crear un proyecto en <code>supabase.com</code>.</li>' +
-      '<li>Abrir <b>SQL Editor</b>, pegar el contenido de <code>supabase-schema.sql</code> y ejecutarlo.</li>' +
+      '<li>Abrir <b>SQL Editor</b>, pegar el contenido de <code>supabase-schema.sql</code> y ejecutarlo. Crea todo en el schema <code>ls</code>, no en <code>public</code>.</li>' +
+      '<li>En <b>Settings → API → Exposed schemas</b>, agregar <code>ls</code>. Sin esto la API no ve las tablas.</li>' +
       '<li>En <b>Authentication → Providers → Email</b>, desactivar <i>Enable email signups</i>.</li>' +
       '<li>En <b>Authentication → Users</b>, crear la cuenta del equipo a mano.</li>' +
       '<li>Copiar <b>Project URL</b> y <b>anon key</b> (Project Settings → API) dentro de <code>supabase-config.js</code>.</li>' +

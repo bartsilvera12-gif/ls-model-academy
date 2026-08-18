@@ -1,13 +1,22 @@
 -- =====================================================================
 -- LS Model Management — esquema de Supabase
 --
+-- Todo vive en el schema "ls", NO en "public".
 -- Ejecutar UNA vez en: Supabase → SQL Editor → New query → Run
+--
+-- ⚠ DESPUES DE EJECUTAR HAY UN PASO OBLIGATORIO EN EL PANEL DE SUPABASE:
+--    Settings → API → Exposed schemas: agregar  ls
+--    Sin eso la API devuelve el error PGRST106 y el sitio no lee nada.
+--    Ver la lista completa de pasos al final del archivo.
 -- =====================================================================
+
+create schema if not exists ls;
+
 
 -- ---------------------------------------------------------------------
 -- 1. POSTULACIONES (quien quiere ser modelo)
 -- ---------------------------------------------------------------------
-create table if not exists public.applications (
+create table if not exists ls.applications (
   id          uuid primary key default gen_random_uuid(),
   created_at  timestamptz not null default now(),
   estado      text not null default 'nueva'
@@ -33,7 +42,7 @@ create table if not exists public.applications (
 -- ---------------------------------------------------------------------
 -- 2. SOLICITUDES DE EMPRESAS
 -- ---------------------------------------------------------------------
-create table if not exists public.event_requests (
+create table if not exists ls.event_requests (
   id          uuid primary key default gen_random_uuid(),
   created_at  timestamptz not null default now(),
   estado      text not null default 'nueva'
@@ -57,7 +66,7 @@ create table if not exists public.event_requests (
 -- ---------------------------------------------------------------------
 -- 3. MODELOS PUBLICADAS EN EL SITIO
 -- ---------------------------------------------------------------------
-create table if not exists public.models (
+create table if not exists ls.models (
   id          uuid primary key default gen_random_uuid(),
   created_at  timestamptz not null default now(),
   nombre      text not null,
@@ -73,8 +82,8 @@ create table if not exists public.models (
   cover       text,                   -- URL publica de la portada
   cover_pos   text default 'center 20%',
   fotos       text[] default '{}',    -- URLs publicas de la galeria, en el orden
-                                     -- que define el panel: primero el book
-                                     -- profesional, despues los trabajos nuevos
+                                      -- que define el panel: primero el book
+                                      -- profesional, despues los trabajos nuevos
   orden       int  default 100,
   -- Bloque del sitio en el que aparece, cada uno se muestra por separado:
   --   staff    = staff profesional de la agencia
@@ -86,14 +95,43 @@ create table if not exists public.models (
 
 -- La columna y su restriccion se declaran aparte para que este archivo
 -- se pueda volver a ejecutar sobre una base ya creada sin dar error.
-alter table public.models add column if not exists segmento text not null default 'staff';
-alter table public.models drop constraint if exists models_segmento_chk;
-alter table public.models add constraint models_segmento_chk
+alter table ls.models add column if not exists segmento text not null default 'staff';
+alter table ls.models drop constraint if exists models_segmento_chk;
+alter table ls.models add constraint models_segmento_chk
   check (segmento in ('staff','newface','scouting'));
 
-create index if not exists models_orden_idx on public.models (publicada, segmento, orden, nombre);
-create index if not exists applications_fecha_idx on public.applications (created_at desc);
-create index if not exists event_requests_fecha_idx on public.event_requests (created_at desc);
+create index if not exists models_orden_idx on ls.models (publicada, segmento, orden, nombre);
+create index if not exists applications_fecha_idx on ls.applications (created_at desc);
+create index if not exists event_requests_fecha_idx on ls.event_requests (created_at desc);
+
+
+-- =====================================================================
+-- PERMISOS
+--
+-- En "public" Supabase otorga permisos solos; en un schema propio hay
+-- que darlos a mano o la API responde "permission denied", incluso con
+-- las politicas RLS bien puestas.
+--
+-- Se da lo minimo que necesita cada rol. RLS filtra ADEMAS de esto:
+-- son dos capas distintas y las dos tienen que permitir la operacion.
+-- =====================================================================
+grant usage on schema ls to anon, authenticated, service_role;
+
+-- Visitante anonimo: solo puede dejar su postulacion o su solicitud,
+-- y leer las modelos. Nunca leer postulaciones ajenas.
+grant insert on ls.applications   to anon;
+grant insert on ls.event_requests to anon;
+grant select on ls.models         to anon;
+
+-- Equipo con sesion iniciada: administra todo desde el panel.
+grant select, insert, update, delete on ls.applications   to authenticated;
+grant select, insert, update, delete on ls.event_requests to authenticated;
+grant select, insert, update, delete on ls.models         to authenticated;
+
+-- service_role se usa desde el servidor y saltea RLS, pero igual
+-- necesita el permiso de tabla.
+grant all on all tables in schema ls to service_role;
+
 
 -- =====================================================================
 -- SEGURIDAD (Row Level Security)
@@ -101,59 +139,63 @@ create index if not exists event_requests_fecha_idx on public.event_requests (cr
 -- Sin esto, la clave anonima del sitio permitiria a cualquiera leer
 -- todas las postulaciones. Se activa en las tres tablas.
 -- =====================================================================
-alter table public.applications   enable row level security;
-alter table public.event_requests enable row level security;
-alter table public.models         enable row level security;
+alter table ls.applications   enable row level security;
+alter table ls.event_requests enable row level security;
+alter table ls.models         enable row level security;
 
 -- Postulaciones: cualquiera puede ENVIAR, solo el equipo puede LEER
-drop policy if exists "enviar postulacion" on public.applications;
-create policy "enviar postulacion" on public.applications
+drop policy if exists "enviar postulacion" on ls.applications;
+create policy "enviar postulacion" on ls.applications
   for insert to anon, authenticated with check (true);
 
-drop policy if exists "equipo lee postulaciones" on public.applications;
-create policy "equipo lee postulaciones" on public.applications
+drop policy if exists "equipo lee postulaciones" on ls.applications;
+create policy "equipo lee postulaciones" on ls.applications
   for select to authenticated using (true);
 
-drop policy if exists "equipo edita postulaciones" on public.applications;
-create policy "equipo edita postulaciones" on public.applications
+drop policy if exists "equipo edita postulaciones" on ls.applications;
+create policy "equipo edita postulaciones" on ls.applications
   for update to authenticated using (true) with check (true);
 
-drop policy if exists "equipo borra postulaciones" on public.applications;
-create policy "equipo borra postulaciones" on public.applications
+drop policy if exists "equipo borra postulaciones" on ls.applications;
+create policy "equipo borra postulaciones" on ls.applications
   for delete to authenticated using (true);
 
 -- Solicitudes de empresas: mismo criterio
-drop policy if exists "enviar solicitud" on public.event_requests;
-create policy "enviar solicitud" on public.event_requests
+drop policy if exists "enviar solicitud" on ls.event_requests;
+create policy "enviar solicitud" on ls.event_requests
   for insert to anon, authenticated with check (true);
 
-drop policy if exists "equipo lee solicitudes" on public.event_requests;
-create policy "equipo lee solicitudes" on public.event_requests
+drop policy if exists "equipo lee solicitudes" on ls.event_requests;
+create policy "equipo lee solicitudes" on ls.event_requests
   for select to authenticated using (true);
 
-drop policy if exists "equipo edita solicitudes" on public.event_requests;
-create policy "equipo edita solicitudes" on public.event_requests
+drop policy if exists "equipo edita solicitudes" on ls.event_requests;
+create policy "equipo edita solicitudes" on ls.event_requests
   for update to authenticated using (true) with check (true);
 
-drop policy if exists "equipo borra solicitudes" on public.event_requests;
-create policy "equipo borra solicitudes" on public.event_requests
+drop policy if exists "equipo borra solicitudes" on ls.event_requests;
+create policy "equipo borra solicitudes" on ls.event_requests
   for delete to authenticated using (true);
 
 -- Modelos: el sitio publico lee solo las publicadas; el equipo hace todo
-drop policy if exists "publico ve modelos publicadas" on public.models;
-create policy "publico ve modelos publicadas" on public.models
+drop policy if exists "publico ve modelos publicadas" on ls.models;
+create policy "publico ve modelos publicadas" on ls.models
   for select to anon using (publicada = true);
 
-drop policy if exists "equipo ve todas las modelos" on public.models;
-create policy "equipo ve todas las modelos" on public.models
+drop policy if exists "equipo ve todas las modelos" on ls.models;
+create policy "equipo ve todas las modelos" on ls.models
   for select to authenticated using (true);
 
-drop policy if exists "equipo administra modelos" on public.models;
-create policy "equipo administra modelos" on public.models
+drop policy if exists "equipo administra modelos" on ls.models;
+create policy "equipo administra modelos" on ls.models
   for all to authenticated using (true) with check (true);
+
 
 -- =====================================================================
 -- ALMACENAMIENTO DE FOTOS
+--
+-- Los buckets viven siempre en el schema "storage", que es de Supabase
+-- y no se puede mover. Eso no afecta a lo de arriba.
 -- =====================================================================
 -- 'postulaciones' es PRIVADO: son fotos de personas que todavia no
 -- forman parte de la agencia, y muchas veces de menores de edad.
@@ -188,12 +230,27 @@ create policy "equipo administra fotos de modelos" on storage.objects
   for all to authenticated
   using (bucket_id = 'modelos') with check (bucket_id = 'modelos');
 
+
+-- =====================================================================
+-- COMPROBACION
+-- Tiene que devolver tres filas: applications, event_requests, models,
+-- las tres con rls = true.
+-- =====================================================================
+select tablename, rowsecurity as rls
+  from pg_tables
+ where schemaname = 'ls'
+ order by tablename;
+
+
 -- =====================================================================
 -- DESPUES DE EJECUTAR ESTO:
 --
--- 1. Authentication → Providers → Email: desactivar "Enable email
+-- 1. Settings → API → Exposed schemas: agregar  ls  a la lista.
+--    ⚠ Es obligatorio. Sin esto la API no ve el schema y el sitio
+--    responde PGRST106 ("schema must be one of the following").
+-- 2. Authentication → Providers → Email: desactivar "Enable email
 --    signups". Asi nadie puede crearse un usuario y entrar al panel.
--- 2. Authentication → Users → Add user: crear la cuenta del equipo
+-- 3. Authentication → Users → Add user: crear la cuenta del equipo
 --    a mano, con su correo y contrasenia.
--- 3. Copiar Project URL y anon key en supabase-config.js
+-- 4. Copiar Project URL y anon key en supabase-config.js
 -- =====================================================================
