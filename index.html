@@ -1962,6 +1962,7 @@ class Component extends DCLogic {
     errors: {},
     formError: '',
     busy: false,
+    fase: '',
     sent: false,
     width: typeof window !== 'undefined' ? window.innerWidth : 1200
   };
@@ -1983,7 +1984,12 @@ class Component extends DCLogic {
         const caja = el.closest('div');
         if (caja) {
           const msg = caja.querySelector('p');
-          if (msg && /obligatorio|válid|necesario|Adjuntá/i.test(msg.textContent)) msg.remove();
+          // Se OCULTA, no se quita: ese <p> lo creo el framework y sigue
+          // en su arbol. Al sacarlo del DOM, el siguiente re-render fallaba
+          // con "removeChild: the node to be removed is not a child".
+          if (msg && /obligatorio|válid|necesario|Adjuntá/i.test(msg.textContent)) {
+            msg.style.display = 'none';
+          }
         }
       }
     };
@@ -1994,7 +2000,10 @@ class Component extends DCLogic {
       // Se limpia el hash para que al recargar no se vuelva a abrir.
       if (history.replaceState) history.replaceState(null, '', location.pathname);
     };
-    setTimeout(this._abrirPorHash, 0);
+    // Con 0 ms el modal se abre mientras el framework todavia esta
+    // montando el arbol, y su siguiente re-render explota con
+    // "removeChild: the node to be removed is not a child".
+    setTimeout(this._abrirPorHash, 400);
     // Si la pagina ya estaba abierta, el hash cambia sin recargar.
     window.addEventListener('hashchange', this._abrirPorHash);
 
@@ -2198,11 +2207,16 @@ class Component extends DCLogic {
     const sello = Date.now();
 
     const subidas = fotos.map((f, i) => {
-      const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
-      const ruta = carpeta + '/' + sello + '-' + (i + 1) + '.' + ext;
-      return window.lsSubirArchivo('postulaciones', ruta, f)
-        .then(() => ruta)
-        .catch(() => null);
+      // Se reduce antes de subir: las fotos de telefono llegan a 8 MB, y
+      // asi el envio no depende de la paciencia ni de los datos de quien
+      // se postula. Si no se puede reducir, sube la original.
+      return Promise.resolve(window.lsComprimirImagen(f)).then((chica) => {
+        const ext = (String(chica.name || f.name).split('.').pop() || 'jpg').toLowerCase();
+        const ruta = carpeta + '/' + sello + '-' + (i + 1) + '.' + ext;
+        return window.lsSubirArchivo('postulaciones', ruta, chica)
+          .then(() => ruta)
+          .catch(() => null);
+      });
     });
 
     return Promise.all(subidas).then((rutas) => {
@@ -2351,7 +2365,7 @@ class Component extends DCLogic {
       modalKicker: c.kicker,
       modalTitle: c.title,
       modalSubtitle: c.sub,
-      submitLabel: s.busy ? 'Enviando…' : c.cta,
+      submitLabel: s.busy ? (s.fase || 'Enviando…') : c.cta,
       sentText: c.done,
       sentNote: c.note,
       fields,
@@ -2372,7 +2386,7 @@ class Component extends DCLogic {
         if (this.state.busy) return;
         const errors = this.validate(defs);
         if (Object.keys(errors).length) { this.setState({ errors, formError: 'Revisá los campos marcados antes de enviar.' }); return; }
-        this.setState({ busy: true, formError: '' });
+        this.setState({ busy: true, formError: '', fase: (payload.fotos && payload.fotos.length) ? 'Preparando fotos…' : 'Enviando…' });
         const payload = Object.assign({}, this.state.vals, this.state.modelRequested ? { modelo: this.state.modelRequested } : {});
         // Se espera la subida real: antes mostraba "enviado" tras 650ms
         // sin que el dato hubiera salido del navegador.

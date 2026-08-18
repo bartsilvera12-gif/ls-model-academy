@@ -75,6 +75,77 @@ window.lsSubirArchivo = function (bucket, ruta, archivo, contentType) {
   });
 };
 
+/* Reduce una imagen antes de subirla.
+ *
+ * Las fotos de telefono llegan a 12 MP y 8 MB, y el sitio nunca las
+ * muestra a mas de 1400 px. Subir el original tarda, gasta datos del
+ * visitante y llena el almacenamiento sin que se vea mejor.
+ *
+ * Devuelve una promesa con el archivo a subir. Ante cualquier duda
+ * devuelve el original: comprimir es una mejora, no un requisito, y
+ * nunca tiene que impedir que una postulacion se envie.
+ */
+window.lsComprimirImagen = function (archivo, opciones) {
+  var o = opciones || {};
+  var maxLado = o.maxLado || 1400;
+  var calidad = o.calidad || 0.82;
+  // Por debajo de este peso, y ya en tamanio, re-comprimir solo degrada.
+  var minPeso = o.minPeso || 400 * 1024;
+
+  if (!archivo) return Promise.resolve(archivo);
+
+  return new Promise(function (resolver) {
+    var url;
+    try { url = URL.createObjectURL(archivo); }
+    catch (e) { return resolver(archivo); }
+
+    var listo = false;
+    function salir(resultado) {
+      if (listo) return;
+      listo = true;
+      URL.revokeObjectURL(url);
+      resolver(resultado);
+    }
+    // Un HEIC o un archivo raro no se puede decodificar: se sube tal cual.
+    setTimeout(function () { salir(archivo); }, 20000);
+
+    var img = new Image();
+    img.onerror = function () { salir(archivo); };
+    img.onload = function () {
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) return salir(archivo);
+
+      var f = Math.min(1, maxLado / Math.max(w, h));
+      if (f === 1 && archivo.size && archivo.size <= minPeso) return salir(archivo);
+
+      var cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(w * f));
+      cv.height = Math.max(1, Math.round(h * f));
+      var cx = cv.getContext('2d');
+      // Fondo blanco: un PNG con transparencia quedaria negro en JPEG.
+      cx.fillStyle = '#fff';
+      cx.fillRect(0, 0, cv.width, cv.height);
+      cx.imageSmoothingEnabled = true;
+      cx.imageSmoothingQuality = 'high';
+      // Al dibujar, el navegador ya aplico la rotacion EXIF: la copia
+      // sale derecha y sin depender de la marca.
+      cx.drawImage(img, 0, 0, cv.width, cv.height);
+
+      cv.toBlob(function (b) {
+        if (!b) return salir(archivo);
+        // Si no gano nada, se queda el original.
+        if (archivo.size && b.size >= archivo.size) return salir(archivo);
+        var nombre = String(archivo.name || 'foto.jpg').replace(/\.[^.]+$/, '') + '.jpg';
+        var salida;
+        try { salida = new File([b], nombre, { type: 'image/jpeg' }); }
+        catch (e) { salida = b; salida.name = nombre; }
+        salir(salida);
+      }, 'image/jpeg', calidad);
+    };
+    img.src = url;
+  });
+};
+
 /* URL publica de un archivo ya subido. */
 window.lsUrlPublica = function (bucket, ruta) {
   var c = window.LS_SUPABASE || {};

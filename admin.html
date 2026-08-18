@@ -759,9 +759,12 @@
     var copias = rutas.map(function (ruta, i) {
       return sb.storage.from('postulaciones').download(ruta).then(function (r) {
         if (r.error || !r.data) return null;
-        var ext = (ruta.split('.').pop() || 'jpg').toLowerCase();
-        var destino = carpeta + '/' + Date.now() + '-' + (i + 1) + '.' + ext;
-        return window.lsSubirArchivo('modelos', destino, r.data, 'image/jpeg').then(function () {
+        var destino = carpeta + '/' + Date.now() + '-' + (i + 1) + '.jpg';
+        // La foto de la postulacion puede ser la original del telefono:
+        // se reduce antes de dejarla en el bucket publico.
+        return Promise.resolve(window.lsComprimirImagen(r.data)).then(function (chica) {
+          return window.lsSubirArchivo('modelos', destino, chica, 'image/jpeg');
+        }).then(function () {
           return window.lsUrlPublica('modelos', destino);
         }).catch(function () { return null; });
       }).catch(function () { return null; });
@@ -1071,10 +1074,13 @@
   });
 
   function subir(file, carpeta) {
-    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    var ruta = carpeta + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
-    return window.lsSubirArchivo('modelos', ruta, file).then(function () {
-      return window.lsUrlPublica('modelos', ruta);
+    // Se reduce a 1400 px, que es lo maximo que el sitio llega a mostrar.
+    return Promise.resolve(window.lsComprimirImagen(file)).then(function (chica) {
+      var ext = (String(chica.name || file.name).split('.').pop() || 'jpg').toLowerCase();
+      var ruta = carpeta + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+      return window.lsSubirArchivo('modelos', ruta, chica).then(function () {
+        return window.lsUrlPublica('modelos', ruta);
+      });
     });
   }
 
