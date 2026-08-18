@@ -1,0 +1,10 @@
+Nombre y apellido: Kauany Feghera 
+Edad: 25 años 
+Altura: 1,74
+Calce: 36/37
+Busto: 83
+Cintura: 66
+Cadera: 96
+Tamaño vestido/rem: P
+Tamaño pantalón: 36/38
+Ciudad: Foz do Iguaçu
