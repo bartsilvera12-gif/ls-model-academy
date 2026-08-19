@@ -18,7 +18,7 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 
 echo "==> HTML, script y raiz"
-cp index.html modelos.html privacidad.html 404.html support.js "$OUT"/
+cp index.html modelos.html staff.html new-faces.html scouted.html privacidad.html 404.html support.js "$OUT"/
 # El panel y su configuracion tambien van al servidor: sin
 # supabase-config.js el sitio no puede leer ni escribir nada.
 cp admin.html supabase-config.js "$OUT"/
@@ -28,7 +28,7 @@ cp .htaccess "$OUT"/ 2>/dev/null || true
 cp robots.txt "$OUT"/ 2>/dev/null || true
 
 echo "==> assets y carousel (ya optimizados)"
-mkdir -p "$OUT/assets" && cp assets/*.png "$OUT/assets"/
+mkdir -p "$OUT/assets" && cp assets/*.png assets/*.css assets/*.js "$OUT/assets"/
 cp -r carousel "$OUT"/
 
 # Reescala respetando la relacion de aspecto; nunca agranda.

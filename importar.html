@@ -47,14 +47,14 @@
 <body>
 <div class="wrap">
   <h1>Importar modelos</h1>
-  <p class="sub">Carga a Supabase las modelos que hoy están escritas en <code>modelos.html</code>, con sus fotografías. <span id="ver" style="opacity:.6"></span></p>
+  <p class="sub">Carga a Supabase las modelos que hoy están escritas en <code>assets/modelos.js</code>, con sus fotografías. <span id="ver" style="opacity:.6"></span></p>
 
   <div class="box" id="estado"><h2>Estado</h2><p class="cont">Comprobando…</p></div>
 
   <div class="box">
     <h2>Cómo funciona</h2>
     <ul>
-      <li>Los datos se leen de <code>modelos.html</code>, así no hay dos listas que puedan quedar desfasadas.</li>
+      <li>Los datos se leen de <code>assets/modelos.js</code>, así no hay dos listas que puedan quedar desfasadas.</li>
       <li>Cada fotografía se reescala a <b>1400 px</b> en el navegador antes de subirse, para no cargar los originales de hasta 6 MB.</li>
       <li>Las fotos van al bucket público <code>modelos</code>; las fichas, a <code>ismodel.models</code>.</li>
       <li>Entran en el <b>segmento que elijas</b> arriba, en el mismo orden en que se ven hoy.</li>
@@ -145,14 +145,14 @@
     });
   });
 
-  /* ---------- los datos salen de modelos.html ---------- */
+  /* ---------- los datos salen de assets/modelos.js ---------- */
   function leerModelos() {
-    return fetch('modelos.html?v=' + Date.now()).then(function (r) {
-      if (!r.ok) throw new Error('no se pudo leer modelos.html (' + r.status + ')');
+    return fetch('assets/modelos.js?v=' + Date.now()).then(function (r) {
+      if (!r.ok) throw new Error('no se pudo leer assets/modelos.js (' + r.status + ')');
       return r.text();
     }).then(function (html) {
       var m = html.match(/var MODELS = (\[[\s\S]*?\n\];)/);
-      if (!m) throw new Error('no se encontro el listado dentro de modelos.html');
+      if (!m) throw new Error('no se encontro el listado dentro de assets/modelos.js');
       // U y P son los prefijos de carpeta que usa el propio listado.
       var fn = new Function('U', 'P', 'return ' + m[1].replace(/;$/, ''));
       var arr = fn('uploads/', 'portada/');
@@ -222,7 +222,7 @@
       (r.data || []).forEach(function (x) { existentes[slug(x.nombre)] = true; });
       return leerModelos();
     }).then(function (lista) {
-      log('Modelos en modelos.html: ' + lista.length);
+      log('Modelos en assets/modelos.js: ' + lista.length);
       log('');
 
       var i = 0;

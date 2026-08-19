@@ -449,11 +449,23 @@
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
   }
   .ls-modal__bar img { height: 44px; width: auto; }
+  /* La equis se dibuja con dos lineas, no se escribe con el caracter x:
+     ese glifo se apoya en el eje matematico de la tipografia, o sea mas
+     arriba del centro, y dentro del circulo se veia torcido. Dos rayas
+     giradas 45 grados quedan centradas por geometria. */
   .ls-modal__bar button {
-    width: 44px; height: 44px; background: none; border: 1px solid rgba(247,247,244,.3);
-    border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: #F7F7F4;
+    position: relative; width: 44px; height: 44px; padding: 0;
+    background: none; border: 1px solid rgba(247,247,244,.3);
+    border-radius: 50%; font-size: 0; cursor: pointer; color: #F7F7F4;
     transition: background .3s ease, color .3s ease;
   }
+  .ls-modal__bar button::before,
+  .ls-modal__bar button::after {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    width: 15px; height: 1px; background: currentColor;
+  }
+  .ls-modal__bar button::before { transform: translate(-50%,-50%) rotate(45deg); }
+  .ls-modal__bar button::after  { transform: translate(-50%,-50%) rotate(-45deg); }
   .ls-modal__bar button:hover { background: #F7F7F4; color: #14171C; }
   /* Franja de acento bajo la barra, para que no sea un panel blanco liso */
   .ls-modal__bar::after {
@@ -571,11 +583,13 @@
       <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="display:flex;align-items:center;gap:12px;min-height:44px">
         <img src="assets/logo-white.png" alt="IS Model Management" style="height:58px;width:auto;display:block" />
       </a>
-      <nav style="display:flex;align-items:center;gap:30px">
+      <nav style="display:flex;align-items:center;gap:22px">
         <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;align-items:center;gap:30px">
+          <div style="display:flex;align-items:center;gap:22px">
             <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Inicio</a>
-            <a href="modelos.html" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Modelos</a>
+            <a href="staff.html" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Staff</a>
+            <a href="new-faces.html" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">New Faces</a>
+            <a href="scouted.html" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Scouted</a>
             <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Nosotros</a>
             <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Academia</a>
             <a href="#contacto" data-target="contacto" onClick="{{ nav }}" style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper)">Contacto</a>
@@ -600,7 +614,9 @@
       </div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 24px 40px">
         <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Inicio</a>
-        <a href="modelos.html" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Modelos</a>
+        <a href="staff.html" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Staff Models</a>
+        <a href="new-faces.html" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">New Faces Models</a>
+        <a href="scouted.html" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Scouted Models</a>
         <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Nosotros</a>
         <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Academia</a>
         <a href="#contacto" data-target="contacto" onClick="{{ nav }}" style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;padding:10px 0;border-bottom:1px solid rgba(216,216,216,.12)">Contacto</a>
@@ -615,7 +631,7 @@
     </video>
     <div class="hero-veil" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,6,.55) 0%,rgba(6,6,6,.12) 32%,rgba(6,6,6,.16) 68%,rgba(6,6,6,.7) 100%)"></div>
     <div class="hero-cta" style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 clamp(24px,5vw,64px) clamp(44px,8vh,88px);display:flex;flex-wrap:wrap;gap:40px;animation:lsRise 1.2s cubic-bezier(.2,.7,.2,1) .3s both">
-      <a href="modelos.html" style="display:inline-flex;align-items:center;gap:16px;color:#F7F7F4;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.68">
+      <a href="staff.html" style="display:inline-flex;align-items:center;gap:16px;color:#F7F7F4;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.68">
         Conocer modelos
         <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #F7F7F4;border-radius:50%;font-size:13px">↗</span>
       </a>
@@ -637,7 +653,7 @@
         <h3 id="heroName" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease">FIONA<br />OTIÑANO</h3>
         <p id="heroAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease">23 años</p>
         <div style="display:flex;flex-direction:column;gap:22px;margin-top:48px">
-          <a href="modelos.html" style="display:inline-flex;align-items:center;gap:16px;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.6">
+          <a href="staff.html" style="display:inline-flex;align-items:center;gap:16px;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.6">
             Conocer modelos
             <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #060606;border-radius:50%;font-size:13px">↗</span>
           </a>
@@ -794,7 +810,9 @@
       <div style="display:flex;flex-direction:column;gap:12px">
         <span class="fcol-h">Navegación</span>
         <a href="#inicio" data-target="inicio" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Inicio</a>
-        <a href="modelos.html" style="font-size:13px;color:#D8D8D8">Modelos</a>
+        <a href="staff.html" style="font-size:13px;color:#D8D8D8">Staff Models</a>
+        <a href="new-faces.html" style="font-size:13px;color:#D8D8D8">New Faces Models</a>
+        <a href="scouted.html" style="font-size:13px;color:#D8D8D8">Scouted Models</a>
         <a href="#nosotros" data-target="nosotros" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Nosotros</a>
         <a href="#academia" data-target="academia" onClick="{{ nav }}" style="font-size:13px;color:#D8D8D8">Academia</a>
       </div>
@@ -1041,7 +1059,7 @@
 
   // Version liviana (900px) para el carrusel. Las originales llegan a
   // 4160x6240 y decodificarlas 23 veces con blur traba la animacion.
-  // Mismo formato que usa modelos.html para el hash del perfil.
+  // Mismo formato que usan las paginas de modelos para el hash del perfil.
   function slugPerfil(s) {
     return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1118,7 +1136,12 @@
       onChange: function (i) { idx = i; paint(true); },
       onCardClick: function (i) {
         var m = HERO_MODELS[i];
-        if (m) window.location.href = 'modelos.html#' + (m.perfil || slugPerfil(m.name));
+        if (!m) return;
+        // Cada segmento tiene su pagina: se va derecho a la que le toca,
+        // sin pasar por un redireccionamiento intermedio.
+        var paginas = { staff: 'staff.html', newface: 'new-faces.html', scouting: 'scouted.html' };
+        var pagina = paginas[m.seg] || 'staff.html';
+        window.location.href = pagina + '#' + (m.perfil || slugPerfil(m.name));
       }
     });
     if (carousel) el.dataset.dcReady = '1';

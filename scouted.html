@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scouted Models — IS Model Management</title>
+<meta name="description" content="Nuevos talentos seleccionados mediante el scouting de IS Model Management." />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="theme-color" content="#0B0B0B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<!-- Las tres vistas comparten hoja y script: el diseño se toca en un
+     solo lugar. Lo unico propio de cada pagina es el data-seg del body
+     y los textos de la cabecera. -->
+<link rel="stylesheet" href="assets/modelos.css?v=1" />
+</head>
+<body data-seg="scouting">
+
+<header>
+  <div style="max-width:1500px;margin:0 auto;padding:14px clamp(20px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:24px">
+    <a href="index.html" style="display:flex;align-items:center;min-height:44px">
+      <img src="assets/logo-white.png" alt="IS Model Management" style="height:50px;width:auto" />
+    </a>
+    <nav class="nav" style="display:flex;align-items:center;gap:26px">
+      <a href="index.html">Inicio</a>
+      <a href="staff.html">Staff</a>
+      <a href="new-faces.html">New Faces</a>
+      <a href="scouted.html" class="active">Scouted</a>
+      <a href="index.html#nosotros">Nosotros</a>
+      <a href="index.html#academia">Academia</a>
+      <a href="index.html#contacto">Contacto</a>
+    </nav>
+    <button type="button" class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mmenu" id="mmenu" aria-hidden="true">
+  <div class="mmenu__bar">
+    <img src="assets/logo-black.png" alt="IS Model Management" />
+    <button type="button" id="mclose" aria-label="Cerrar menú">&times;</button>
+  </div>
+  <nav class="mmenu__nav">
+    <a href="index.html">Inicio</a>
+    <a href="staff.html">Staff</a>
+    <a href="new-faces.html">New Faces</a>
+    <a href="scouted.html" class="active">Scouted</a>
+    <a href="index.html#nosotros">Nosotros</a>
+    <a href="index.html#academia">Academia</a>
+    <a href="index.html#contacto">Contacto</a>
+    <a href="index.html#postular">Quiero formar parte</a>
+  </nav>
+</div>
+
+<section class="roster">
+  <div style="max-width:1500px;margin:0 auto">
+    <div class="roster__head">
+      <h1 class="roster__title">Scouted <em>Models</em></h1>
+      <p class="roster__meta"><span id="count">0</span> perfiles · Paraguay</p>
+    </div>
+    <p class="roster__intro">Nuevos talentos seleccionados mediante el scouting de IS Model Management, aunque todavía no pertenezcan a la agencia ni a la academia.</p>
+
+    <div class="roster__bar">
+      <div class="buscador">
+        <svg class="buscador__lupa" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="21" y2="21" /></svg>
+        <input type="search" id="buscar" placeholder="Buscar por nombre o ciudad" aria-label="Buscar modelos" autocomplete="off" />
+        <button type="button" id="limpiar" aria-label="Limpiar búsqueda" hidden>&times;</button>
+      </div>
+
+      <nav class="segnav" aria-label="Categorías de modelos">
+        <a class="segnav__b" href="staff.html"><b id="tStaff">0</b><span>Staff Models</span></a>
+        <a class="segnav__b" href="new-faces.html"><b id="tNew">0</b><span>New Faces Models</span></a>
+        <a class="segnav__b is-current" href="scouted.html"><b id="tScout">0</b><span>Scouted Models</span></a>
+      </nav>
+    </div>
+
+    <p class="buscador__nota" id="notaBusqueda" hidden></p>
+  </div>
+</section>
+
+<section style="padding:clamp(38px,6vh,66px) clamp(20px,4vw,48px) clamp(110px,16vh,180px)">
+  <div style="max-width:1500px;margin:0 auto">
+    <div class="grid" id="grid"></div>
+    <p class="seg__empty" id="empty" hidden>Todavía no hay perfiles seleccionados. Si querés que te consideremos, postulate por Scouting.</p>
+    <a class="seg__cta" href="index.html#postular">
+      <span>Postularme por Scouting</span>
+      <span class="seg__cta-a" aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</section>
+
+<div style="background:var(--paper)">
+  <a class="band" href="index.html#postular" aria-label="Quiero formar parte">
+    <span class="halo" aria-hidden="true"></span>
+    <span class="sheen" aria-hidden="true"></span>
+    <span class="inner">
+      <span class="label">Quiero formar parte</span>
+      <span class="dash" aria-hidden="true"></span>
+    </span>
+  </a>
+</div>
+
+<footer style="background:var(--ink);color:var(--cream);padding:64px clamp(20px,4vw,48px) 44px;border-top:1px solid rgba(247,247,244,.14)">
+  <div style="max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
+    <!-- Las dos areas, una al lado de la otra: agencia y escuela -->
+    <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+      <img src="assets/logo-white.png" alt="IS Model Management" style="height:78px;width:auto" />
+      <span aria-hidden="true" style="width:1px;height:52px;background:rgba(247,247,244,.20)"></span>
+      <a href="index.html#academia"><img src="assets/academy-white.png" alt="IS Model Academy" style="height:74px;width:auto;display:block" /></a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="fcol-h">Modelos</span>
+      <a href="staff.html" style="font-size:13px;color:#D8D8D8">Staff Models</a>
+      <a href="new-faces.html" style="font-size:13px;color:#D8D8D8">New Faces Models</a>
+      <a href="scouted.html" style="font-size:13px;color:#D8D8D8">Scouted Models</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="fcol-h">Navegación</span>
+      <a href="index.html" style="font-size:13px;color:#D8D8D8">Inicio</a>
+      <a href="index.html#nosotros" style="font-size:13px;color:#D8D8D8">Nosotros</a>
+      <a href="index.html#academia" style="font-size:13px;color:#D8D8D8">Academia</a>
+      <a href="index.html#contacto" style="font-size:13px;color:#D8D8D8">Contacto</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="fcol-h">Legal</span>
+      <a href="privacidad.html" style="font-size:13px;color:#D8D8D8">Política de privacidad</a>
+      <a href="index.html#terminos" style="font-size:13px;color:#D8D8D8">Términos de uso</a>
+    </div>
+  </div>
+
+  <div class="ls-foot__base" style="max-width:1500px;margin:48px auto 0;padding-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+    <span style="font-size:11px;color:var(--muted)">© <span id="year"></span> IS Model Management</span>
+    <a href="https://neura.com.py" target="_blank" rel="noopener" class="ls-credit">
+      Desarrollado por <strong>Neura</strong>
+    </a>
+  </div>
+</footer>
+
+<div id="detail" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="dbar">
+    <a href="index.html" style="display:flex;align-items:center"><img src="assets/logo-black.png" alt="IS Model Management" style="height:42px;width:auto" /></a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button type="button" class="round" id="dPrev" aria-label="Modelo anterior">←</button>
+      <button type="button" class="round" id="dNext" aria-label="Modelo siguiente">→</button>
+      <button type="button" id="dClose" style="min-height:38px;padding:0 18px;margin-left:6px;background:none;border:1px solid rgba(6,6,6,.22);font-size:10px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;transition:background .3s,color .3s" onmouseover="this.style.background='#060606';this.style.color='#F7F7F4'" onmouseout="this.style.background='none';this.style.color='#060606'">Cerrar</button>
+    </div>
+  </div>
+  <div class="dwrap">
+    <div class="dgallery">
+      <div class="thumbs" id="dThumbs"></div>
+      <div class="dmain">
+        <img id="dMain" src="" alt="" />
+        <span class="dcount" id="dCount"></span>
+      </div>
+    </div>
+    <aside class="dinfo">
+      <div class="dhead">
+        <span class="dghost" id="dGhost" aria-hidden="true"></span>
+        <p id="dIndex" style="margin:0 0 18px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)"></p>
+        <h2 id="dName" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,5vw,72px);line-height:.98;letter-spacing:-.015em"></h2>
+        <p id="dAge" style="margin:18px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase"></p>
+      </div>
+      <div class="measure" id="dMeasure"></div>
+      <dl id="dSpecs" style="margin:0"></dl>
+      <button type="button" class="cta" id="dCta">Solicitar esta modelo <span>⟶</span></button>
+      <p class="dnote">Consultá disponibilidad y tarifas por WhatsApp o correo.</p>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js?v=2"></script>
+<script src="assets/modelos.js?v=1"></script>
+
+</body>
+</html>
