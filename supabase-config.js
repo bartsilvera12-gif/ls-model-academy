@@ -152,3 +152,40 @@ window.lsUrlPublica = function (bucket, ruta) {
   return String(c.url || '').replace(/\/+$/, '') + '/storage/v1/object/public/' +
          bucket + '/' + String(ruta).split('/').map(encodeURIComponent).join('/');
 };
+
+/* Datos de contacto del sitio (WhatsApp, correo, Instagram, cobertura).
+ *
+ * Estaban escritos dentro del HTML: cambiar el numero obligaba a tocar
+ * el codigo y volver a publicar. Ahora salen de ismodel.ajustes y se
+ * editan desde el panel.
+ *
+ * Se pide UNA sola vez por carga y se reparte la misma promesa: la
+ * portada y el pie lo necesitan casi al mismo tiempo.
+ *
+ * Devuelve null si no hay conexion o la tabla todavia no existe. Quien
+ * lo llama tiene que quedarse con lo que ya muestra: un enlace de
+ * contacto vacio es peor que uno desactualizado.
+ */
+window.lsContacto = (function () {
+  var pedido = null;
+  return function () {
+    if (pedido) return pedido;
+    var sb = window.lsSupabase;
+    if (!sb) return (pedido = Promise.resolve(null));
+    pedido = sb.from('ajustes').select('*').limit(1)
+      .then(function (r) {
+        if (r.error || !r.data || !r.data.length) return null;
+        var a = r.data[0];
+        return {
+          // Solo digitos: wa.me no acepta espacios, guiones ni el +.
+          whatsapp: String(a.whatsapp || '').replace(/\D/g, ''),
+          whatsappLabel: a.whatsapp_label || '',
+          email: a.email || '',
+          instagram: String(a.instagram || '').replace(/^@/, ''),
+          cobertura: a.cobertura || ''
+        };
+      })
+      .catch(function () { return null; });
+    return pedido;
+  };
+})();

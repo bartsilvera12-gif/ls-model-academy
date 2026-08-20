@@ -553,6 +553,21 @@ function desdeSupabase(){
 }
 
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* Los datos de contacto del pie se editan en el panel. Si no llegan, se
+   quedan los que ya estan escritos en la pagina. */
+if (window.lsContacto) window.lsContacto().then(function(c){
+  if (!c) return;
+  var ig = document.getElementById('fIg');
+  if (ig && c.instagram) ig.href = 'https://instagram.com/' + c.instagram;
+  var correo = document.getElementById('fMail');
+  if (correo && c.email) correo.href = 'mailto:' + c.email;
+  var wa = document.getElementById('fWa');
+  if (wa && c.whatsapp) {
+    wa.href = 'https://wa.me/' + c.whatsapp;
+    wa.target = '_blank'; wa.rel = 'noopener';
+  }
+});
 renderGrid();
 desdeSupabase().then(function(remotas){
   if (!remotas) return;             // se queda con la lista local

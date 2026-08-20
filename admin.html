@@ -127,6 +127,15 @@
   .setup ol { margin:0; padding-left:20px; font-size:13px; line-height:1.9; }
   .setup code { background:#fff; padding:2px 6px; border:1px solid #E8D5A0; font-size:12px; }
 
+  /* ---------- ficha de contacto ----------
+     Usa la misma caja que el editor de modelos, pero suelta en la
+     pagina en vez de dentro del oscurecido. */
+  .ficha { width:100%; max-width:600px; background:var(--card); padding:28px; }
+  .ficha h2 { margin:0 0 8px; font-family:'Cormorant Garamond',serif; font-weight:300; font-size:26px; }
+  .ficha .nota { margin:0 0 22px; font-size:13px; line-height:1.7; color:var(--muted); }
+  .vista { margin:2px 0 18px; padding:12px 14px; background:#F4F4F2; border:1px solid var(--line); font-size:12px; line-height:1.8; word-break:break-all; }
+  .vista b { font-weight:500; }
+
   /* ---------- modal ---------- */
   .ov { position:fixed; inset:0; z-index:60; background:rgba(14,17,22,.7); display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:24px; }
   .ov.on { display:flex; }
@@ -216,6 +225,7 @@
     <div class="tabs">
       <button class="tab on" data-tab="post" type="button">Postulaciones</button>
       <button class="tab" data-tab="mod" type="button">Modelos</button>
+      <button class="tab" data-tab="cont" type="button">Contacto</button>
       <button class="tab" id="logout" type="button" style="color:#fff">Salir</button>
     </div>
   </div>
@@ -251,6 +261,28 @@
         <span class="count" id="cMod"></span>
       </div>
       <div class="grid" id="listMod"></div>
+    </section>
+
+    <!-- ---------- Contacto ---------- -->
+    <section id="tab-cont" style="display:none">
+      <form class="ficha" id="contForm">
+        <h2>Datos de contacto</h2>
+        <p class="nota">Esto aparece en toda la web: los botones de WhatsApp, el Instagram y el correo del pie. Al guardar, el sitio lo toma solo; no hay que volver a publicarlo.</p>
+
+        <label><span>WhatsApp</span><input id="cWa" placeholder="0973 411 125" autocomplete="off" /></label>
+        <p class="vista" id="cWaVista"></p>
+
+        <div class="two">
+          <label><span>Instagram</span><input id="cIg" placeholder="ismodelmanagement" autocomplete="off" /></label>
+          <label><span>Cobertura</span><input id="cCob" placeholder="Paraguay" autocomplete="off" /></label>
+        </div>
+        <label><span>Correo</span><input id="cEmail" type="email" placeholder="contacto@ismodelmanagement.com" autocomplete="off" /></label>
+
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn" type="submit" id="contSave">Guardar</button>
+        </div>
+        <p class="msg" id="contMsg"></p>
+      </form>
     </section>
 
   </div>
@@ -583,7 +615,7 @@
     $('login').style.display = 'none';
     $('app').style.display = 'block';
     $('who').textContent = user && user.email ? user.email : '';
-    cargarPostulaciones(); cargarModelos();
+    cargarPostulaciones(); cargarModelos(); cargarContacto();
   }
 
   sb.auth.getSession().then(function (r) {
@@ -595,11 +627,80 @@
     t.addEventListener('click', function () {
       document.querySelectorAll('.tab[data-tab]').forEach(function (x) { x.classList.remove('on'); });
       t.classList.add('on');
-      ['post','mod'].forEach(function (k) {
+      ['post','mod','cont'].forEach(function (k) {
         $('tab-' + k).style.display = (k === t.dataset.tab) ? 'block' : 'none';
       });
     });
   });
+
+  /* ================= CONTACTO ================= */
+  /* El numero se guarda de dos formas: como se escribe para mostrarlo
+     y en digitos con codigo de pais para armar el enlace. wa.me no
+     acepta espacios ni el cero inicial: con 0973411125 abre un chat
+     vacio, que es el peor de los errores porque parece funcionar. */
+  function waInternacional(txt) {
+    var d = String(txt || '').replace(/\D/g, '');
+    if (!d) return '';
+    if (d.indexOf('595') === 0) return d;      // ya viene con el pais
+    if (d.indexOf('0') === 0) return '595' + d.slice(1);
+    if (d.length === 9) return '595' + d;      // 9XX XXX XXX sin el cero
+    return d;                                  // otro pais: se respeta
+  }
+
+  function pintarVistaWa() {
+    var caja = $('cWaVista');
+    if (!caja) return;
+    var n = waInternacional($('cWa').value);
+    caja.innerHTML = n
+      ? 'Los botones abriran <b>wa.me/' + esc(n) + '</b>'
+      : 'Sin numero, los botones de WhatsApp llevan al formulario de contacto.';
+  }
+
+  function cargarContacto() {
+    sb.from('ajustes').select('*').limit(1).then(function (r) {
+      if (r.error) {
+        $('contMsg').className = 'msg';
+        $('contMsg').textContent = r.error.message +
+          ' — falta ejecutar supabase-migracion-03-contacto.sql';
+        return;
+      }
+      var a = (r.data && r.data[0]) || {};
+      $('cWa').value = a.whatsapp_label || a.whatsapp || '';
+      $('cIg').value = a.instagram || '';
+      $('cCob').value = a.cobertura || '';
+      $('cEmail').value = a.email || '';
+      pintarVistaWa();
+    });
+  }
+
+  var contFormEl = $('contForm');
+  if (contFormEl) {
+    $('cWa').addEventListener('input', pintarVistaWa);
+    contFormEl.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = $('contMsg');
+      var boton = $('contSave');
+      msg.className = 'msg'; msg.textContent = '';
+      boton.disabled = true; boton.textContent = 'Guardando…';
+
+      var etiqueta = $('cWa').value.trim();
+      // upsert sobre id = 1: la tabla tiene una sola fila a proposito.
+      sb.from('ajustes').upsert({
+        id: 1,
+        whatsapp: waInternacional(etiqueta),
+        whatsapp_label: etiqueta,
+        instagram: $('cIg').value.trim().replace(/^@/, ''),
+        cobertura: $('cCob').value.trim(),
+        email: $('cEmail').value.trim(),
+        actualizado_en: new Date().toISOString()
+      }).then(function (r) {
+        boton.disabled = false; boton.textContent = 'Guardar';
+        if (r.error) { msg.className = 'msg'; msg.textContent = r.error.message; return; }
+        msg.className = 'msg msg--ok';
+        msg.textContent = 'Guardado. El sitio lo muestra en cuanto se recargue la pagina.';
+      });
+    });
+  }
 
   /* ================= POSTULACIONES ================= */
   var posts = [];

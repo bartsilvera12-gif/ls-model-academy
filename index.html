@@ -2119,11 +2119,23 @@ class Component extends DCLogic {
     formError: '',
     busy: false,
     fase: '',
+    // Datos de contacto cargados en el panel. Hasta que lleguen se usan
+    // los que estan escritos mas abajo, para no dejar enlaces muertos.
+    contacto: null,
     sent: false,
     width: typeof window !== 'undefined' ? window.innerWidth : 1200
   };
 
   componentDidMount() {
+    this._vivo = true;
+    // El numero de WhatsApp, el correo y el Instagram se editan desde el
+    // panel. Llegan despues del primer pintado: hasta entonces se ven los
+    // de siempre y despues se reemplazan solos.
+    if (window.lsContacto) {
+      window.lsContacto().then((c) => {
+        if (c && this._vivo) this.setState({ contacto: c });
+      });
+    }
     this._onField = (e) => {
       const el = e.target;
       if (!el || !el.getAttribute) return;
@@ -2187,6 +2199,7 @@ class Component extends DCLogic {
   componentDidUpdate() { this._observe(); }
 
   componentWillUnmount() {
+    this._vivo = false;
     window.removeEventListener('resize', this._onResize);
     window.removeEventListener('hashchange', this._abrirPorHash);
     document.removeEventListener('input', this._onField, true);
@@ -2402,12 +2415,15 @@ class Component extends DCLogic {
     const s = this.state;
     const p = this.props;
     const isMobile = s.width < 900;
-    const wa = (p.whatsappNumber || WHATSAPP || '').replace(/\D/g, '');
+    // Primero lo cargado en el panel; despues lo del editor; al final lo
+    // escrito en este archivo.
+    const ct = s.contacto || {};
+    const wa = (ct.whatsapp || p.whatsappNumber || WHATSAPP || '').replace(/\D/g, '');
     // Sin numero cargado los botones de la academia no pueden abrir WhatsApp:
     // caen al formulario de consulta para no dejar un enlace muerto.
     const waWith = (msg) => (wa ? 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) : '');
-    const ig = (p.instagramHandle || 'lsmodelacademy').replace(/^@/, '');
-    const email = p.contactEmail || 'contacto@lsmodelacademy.com';
+    const ig = (ct.instagram || p.instagramHandle || 'lsmodelacademy').replace(/^@/, '');
+    const email = ct.email || p.contactEmail || 'contacto@lsmodelacademy.com';
 
     const model = MODELS.find((m) => m.id === s.profileId) || null;
     const shown = s.filter === 'Todas' ? MODELS : MODELS.filter((m) => m.cats.indexOf(s.filter) > -1);
@@ -2454,7 +2470,7 @@ class Component extends DCLogic {
       menuOpen: s.menuOpen,
       showSticky: isMobile && !s.modal && !s.profileId && (p.showStickyCta !== false),
       waLink: wa ? 'https://wa.me/' + wa : '#contacto',
-      waLabel: p.whatsappNumber || '0973 411 125',
+      waLabel: ct.whatsappLabel || p.whatsappNumber || '0973 411 125',
       acWa: waWith(WA_ACADEMY) || '#contacto',
       acWaInfo: waWith(WA_ACADEMY_INFO) || '#contacto',
       acTarget: wa ? '_blank' : '_self',
@@ -2462,7 +2478,7 @@ class Component extends DCLogic {
       igLabel: '@' + ig,
       mailLink: 'mailto:' + email,
       email,
-      coverage: p.coverage || 'Paraguay',
+      coverage: ct.cobertura || p.coverage || 'Paraguay',
       filters: ['Todas'].concat(CATS).map((name) => ({
         name,
         bg: s.filter === name ? '#050505' : 'transparent',
