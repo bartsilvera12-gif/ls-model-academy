@@ -399,19 +399,6 @@
     opacity: 0; transition: opacity .4s ease;
   }
   .dc__card.is-front .dc__cap { opacity: 1; }
-  /* Tarjeta separadora: anuncia el segmento que empieza. No lleva foto
-     ni pie, por eso es la unica que se pinta de negro. */
-  .dc__card--sep {
-    background: #060606; display: flex; align-items: center; justify-content: center;
-    padding: 0 26px; text-align: center; color: #F7F7F4;
-  }
-  .dc__sep-k { display: block; font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: rgba(247,247,244,.55); }
-  .dc__sep-t {
-    display: block; margin-top: 20px;
-    font-family: 'Cormorant Garamond', serif; font-weight: 300;
-    font-size: 46px; line-height: 1.04; text-transform: uppercase;
-  }
-  .dc__sep-r { display: block; width: 48px; height: 1px; margin: 26px auto 0; background: rgba(247,247,244,.42); }
   @media (prefers-reduced-motion: reduce) {
     .dc__card { will-change: auto; }
   }
@@ -513,6 +500,40 @@
   @keyframes lsFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes lsWipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
   @keyframes lsHint { 0%,100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(9px); opacity: 1; } }
+  /* La segunda vitrina es la misma pieza, reflejada: fotos a la
+     izquierda y texto a la derecha. El orden del HTML NO cambia (el
+     texto va primero) para que en el celular las tres se apilen igual:
+     nombre y despues las fotos. El reflejo lo hace order, y en movil
+     se anula. Sin !important a proposito: la regla de movil lo lleva y
+     tiene que poder ganar. */
+  .ls-md--inv { grid-template-columns: 62% 38%; }
+  .ls-md--inv .ls-md__txt { order: 2; }
+  .ls-md--inv .ls-md__foto { order: 1; }
+
+  /* Convocatoria: ocupa el lugar del carrusel mientras el bloque no
+     tenga perfiles. El dia que se publique la primera, el carrusel la
+     reemplaza sin tocar nada. */
+  .conv {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+  }
+  .conv__card {
+    width: 420px; max-width: 100%; aspect-ratio: 3 / 4;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0; padding: 0 30px; text-align: center;
+    background: #060606; color: #F7F7F4; border: none; cursor: pointer;
+    box-shadow: 0 30px 60px -22px rgba(6,6,6,.42), 0 8px 20px -10px rgba(6,6,6,.28);
+    transition: transform .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .conv__card:hover { transform: translateY(-6px); }
+  .conv__k { font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: rgba(247,247,244,.55); }
+  .conv__t {
+    margin: 22px 0 0; font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(30px,3vw,44px); line-height: 1.06; text-transform: uppercase;
+  }
+  .conv__r { width: 48px; height: 1px; margin: 28px 0 0; background: rgba(247,247,244,.42); }
+  .conv__a { margin: 28px 0 0; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(247,247,244,.8); }
+
   /* ===================== MOVIL ===================== */
   @media (max-width: 900px) {
     /* La seccion de Modelos deja de ser 38%/62% y se apila */
@@ -521,7 +542,11 @@
       padding: 0 clamp(22px,6vw,34px) clamp(30px,5vh,44px) !important;
       justify-content: flex-start !important;
     }
-    #dcModelos { min-height: 62vh; }
+    #dcModelos, #dcNewFaces, #dcScouted { min-height: 62vh; }
+    /* Apiladas, las tres van en el mismo orden: texto y despues fotos. */
+    .ls-md--inv .ls-md__txt, .ls-md--inv .ls-md__foto { order: 0; }
+    .conv { position: relative; inset: auto; padding: 40px 24px 50px; }
+    .conv__card { width: 100%; max-width: 340px; }
     /* Hero en movil: el video deja de ser pantalla completa y los botones
        pasan a estar DEBAJO, no encima. Superpuestos quedaban ilegibles. */
     #inicio { height: auto !important; min-height: 0 !important; }
@@ -543,8 +568,8 @@
 
   @media (max-width: 620px) {
     /* Titulares mas contenidos */
-    #modelos > div:first-of-type h2 { font-size: clamp(30px,10vw,44px) !important; }
-    #heroName { font-size: clamp(30px,9vw,44px) !important; }
+    .ls-md__h2 { font-size: clamp(30px,10vw,44px) !important; }
+    .ls-md__nom { font-size: clamp(30px,9vw,44px) !important; }
     .ls-ct__title { font-size: clamp(30px,8.5vw,44px) !important; }
     .ls-about__title { font-size: clamp(28px,8vw,40px) !important; }
 
@@ -553,11 +578,11 @@
     .mh { font-size: 30px !important; }
 
     /* Areas tactiles: minimo 44px. Los inline styles obligan a !important. */
-    #heroPrev, #heroNext { width: 44px !important; height: 44px !important; }
+    .vit__nav { width: 44px !important; height: 44px !important; }
     .ls-opt { min-height: 88px; padding: 0 20px; }
     footer a { padding: 13px 0; }
     .ls-credit { padding: 10px 0; }
-    #modelos .ls-md__txt a { padding: 6px 0; }
+    .ls-md__txt a { padding: 6px 0; }
 
     /* iOS hace zoom al enfocar un campo con fuente menor a 16px */
     input, select, textarea { font-size: 16px !important; }
@@ -657,13 +682,13 @@
 
   <section id="modelos" style="padding:0;position:relative;background:#F7F5F1;color:#060606">
     <div style="padding:80px clamp(24px,5vw,64px) 44px;display:flex;align-items:center;gap:24px;position:relative;z-index:1">
-      <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,6vw,72px);line-height:1;text-transform:uppercase;letter-spacing:.01em">Modelos</h2>
+      <h2 class="ls-md__h2" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,6vw,72px);line-height:1;text-transform:uppercase;letter-spacing:.01em">Staff Models</h2>
       <span style="flex:1;min-width:60px;height:1px;background:#060606"></span>
     </div>
     <div class="ls-md" style="display:grid;grid-template-columns:38% 62%;min-height:92vh;position:relative;z-index:1">
       <div class="ls-md__txt" style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
         <p id="heroKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">Staff Models / 01</p>
-        <h3 id="heroName" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease">FIONA<br />OTIÑANO</h3>
+        <h3 id="heroName" class="ls-md__nom" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease">FIONA<br />OTIÑANO</h3>
         <p id="heroAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease">23 años</p>
         <div style="display:flex;flex-direction:column;gap:22px;margin-top:48px">
           <a href="staff.html" style="display:inline-flex;align-items:center;gap:16px;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.6">
@@ -673,20 +698,126 @@
         </div>
         <div style="display:flex;align-items:center;gap:18px;margin-top:52px;max-width:360px">
           <span id="heroCounter" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#060606;min-width:26px;font-variant-numeric:tabular-nums">01</span>
-          <div id="heroTrack" style="flex:1;height:1px;background:rgba(6,6,6,.16);position:relative;cursor:pointer">
+          <div id="heroTrack" data-vit="staff" data-nav="track" style="flex:1;height:1px;background:rgba(6,6,6,.16);position:relative;cursor:pointer">
             <span id="heroProgress" style="position:absolute;left:0;top:0;height:1px;width:5%;background:#060606;transition:width .9s cubic-bezier(.4,0,.2,1)"></span>
           </div>
           <span id="heroTotal" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#A9A9A2;min-width:26px;text-align:right;font-variant-numeric:tabular-nums">22</span>
           <div style="display:flex;gap:6px;margin-left:4px">
-            <button type="button" id="heroPrev" aria-label="Modelo anterior" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">←</button>
-            <button type="button" id="heroNext" aria-label="Modelo siguiente" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">→</button>
+            <button type="button" id="heroPrev" class="vit__nav" data-vit="staff" data-nav="prev" aria-label="Modelo anterior" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">←</button>
+            <button type="button" id="heroNext" class="vit__nav" data-vit="staff" data-nav="next" aria-label="Modelo siguiente" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">→</button>
           </div>
         </div>
       </div>
-      <div style="position:relative;overflow:hidden;background:#EDEAE4;min-width:0">
+      <div class="ls-md__foto" style="position:relative;overflow:hidden;background:#EDEAE4;min-width:0">
         <div id="dcModelos" class="dc" tabindex="0" role="group"
-             aria-roledescription="carrusel" aria-label="Fotos de las modelos"
+             aria-roledescription="carrusel" aria-label="Fotos del staff de modelos"
              style="--dc-perspective:1400px"></div>
+        <div style="position:absolute;top:0;bottom:0;left:0;width:120px;background:linear-gradient(90deg,#F7F5F1 0%,rgba(247,245,241,0) 100%);pointer-events:none;z-index:2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ New Faces: la misma vitrina, reflejada ============
+       Fotos a la izquierda y texto a la derecha. Si el bloque no tiene
+       perfiles publicados, la seccion entera se oculta. -->
+  <section id="newfaces" style="padding:0;position:relative;background:#F7F5F1;color:#060606">
+    <div style="padding:80px clamp(24px,5vw,64px) 44px;display:flex;align-items:center;gap:24px;position:relative;z-index:1">
+      <span style="flex:1;min-width:60px;height:1px;background:#060606"></span>
+      <h2 class="ls-md__h2" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,6vw,72px);line-height:1;text-transform:uppercase;letter-spacing:.01em;text-align:right">New Faces</h2>
+    </div>
+    <div class="ls-md ls-md--inv" style="display:grid;min-height:92vh;position:relative;z-index:1">
+      <div class="ls-md__txt" style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
+        <p id="nfKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">New Faces Models / 01</p>
+        <h3 id="nfName" class="ls-md__nom" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease"></h3>
+        <p id="nfAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease"></p>
+        <p style="margin:26px 0 0;font-size:13px;line-height:1.9;color:#6A6E74;font-weight:300;max-width:38ch">Alumnas y modelos destacadas de IS Model Academy que comienzan a proyectarse profesionalmente.</p>
+        <div style="display:flex;flex-direction:column;gap:22px;margin-top:40px">
+          <a href="new-faces.html" style="display:inline-flex;align-items:center;gap:16px;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.6">
+            Ver New Faces
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #060606;border-radius:50%;font-size:13px">↗</span>
+          </a>
+        </div>
+        <div style="display:flex;align-items:center;gap:18px;margin-top:52px;max-width:360px">
+          <span id="nfCounter" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#060606;min-width:26px;font-variant-numeric:tabular-nums">01</span>
+          <div id="nfTrack" data-vit="newface" data-nav="track" style="flex:1;height:1px;background:rgba(6,6,6,.16);position:relative;cursor:pointer">
+            <span id="nfProgress" style="position:absolute;left:0;top:0;height:1px;width:5%;background:#060606;transition:width .9s cubic-bezier(.4,0,.2,1)"></span>
+          </div>
+          <span id="nfTotal" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#A9A9A2;min-width:26px;text-align:right;font-variant-numeric:tabular-nums">00</span>
+          <div style="display:flex;gap:6px;margin-left:4px">
+            <button type="button" class="vit__nav" data-vit="newface" data-nav="prev" aria-label="Modelo anterior" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">←</button>
+            <button type="button" class="vit__nav" data-vit="newface" data-nav="next" aria-label="Modelo siguiente" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">→</button>
+          </div>
+        </div>
+      </div>
+      <div class="ls-md__foto" style="position:relative;overflow:hidden;background:#EDEAE4;min-width:0">
+        <div id="dcNewFaces" class="dc" tabindex="0" role="group"
+             aria-roledescription="carrusel" aria-label="Fotos de las New Faces"
+             style="--dc-perspective:1400px"></div>
+        <div style="position:absolute;top:0;bottom:0;right:0;width:120px;background:linear-gradient(270deg,#F7F5F1 0%,rgba(247,245,241,0) 100%);pointer-events:none;z-index:2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Scouted ============
+       Misma orientacion que el staff: texto a la izquierda, fotos a la
+       derecha. Todavia no hay perfiles publicados, asi que en lugar del
+       carrusel se muestra la convocatoria. Los data-si-hay / data-si-no
+       los conmuta el JS: el dia que se publique la primera modelo, la
+       seccion pasa a ser un carrusel como las otras dos. -->
+  <section id="scouted" style="padding:0;position:relative;background:#F7F5F1;color:#060606">
+    <div style="padding:80px clamp(24px,5vw,64px) 44px;display:flex;align-items:center;gap:24px;position:relative;z-index:1">
+      <h2 class="ls-md__h2" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,6vw,72px);line-height:1;text-transform:uppercase;letter-spacing:.01em">Scouted</h2>
+      <span style="flex:1;min-width:60px;height:1px;background:#060606"></span>
+    </div>
+    <div class="ls-md" style="display:grid;grid-template-columns:38% 62%;min-height:92vh;position:relative;z-index:1">
+      <div class="ls-md__txt" style="background:#F7F5F1;padding:0 clamp(24px,3vw,48px) clamp(40px,6vh,72px);display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0;z-index:3">
+        <p id="scKicker" style="margin:0 0 22px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8A8A8A;font-weight:500;transition:opacity .6s ease">Scouted Models</p>
+
+        <div data-si-no="scouting">
+          <h3 class="ls-md__nom" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606">EL PRÓXIMO<br />PERFIL</h3>
+          <p style="margin:26px 0 0;font-size:13px;line-height:1.9;color:#6A6E74;font-weight:300;max-width:40ch">Buscamos caras nuevas durante todo el año. Cargá tus datos y tus fotografías: el equipo revisa cada postulación de forma privada y te responde.</p>
+          <div style="display:flex;flex-direction:column;gap:22px;margin-top:40px">
+            <button type="button" onClick="{{ openApply }}" style="display:inline-flex;align-items:center;gap:16px;background:none;border:none;padding:0;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;transition:opacity .4s" style-hover="opacity:.6">
+              Postularme por scouting
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #060606;border-radius:50%;font-size:13px">↗</span>
+            </button>
+          </div>
+        </div>
+
+        <div data-si-hay="scouting" style="display:none">
+          <h3 id="scName" class="ls-md__nom" style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,4.2vw,72px);line-height:1;letter-spacing:-.01em;color:#060606;transition:opacity .6s ease"></h3>
+          <p id="scAge" style="margin:26px 0 0;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#060606;font-weight:500;transition:opacity .6s ease"></p>
+          <div style="display:flex;flex-direction:column;gap:22px;margin-top:40px">
+            <a href="scouted.html" style="display:inline-flex;align-items:center;gap:16px;color:#060606;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:opacity .4s" style-hover="opacity:.6">
+              Ver Scouted Models
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #060606;border-radius:50%;font-size:13px">↗</span>
+            </a>
+          </div>
+          <div style="display:flex;align-items:center;gap:18px;margin-top:52px;max-width:360px">
+            <span id="scCounter" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#060606;min-width:26px;font-variant-numeric:tabular-nums">01</span>
+            <div id="scTrack" data-vit="scouting" data-nav="track" style="flex:1;height:1px;background:rgba(6,6,6,.16);position:relative;cursor:pointer">
+              <span id="scProgress" style="position:absolute;left:0;top:0;height:1px;width:5%;background:#060606;transition:width .9s cubic-bezier(.4,0,.2,1)"></span>
+            </div>
+            <span id="scTotal" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;line-height:1;color:#A9A9A2;min-width:26px;text-align:right;font-variant-numeric:tabular-nums">00</span>
+            <div style="display:flex;gap:6px;margin-left:4px">
+              <button type="button" class="vit__nav" data-vit="scouting" data-nav="prev" aria-label="Modelo anterior" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">←</button>
+              <button type="button" class="vit__nav" data-vit="scouting" data-nav="next" aria-label="Modelo siguiente" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(6,6,6,.2);border-radius:50%;color:#060606;font-size:13px;cursor:pointer;padding:0;transition:background .3s,border-color .3s" style-hover="background:#060606;border-color:#060606;color:#F7F5F1">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ls-md__foto" style="position:relative;overflow:hidden;background:#EDEAE4;min-width:0">
+        <div id="dcScouted" class="dc" data-si-hay="scouting" tabindex="0" role="group"
+             aria-roledescription="carrusel" aria-label="Fotos de las Scouted Models"
+             style="--dc-perspective:1400px;display:none"></div>
+        <div class="conv" data-si-no="scouting">
+          <button type="button" class="conv__card" onClick="{{ openApply }}" aria-label="Postularme por scouting">
+            <span class="conv__k">Convocatoria abierta</span>
+            <span class="conv__t">Tu perfil<br />puede estar acá</span>
+            <span class="conv__r" aria-hidden="true"></span>
+            <span class="conv__a">Postularme ⟶</span>
+          </button>
+        </div>
         <div style="position:absolute;top:0;bottom:0;left:0;width:120px;background:linear-gradient(90deg,#F7F5F1 0%,rgba(247,245,241,0) 100%);pointer-events:none;z-index:2"></div>
       </div>
     </div>
@@ -1007,21 +1138,29 @@
     scouting: 'Scouted Models'
   };
 
-  /* Entre un segmento y el siguiente va una tarjeta negra con el nombre
-     del que empieza. Sin eso el carrusel pasaba del staff a las caras
-     nuevas sin ningun aviso y parecian todas lo mismo. */
-  function conSeparadores(lista) {
-    const salida = [];
-    let anterior = null;
-    lista.forEach(function (m) {
-      const seg = m.seg || 'staff';
-      if (anterior !== null && seg !== anterior) {
-        salida.push({ separador: true, seg: seg, name: NOMBRE_SEG[seg] || seg });
-      }
-      anterior = seg;
-      salida.push(m);
-    });
-    return salida;
+  /* Cada segmento tiene su vitrina en la portada: la misma pieza, con
+     los elementos y la lista que le tocan. Antes habia una sola y las
+     modelos de los tres bloques pasaban mezcladas.
+
+     Para agregar un cuarto bloque alcanza con sumar una entrada aca y
+     su seccion en el HTML. */
+  const VITRINAS = [
+    { seg:'staff', seccion:'modelos', host:'dcModelos', pagina:'staff.html', tilt:'right',
+      kicker:'heroKicker', nombre:'heroName', edad:'heroAge',
+      cuenta:'heroCounter', total:'heroTotal', barra:'heroProgress' },
+    { seg:'newface', seccion:'newfaces', host:'dcNewFaces', pagina:'new-faces.html', tilt:'left',
+      kicker:'nfKicker', nombre:'nfName', edad:'nfAge',
+      cuenta:'nfCounter', total:'nfTotal', barra:'nfProgress' },
+    // Sin perfiles publicados muestra la convocatoria en vez del
+    // carrusel, asi que la seccion NO se oculta.
+    { seg:'scouting', seccion:'scouted', host:'dcScouted', pagina:'scouted.html', tilt:'right',
+      kicker:'scKicker', nombre:'scName', edad:'scAge',
+      cuenta:'scCounter', total:'scTotal', barra:'scProgress', convoca:true }
+  ];
+  VITRINAS.forEach(function (v) { v.lista = []; v.idx = 0; v.carousel = null; });
+  function vitrinaDe(seg) {
+    for (let i = 0; i < VITRINAS.length; i++) if (VITRINAS[i].seg === seg) return VITRINAS[i];
+    return null;
   }
 
   /* Lista de respaldo, con las imagenes locales de carousel/. Se usa si
@@ -1058,9 +1197,6 @@
     { name: 'Zueli Vazquez', age: 21, file: 'Zuelli Vazquez 21 años.jpeg', pos: 'center 52%' }
   ];
 
-  let idx = 0;
-  let timer = null;
-  let showA = true;
 
   function preload(url) { const i = new Image(); i.src = url; }
 
@@ -1103,89 +1239,106 @@
   }
 
   // Las fotos las maneja el carrusel; aca solo se actualiza el texto.
-  function paint(animate) {
-    const nameEl = document.getElementById('heroName');
-    const ageEl = document.getElementById('heroAge');
-    const kickerEl = document.getElementById('heroKicker');
-    if (!nameEl || !ageEl) return;
+  function pintar(v) {
+    const nameEl = document.getElementById(v.nombre);
+    const ageEl = document.getElementById(v.edad);
+    const kickerEl = document.getElementById(v.kicker);
+    const m = v.lista[v.idx];
+    if (!nameEl || !m) return;
 
-    const m = HERO_MODELS[idx];
-    // Cuantas modelos de verdad hay hasta aca: los separadores no cuentan,
-    // si no el contador diria 40 sobre una portada de 39 perfiles.
-    const reales = HERO_MODELS.filter(function (x) { return !x.separador; }).length;
-    const hasta = HERO_MODELS.slice(0, idx + 1).filter(function (x) { return !x.separador; }).length;
-
-    // En el separador el titulo es el nombre del segmento: se parte antes
-    // de la ultima palabra para que quede "NEW FACES / MODELS".
-    const parts = m.name.split(' ');
-    const first = m.separador ? parts.slice(0, -1).join(' ').toUpperCase() : parts[0].toUpperCase();
-    const rest = m.separador ? parts.slice(-1)[0].toUpperCase() : parts.slice(1).join(' ').toUpperCase();
+    const parts = String(m.name).split(' ');
+    const first = parts[0].toUpperCase();
+    const rest = parts.slice(1).join(' ').toUpperCase();
+    const pad = function (n) { return (n < 10 ? '0' : '') + n; };
 
     nameEl.style.opacity = '0';
-    ageEl.style.opacity = '0';
+    if (ageEl) ageEl.style.opacity = '0';
     if (kickerEl) kickerEl.style.opacity = '0';
     setTimeout(function () {
       nameEl.innerHTML = first + (rest ? '<br>' + rest : '');
-      ageEl.textContent = m.age ? m.age + ' AÑOS' : '';
-      ageEl.style.display = m.age ? '' : 'none';
+      if (ageEl) {
+        ageEl.textContent = m.age ? m.age + ' AÑOS' : '';
+        ageEl.style.display = m.age ? '' : 'none';
+        ageEl.style.opacity = '1';
+      }
       if (kickerEl) {
-        kickerEl.textContent = m.separador
-          ? 'A continuación'
-          : (NOMBRE_SEG[m.seg] || 'Staff Models') + ' / ' + (hasta < 10 ? '0' : '') + hasta;
+        kickerEl.textContent = (NOMBRE_SEG[v.seg] || 'Modelos') + ' / ' + pad(v.idx + 1);
         kickerEl.style.opacity = '1';
       }
       nameEl.style.opacity = '1';
-      ageEl.style.opacity = '1';
     }, 320);
 
-    const counterEl = document.getElementById('heroCounter');
-    const totalEl = document.getElementById('heroTotal');
-    const progEl = document.getElementById('heroProgress');
-    const pad = function (n) { return (n < 10 ? '0' : '') + n; };
-    if (counterEl) counterEl.textContent = pad(hasta);
-    if (totalEl) totalEl.textContent = pad(reales);
-    if (progEl) progEl.style.width = ((idx + 1) / HERO_MODELS.length * 100).toFixed(2) + '%';
+    const counterEl = document.getElementById(v.cuenta);
+    const totalEl = document.getElementById(v.total);
+    const progEl = document.getElementById(v.barra);
+    if (counterEl) counterEl.textContent = pad(v.idx + 1);
+    if (totalEl) totalEl.textContent = pad(v.lista.length);
+    if (progEl) progEl.style.width = ((v.idx + 1) / v.lista.length * 100).toFixed(2) + '%';
   }
-
-  let carousel = null;
 
   // Hasta que se sepa de donde salen las modelos, no se arma nada.
   let portadaDecidida = false;
 
-  function initCarousel() {
-    const el = document.getElementById('dcModelos');
-    if (!el || !portadaDecidida) return;
+  function armarCarrusel(v) {
+    const el = document.getElementById(v.host);
+    if (!el || !portadaDecidida || !v.lista.length) return;
     // Ya construido y con su contenido intacto: nada que hacer.
     if (el.dataset.dcReady === '1' && el.querySelector('.dc__stage')) return;
     // El framework re-renderizo y lo vacio: se corta el autoplay viejo
     // antes de reconstruir, si no quedan intervalos huerfanos acumulandose.
-    if (carousel && carousel.stopAuto) carousel.stopAuto();
-    carousel = DepthCarousel(el, {
-      items: HERO_MODELS.map(function (m) {
-        if (m.separador) return { separador: m.name, alt: m.name };
+    if (v.carousel && v.carousel.stopAuto) v.carousel.stopAuto();
+    v.carousel = DepthCarousel(el, {
+      items: v.lista.map(function (m) {
         // Sin edad se muestra solo el nombre: concatenarla a ciegas
         // imprimia "· null" sobre la foto.
         return { image: thumbOf(m), alt: m.name, pos: m.pos, caption: m.age ? m.name + ' · ' + m.age : m.name };
       }),
       cardWidth: 420, cardHeight: 560, radius: 0, tint: '#0d0b09',
-      depth: 220, spread: 90, tilt: 22, tiltDirection: 'right',
+      // La vitrina reflejada inclina para el otro lado: con la misma
+      // inclinacion, las tarjetas apuntaban hacia afuera de la pagina.
+      depth: 220, spread: 90, tilt: 22, tiltDirection: v.tilt,
       visibleCards: 4, falloff: 0.2, blur: 6, duration: 700,
       // Sin avance automatico: los perfiles cambiaban antes de poder leerlos.
       // Se navega con las flechas, arrastrando o con la rueda del mouse.
       loop: true, autoplay: false,
-      onChange: function (i) { idx = i; paint(true); },
+      onChange: function (i) { v.idx = i; pintar(v); },
       onCardClick: function (i) {
-        var m = HERO_MODELS[i];
+        const m = v.lista[i];
         if (!m) return;
         // Cada segmento tiene su pagina: se va derecho a la que le toca,
         // sin pasar por un redireccionamiento intermedio.
-        var paginas = { staff: 'staff.html', newface: 'new-faces.html', scouting: 'scouted.html' };
-        var pagina = paginas[m.seg] || 'staff.html';
-        // La tarjeta separadora no es un perfil: abre el listado entero.
-        window.location.href = m.separador ? pagina : pagina + '#' + (m.perfil || slugPerfil(m.name));
+        window.location.href = v.pagina + '#' + (m.perfil || slugPerfil(m.name));
       }
     });
-    if (carousel) el.dataset.dcReady = '1';
+    if (v.carousel) el.dataset.dcReady = '1';
+  }
+
+  /* Muestra u oculta lo que corresponda segun si el bloque tiene
+     perfiles. Se vuelve a llamar cada tanto porque el framework
+     re-renderiza y se lleva puestos los estilos que pone el JS. */
+  function acomodarVitrina(v) {
+    const hay = v.lista.length > 0;
+    if (v.convoca) {
+      document.querySelectorAll('[data-si-hay="' + v.seg + '"]').forEach(function (e) {
+        e.style.display = hay ? '' : 'none';
+      });
+      document.querySelectorAll('[data-si-no="' + v.seg + '"]').forEach(function (e) {
+        e.style.display = hay ? 'none' : '';
+      });
+    } else {
+      // Un bloque vacio no se anuncia: la seccion entera desaparece.
+      const sec = document.getElementById(v.seccion);
+      if (sec) sec.style.display = hay ? '' : 'none';
+    }
+  }
+
+  /* Lo llama el bucle periodico: rehace lo que el framework haya
+     borrado, sin tocar lo que sigue en pie. */
+  function initCarousel() {
+    VITRINAS.forEach(function (v) {
+      acomodarVitrina(v);
+      armarCarrusel(v);
+    });
   }
 
   /* Lo que este publicado en el panel manda sobre la lista de arriba.
@@ -1198,13 +1351,9 @@
     return q.order('orden').order('nombre').then((r) => {
       if (r.error || !r.data || !r.data.length) return null;
       const ancho = anchoPara(420);   // el ancho de tarjeta del carrusel
-      // La portada abre por el staff. Ordenar por segmento en la consulta
-      // los pondria alfabeticamente y arrancaria por New Faces.
-      const rango = { staff: 0, newface: 1, scouting: 2 };
+      // Cada vitrina se queda con su segmento, asi que aca solo importa
+      // el orden dentro de cada bloque.
       const filas = r.data.slice().sort((a, b) => {
-        const ra = rango[a.segmento] == null ? 9 : rango[a.segmento];
-        const rb = rango[b.segmento] == null ? 9 : rango[b.segmento];
-        if (ra !== rb) return ra - rb;
         if ((a.orden || 0) !== (b.orden || 0)) return (a.orden || 0) - (b.orden || 0);
         return String(a.nombre).localeCompare(String(b.nombre), 'es');
       });
@@ -1218,31 +1367,29 @@
     }).catch(() => null);
   }
 
-  // Queda para rehacer la portada en caliente si alguna vez hace falta.
-  // El arranque ya no lo usa: arma una sola vez.
-  function reemplazarModelos(lista) {
-    portadaDecidida = true;
-    HERO_MODELS = conSeparadores(lista);
-    idx = 0;
-    const el = document.getElementById('dcModelos');
-    // Se marca como no construido para que initCarousel lo rehaga con
-    // la lista nueva, cortando antes el carrusel viejo.
-    if (el) el.dataset.dcReady = '';
-    if (carousel && carousel.stopAuto) carousel.stopAuto();
-    carousel = null;
-    initCarousel();
-    paint(false);
+  /* Reparte la lista entre las vitrinas. Sin base de datos, el staff se
+     queda con la lista escrita en este archivo; los otros dos bloques no
+     tienen respaldo local y quedan vacios, que es mejor que inventar. */
+  function repartir(lista) {
+    VITRINAS.forEach(function (v) {
+      v.lista = (lista || []).filter(function (m) { return (m.seg || 'staff') === v.seg; });
+      v.idx = 0;
+      const el = document.getElementById(v.host);
+      if (el) el.dataset.dcReady = '';
+      if (v.carousel && v.carousel.stopAuto) v.carousel.stopAuto();
+      v.carousel = null;
+    });
+    const staff = vitrinaDe('staff');
+    if (staff && !staff.lista.length) staff.lista = HERO_MODELS;
   }
-
-  function tick() { if (carousel) carousel.next(); }
-  function resetTimer() { if (timer) clearInterval(timer); timer = null; }
 
   /* ---- animación de entrada de los textos ----
      Se excluyen el hero (ya animado por CSS) y el texto del slideshow
      (#heroName / #heroAge / #heroKicker), que tienen su propia
      transición de opacidad controlada por JS. */
   const ANIM_SEL = [
-    '#modelos > div:first-of-type h2',
+    // Los titulares de las tres vitrinas
+    '#modelos > div:first-of-type h2', '#newfaces > div:first-of-type h2', '#scouted > div:first-of-type h2',
     // Solo el bloque de texto: las tarjetas de valores traen su propia
     // entrada escalonada en CSS y anidar dos fundidos las dejaba opacas.
     '#nosotros .ls-about__top p',
@@ -1337,42 +1484,46 @@
     document.addEventListener('visibilitychange', function () { if (!document.hidden) enforceVideo(); });
   }
 
-  function goTo(i) {
-    const n = HERO_MODELS.length;
+  function irA(v, i) {
+    const n = v.lista.length;
+    if (!n) return;
     const target = ((i % n) + n) % n;
-    if (carousel) { carousel.goTo(target); return; }
-    idx = target;
-    paint(true);
+    if (v.carousel) { v.carousel.goTo(target); return; }
+    v.idx = target;
+    pintar(v);
   }
 
-  // Delegado en document: sobrevive a los re-renders del framework.
+  // Delegado en document: sobrevive a los re-renders del framework. Cada
+  // control dice a que vitrina pertenece con data-vit.
   function bindControls() {
     document.addEventListener('click', function (e) {
-      const prev = e.target.closest && e.target.closest('#heroPrev');
-      if (prev) { goTo(idx - 1); return; }
-      const next = e.target.closest && e.target.closest('#heroNext');
-      if (next) { goTo(idx + 1); return; }
-      const track = e.target.closest && e.target.closest('#heroTrack');
-      if (track) {
-        const r = track.getBoundingClientRect();
-        if (!r.width) return;
-        goTo(Math.floor((e.clientX - r.left) / r.width * HERO_MODELS.length));
-      }
+      const ctrl = e.target.closest && e.target.closest('[data-vit][data-nav]');
+      if (!ctrl) return;
+      const v = vitrinaDe(ctrl.getAttribute('data-vit'));
+      if (!v) return;
+      const que = ctrl.getAttribute('data-nav');
+      if (que === 'prev') { irA(v, v.idx - 1); return; }
+      if (que === 'next') { irA(v, v.idx + 1); return; }
+      const r = ctrl.getBoundingClientRect();
+      if (!r.width) return;
+      irA(v, Math.floor((e.clientX - r.left) / r.width * v.lista.length));
     });
   }
 
   function initSlideshow() {
     if (!document.getElementById('heroName')) { setTimeout(initSlideshow, 150); return; }
-    if (portadaDecidida) { initCarousel(); paint(false); return; }
+    if (portadaDecidida) { initCarousel(); return; }
     if (window.__portadaPedida) return;
     window.__portadaPedida = true;
 
     const armar = (lista) => {
-      HERO_MODELS = conSeparadores(lista && lista.length ? lista : HERO_MODELS);
-      idx = 0;
+      repartir(lista);
       portadaDecidida = true;
-      initCarousel();
-      paint(false);
+      VITRINAS.forEach(function (v) {
+        acomodarVitrina(v);
+        armarCarrusel(v);
+        pintar(v);
+      });
     };
 
     // Sin conexion con la base, se usa la lista de respaldo enseguida.
@@ -1597,38 +1748,18 @@
       c.setAttribute('aria-roledescription', 'slide');
       c.setAttribute('aria-label', (i + 1) + ' de ' + n);
 
-      if (it.separador) {
-        // Anuncia el segmento que empieza. Sin imagen: no hay nada que
-        // pedir, asi que cargarCercanas la saltea sola.
-        c.className += ' dc__card--sep';
-        const partes = String(it.separador).split(' ');
-        const caja = document.createElement('span');
-        const k = document.createElement('span');
-        k.className = 'dc__sep-k'; k.textContent = 'A continuación';
-        const t = document.createElement('span');
-        t.className = 'dc__sep-t';
-        t.textContent = partes.slice(0, -1).join(' ');
-        const t2 = document.createElement('span');
-        t2.className = 'dc__sep-t'; t2.style.marginTop = '0';
-        t2.textContent = partes.slice(-1)[0];
-        const r = document.createElement('span');
-        r.className = 'dc__sep-r';
-        caja.appendChild(k); caja.appendChild(t); caja.appendChild(t2); caja.appendChild(r);
-        c.appendChild(caja);
-      } else {
-        const img = new Image();
-        img.className = 'dc__img';
-        img.alt = it.alt || '';
-        img.draggable = false;
-        img.decoding = 'async';
-        if (it.pos) img.style.objectPosition = it.pos;
-        // La direccion se guarda pero NO se asigna: con 36 tarjetas eso
-        // eran 36 descargas al abrir la portada. Se piden a medida que
-        // se acercan al frente.
-        c.__src = it.image;
-        c.__img = img;
-        c.appendChild(img);
-      }
+      const img = new Image();
+      img.className = 'dc__img';
+      img.alt = it.alt || '';
+      img.draggable = false;
+      img.decoding = 'async';
+      if (it.pos) img.style.objectPosition = it.pos;
+      // La direccion se guarda pero NO se asigna: con 36 tarjetas eso
+      // eran 36 descargas al abrir la portada. Se piden a medida que
+      // se acercan al frente.
+      c.__src = it.image;
+      c.__img = img;
+      c.appendChild(img);
 
       if (it.caption) {
         const cap = document.createElement('span');
