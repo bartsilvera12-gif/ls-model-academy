@@ -399,6 +399,19 @@
     opacity: 0; transition: opacity .4s ease;
   }
   .dc__card.is-front .dc__cap { opacity: 1; }
+  /* Tarjeta separadora: anuncia el segmento que empieza. No lleva foto
+     ni pie, por eso es la unica que se pinta de negro. */
+  .dc__card--sep {
+    background: #060606; display: flex; align-items: center; justify-content: center;
+    padding: 0 26px; text-align: center; color: #F7F7F4;
+  }
+  .dc__sep-k { display: block; font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: rgba(247,247,244,.55); }
+  .dc__sep-t {
+    display: block; margin-top: 20px;
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: 46px; line-height: 1.04; text-transform: uppercase;
+  }
+  .dc__sep-r { display: block; width: 48px; height: 1px; margin: 26px auto 0; background: rgba(247,247,244,.42); }
   @media (prefers-reduced-motion: reduce) {
     .dc__card { will-change: auto; }
   }
@@ -994,6 +1007,23 @@
     scouting: 'Scouted Models'
   };
 
+  /* Entre un segmento y el siguiente va una tarjeta negra con el nombre
+     del que empieza. Sin eso el carrusel pasaba del staff a las caras
+     nuevas sin ningun aviso y parecian todas lo mismo. */
+  function conSeparadores(lista) {
+    const salida = [];
+    let anterior = null;
+    lista.forEach(function (m) {
+      const seg = m.seg || 'staff';
+      if (anterior !== null && seg !== anterior) {
+        salida.push({ separador: true, seg: seg, name: NOMBRE_SEG[seg] || seg });
+      }
+      anterior = seg;
+      salida.push(m);
+    });
+    return salida;
+  }
+
   /* Lista de respaldo, con las imagenes locales de carousel/. Se usa si
      no hay conexion con Supabase; si la hay, la reemplaza lo que este
      cargado en el panel. */
@@ -1080,9 +1110,16 @@
     if (!nameEl || !ageEl) return;
 
     const m = HERO_MODELS[idx];
+    // Cuantas modelos de verdad hay hasta aca: los separadores no cuentan,
+    // si no el contador diria 40 sobre una portada de 39 perfiles.
+    const reales = HERO_MODELS.filter(function (x) { return !x.separador; }).length;
+    const hasta = HERO_MODELS.slice(0, idx + 1).filter(function (x) { return !x.separador; }).length;
+
+    // En el separador el titulo es el nombre del segmento: se parte antes
+    // de la ultima palabra para que quede "NEW FACES / MODELS".
     const parts = m.name.split(' ');
-    const first = parts[0].toUpperCase();
-    const rest = parts.slice(1).join(' ').toUpperCase();
+    const first = m.separador ? parts.slice(0, -1).join(' ').toUpperCase() : parts[0].toUpperCase();
+    const rest = m.separador ? parts.slice(-1)[0].toUpperCase() : parts.slice(1).join(' ').toUpperCase();
 
     nameEl.style.opacity = '0';
     ageEl.style.opacity = '0';
@@ -1092,7 +1129,9 @@
       ageEl.textContent = m.age ? m.age + ' AÑOS' : '';
       ageEl.style.display = m.age ? '' : 'none';
       if (kickerEl) {
-        kickerEl.textContent = (NOMBRE_SEG[m.seg] || 'Staff Models') + ' / ' + (idx + 1 < 10 ? '0' : '') + (idx + 1);
+        kickerEl.textContent = m.separador
+          ? 'A continuación'
+          : (NOMBRE_SEG[m.seg] || 'Staff Models') + ' / ' + (hasta < 10 ? '0' : '') + hasta;
         kickerEl.style.opacity = '1';
       }
       nameEl.style.opacity = '1';
@@ -1103,8 +1142,8 @@
     const totalEl = document.getElementById('heroTotal');
     const progEl = document.getElementById('heroProgress');
     const pad = function (n) { return (n < 10 ? '0' : '') + n; };
-    if (counterEl) counterEl.textContent = pad(idx + 1);
-    if (totalEl) totalEl.textContent = pad(HERO_MODELS.length);
+    if (counterEl) counterEl.textContent = pad(hasta);
+    if (totalEl) totalEl.textContent = pad(reales);
     if (progEl) progEl.style.width = ((idx + 1) / HERO_MODELS.length * 100).toFixed(2) + '%';
   }
 
@@ -1123,6 +1162,7 @@
     if (carousel && carousel.stopAuto) carousel.stopAuto();
     carousel = DepthCarousel(el, {
       items: HERO_MODELS.map(function (m) {
+        if (m.separador) return { separador: m.name, alt: m.name };
         // Sin edad se muestra solo el nombre: concatenarla a ciegas
         // imprimia "· null" sobre la foto.
         return { image: thumbOf(m), alt: m.name, pos: m.pos, caption: m.age ? m.name + ' · ' + m.age : m.name };
@@ -1141,7 +1181,8 @@
         // sin pasar por un redireccionamiento intermedio.
         var paginas = { staff: 'staff.html', newface: 'new-faces.html', scouting: 'scouted.html' };
         var pagina = paginas[m.seg] || 'staff.html';
-        window.location.href = pagina + '#' + (m.perfil || slugPerfil(m.name));
+        // La tarjeta separadora no es un perfil: abre el listado entero.
+        window.location.href = m.separador ? pagina : pagina + '#' + (m.perfil || slugPerfil(m.name));
       }
     });
     if (carousel) el.dataset.dcReady = '1';
@@ -1181,7 +1222,7 @@
   // El arranque ya no lo usa: arma una sola vez.
   function reemplazarModelos(lista) {
     portadaDecidida = true;
-    HERO_MODELS = lista;
+    HERO_MODELS = conSeparadores(lista);
     idx = 0;
     const el = document.getElementById('dcModelos');
     // Se marca como no construido para que initCarousel lo rehaga con
@@ -1327,7 +1368,7 @@
     window.__portadaPedida = true;
 
     const armar = (lista) => {
-      if (lista && lista.length) HERO_MODELS = lista;
+      HERO_MODELS = conSeparadores(lista && lista.length ? lista : HERO_MODELS);
       idx = 0;
       portadaDecidida = true;
       initCarousel();
@@ -1556,18 +1597,38 @@
       c.setAttribute('aria-roledescription', 'slide');
       c.setAttribute('aria-label', (i + 1) + ' de ' + n);
 
-      const img = new Image();
-      img.className = 'dc__img';
-      img.alt = it.alt || '';
-      img.draggable = false;
-      img.decoding = 'async';
-      if (it.pos) img.style.objectPosition = it.pos;
-      // La direccion se guarda pero NO se asigna: con 36 tarjetas eso
-      // eran 36 descargas al abrir la portada. Se piden a medida que
-      // se acercan al frente.
-      c.__src = it.image;
-      c.__img = img;
-      c.appendChild(img);
+      if (it.separador) {
+        // Anuncia el segmento que empieza. Sin imagen: no hay nada que
+        // pedir, asi que cargarCercanas la saltea sola.
+        c.className += ' dc__card--sep';
+        const partes = String(it.separador).split(' ');
+        const caja = document.createElement('span');
+        const k = document.createElement('span');
+        k.className = 'dc__sep-k'; k.textContent = 'A continuación';
+        const t = document.createElement('span');
+        t.className = 'dc__sep-t';
+        t.textContent = partes.slice(0, -1).join(' ');
+        const t2 = document.createElement('span');
+        t2.className = 'dc__sep-t'; t2.style.marginTop = '0';
+        t2.textContent = partes.slice(-1)[0];
+        const r = document.createElement('span');
+        r.className = 'dc__sep-r';
+        caja.appendChild(k); caja.appendChild(t); caja.appendChild(t2); caja.appendChild(r);
+        c.appendChild(caja);
+      } else {
+        const img = new Image();
+        img.className = 'dc__img';
+        img.alt = it.alt || '';
+        img.draggable = false;
+        img.decoding = 'async';
+        if (it.pos) img.style.objectPosition = it.pos;
+        // La direccion se guarda pero NO se asigna: con 36 tarjetas eso
+        // eran 36 descargas al abrir la portada. Se piden a medida que
+        // se acercan al frente.
+        c.__src = it.image;
+        c.__img = img;
+        c.appendChild(img);
+      }
 
       if (it.caption) {
         const cap = document.createElement('span');
