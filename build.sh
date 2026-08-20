@@ -31,6 +31,37 @@ echo "==> assets y carousel (ya optimizados)"
 mkdir -p "$OUT/assets" && cp assets/*.png assets/*.css assets/*.js "$OUT/assets"/
 cp -r carousel "$OUT"/
 
+echo "==> huella de los archivos que se cachean"
+# El navegador guarda css y js por un anio con "immutable", que quiere
+# decir literalmente "no vuelvas a preguntar": ni un refresco forzado lo
+# hace revalidar. En un navegador que ya visito el sitio, una credencial
+# corregida podia no llegar nunca.
+#
+# La unica forma segura de que llegue una version nueva es cambiar la
+# DIRECCION, porque eso es una entrada distinta en el cache. Asi que se
+# le pega la huella del contenido. Si el archivo no cambio, la huella
+# tampoco: se sigue aprovechando el cache.
+#
+# Antes el numero se escribia a mano (?v=2) y quedaba desactualizado en
+# el primer descuido, que es justo lo que paso.
+huella () {
+  if command -v md5sum >/dev/null 2>&1; then
+    # tr -d: segun la maquina, git deja los saltos de linea al estilo
+    # Windows o Unix. Sin quitarlos, el mismo archivo daria dos huellas
+    # distintas y se tiraria el cache sin motivo.
+    tr -d '\r' < "$1" | md5sum | cut -c1-8
+  else date +%s; fi   # sin md5sum: se pierde el cache, pero nunca sirve viejo
+}
+H_CONF=$(huella supabase-config.js)
+H_JS=$(huella assets/modelos.js)
+H_CSS=$(huella assets/modelos.css)
+for f in "$OUT"/*.html; do
+  sed -i -e "s|supabase-config\.js?v=[^\"']*|supabase-config.js?v=$H_CONF|g" \
+         -e "s|assets/modelos\.js?v=[^\"']*|assets/modelos.js?v=$H_JS|g" \
+         -e "s|assets/modelos\.css?v=[^\"']*|assets/modelos.css?v=$H_CSS|g" "$f"
+done
+echo "    supabase-config $H_CONF · modelos.js $H_JS · modelos.css $H_CSS"
+
 # Reescala respetando la relacion de aspecto; nunca agranda.
 # -map 0:v:0 es necesario: muchas fotos de telefono traen una miniatura
 # incrustada como segundo stream y ffmpeg no sabe a cual aplicar el filtro.
