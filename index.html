@@ -1060,7 +1060,7 @@
                 </div>
               </sc-if>
 
-              <form onSubmit="{{ submit }}" novalidate style="margin-top:28px;display:flex;flex-direction:column;gap:20px">
+              <form onSubmit="{{ submit }}" novalidate="novalidate" style="margin-top:28px;display:flex;flex-direction:column;gap:20px">
                 <sc-for list="{{ fields }}" as="f" hint-placeholder-count="8">
                   <div>
                     <sc-if value="{{ f.isCheck }}" hint-placeholder-val="{{ false }}">
@@ -1095,7 +1095,12 @@
                     <sc-if value="{{ f.isFile }}" hint-placeholder-val="{{ false }}">
                       <label style="display:flex;flex-direction:column;gap:10px">
                         <span style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#8A8A8A">{{ f.label }}</span>
-                        <input type="file" data-f="{{ f.id }}" accept="image/*" multiple onChange="{{ f.onFiles }}" style="font-size:13px;font-weight:300;padding:12px 0;border-bottom:1px solid rgba(5,5,5,.28)" />
+                        <!-- multiple="multiple", no multiple a secas: el
+                             framework descarta los atributos sin valor al
+                             re-renderizar y el campo aceptaba UNA sola foto,
+                             con un formulario que pide tres. Lo mismo le pasa
+                             a novalidate del <form> y a muted/loop del video. -->
+                        <input type="file" data-f="{{ f.id }}" accept="image/*" multiple="multiple" onChange="{{ f.onFiles }}" style="font-size:13px;font-weight:300;padding:12px 0;border-bottom:1px solid rgba(5,5,5,.28)" />
                         <span style="font-size:12px;color:#8A8A8A;font-weight:300">{{ f.fileNote }}</span>
                       </label>
                     </sc-if>
