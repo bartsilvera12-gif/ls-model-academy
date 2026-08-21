@@ -343,9 +343,23 @@
     .dinfo { position: static; }
     /* el rail vertical pasa a fila horizontal debajo de la foto */
     .dgallery { grid-template-columns: 1fr; gap: 10px; }
-    .dgallery .thumbs { order: 2; flex-direction: row; }
+    /* La fila de miniaturas se desliza sola. Con doce fotos y un ancho
+       minimo por miniatura, la fila medía 734 px dentro de una pantalla
+       de 375: el que se ensanchaba era el panel entero, y en el celular
+       eso se ve como si la pagina estuviera desencajada. Por eso pasaba
+       en unos perfiles si y en otros no: depende de cuantas fotos tenga. */
+    .dgallery .thumbs {
+      order: 2; flex-direction: row;
+      overflow-x: auto; overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .dgallery .thumbs::-webkit-scrollbar { display: none; }
     .dgallery .dmain { order: 1; width: min(100%, calc(min(70vh, 620px) * 2 / 3)); }
-    .thumbs .thumb { flex: 1 1 0; }
+    /* Crecen para llenar la fila cuando son pocas, pero nunca se achican
+       por debajo de 56 px: con doce quedaban en 20 px y no se distinguia
+       nada. Si no entran, la fila se desliza. */
+    .thumbs .thumb { flex: 1 0 56px; }
     .thumb::after { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 2px; transform: scaleX(0); transform-origin: left; }
     .thumb.sel::after { transform: scaleX(1); }
   }
@@ -363,8 +377,7 @@
     /* iOS hace zoom al enfocar un campo con fuente menor a 16px */
     input, select, textarea { font-size: 16px !important; }
 
-    /* El rail de miniaturas no debe achicarse de mas */
-    .thumbs .thumb { min-width: 52px; }
+    .thumbs .thumb { flex-basis: 52px; }
     .band { min-height: 130px; padding: 30px 18px; }
   }
 
