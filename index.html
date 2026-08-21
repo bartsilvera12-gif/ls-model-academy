@@ -1103,6 +1103,9 @@
                         <input type="file" data-f="{{ f.id }}" accept="image/*" multiple="multiple" onChange="{{ f.onFiles }}" style="font-size:13px;font-weight:300;padding:12px 0;border-bottom:1px solid rgba(5,5,5,.28)" />
                         <span style="font-size:12px;color:#8A8A8A;font-weight:300">{{ f.fileNote }}</span>
                       </label>
+                      <sc-if value="{{ f.hasFiles }}" hint-placeholder-val="{{ false }}">
+                        <button type="button" data-f-clear="{{ f.id }}" style="align-self:flex-start;margin-top:-4px;background:none;border:none;padding:4px 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8A8A8A;cursor:pointer;text-decoration:underline">Quitar las fotos</button>
+                      </sc-if>
                     </sc-if>
                     <sc-if value="{{ f.locked }}" hint-placeholder-val="{{ false }}">
                       <div style="border:1px solid rgba(5,5,5,.16);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
@@ -2277,9 +2280,11 @@ class Component extends DCLogic {
       if (!el || !el.getAttribute) return;
       const id = el.getAttribute('data-f');
       if (!id) return;
-      const v = el.type === 'checkbox' ? el.checked
-              : el.type === 'file' ? Array.from(el.files || [])
-              : el.value;
+      // El campo de fotos NO se toca aca: es el unico control que el
+      // framework si engancha a onChange, y lo maneja onFiles. Tenerlo en
+      // los dos lados los hacia pisarse.
+      if (el.type === 'file') return;
+      const v = el.type === 'checkbox' ? el.checked : el.value;
       // Mutacion directa a proposito: setState aca re-renderiza el
       // formulario en cada pulsacion y se pierde el foco y el texto.
       this.state.vals[id] = v;
@@ -2297,6 +2302,16 @@ class Component extends DCLogic {
         }
       }
     };
+    // Con las fotos acumulandose hace falta una salida: sin esto, una
+    // foto equivocada ya no se podia sacar.
+    this._onQuitar = (e) => {
+      const b = e.target.closest && e.target.closest('[data-f-clear]');
+      if (!b) return;
+      e.preventDefault();
+      const id = b.getAttribute('data-f-clear');
+      this.setState({ vals: Object.assign({}, this.state.vals, { [id]: [] }) });
+    };
+
     // Enlace directo al formulario desde otras paginas: index.html#postular
     this._abrirPorHash = () => {
       if (location.hash !== '#postular') return;
@@ -2313,6 +2328,7 @@ class Component extends DCLogic {
 
     document.addEventListener('input', this._onField, true);
     document.addEventListener('change', this._onField, true);
+    document.addEventListener('click', this._onQuitar, true);
 
     this._onResize = () => {
       // Al abrir el teclado en un celular se dispara resize. Si eso
@@ -2340,6 +2356,7 @@ class Component extends DCLogic {
     window.removeEventListener('hashchange', this._abrirPorHash);
     document.removeEventListener('input', this._onField, true);
     document.removeEventListener('change', this._onField, true);
+    document.removeEventListener('click', this._onQuitar, true);
     if (this._io) this._io.disconnect();
     if (this._netTimer) clearInterval(this._netTimer);
   }
@@ -2582,14 +2599,34 @@ class Component extends DCLogic {
       isSelect: d.kind === 'select',
       isFile: d.kind === 'file',
       isInput: ['text', 'tel', 'email', 'number', 'date'].indexOf(d.kind) > -1,
+      hasFiles: !!(s.vals[d.id] && s.vals[d.id].length),
+      // Se dice cuantas van: con el campo vaciado despues de cada eleccion,
+      // esta linea es la unica senial de que las fotos siguen adjuntas.
       fileNote: (s.vals[d.id] && s.vals[d.id].length)
-        ? Array.from(s.vals[d.id]).map((f) => f.name || f).join(' · ')
-        : 'Actuales, sin filtros, sin lentes oscuros.',
+        ? s.vals[d.id].length + (s.vals[d.id].length === 1 ? ' foto adjunta: ' : ' fotos adjuntas: ') +
+          Array.from(s.vals[d.id]).map((f) => f.name || f).join(' · ')
+        : 'Podés elegirlas de a una: se van sumando. Actuales, sin filtros, sin lentes oscuros.',
       onChange: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: e.target.value }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) }),
       onCheck: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: e.target.checked }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) }),
       // Se guardan los File reales, no solo los nombres: si no, las fotos
       // nunca llegan a la agencia.
-      onFiles: (e) => this.setState({ vals: Object.assign({}, this.state.vals, { [d.id]: Array.from(e.target.files || []) }), errors: Object.assign({}, this.state.errors, { [d.id]: '' }) })
+      //
+      // Y se ACUMULAN. El formulario pide rostro, cuerpo entero y perfil, y
+      // casi todo el mundo las elige de a una; un campo de archivo reemplaza
+      // la seleccion anterior en cada pasada, asi que quedaba solo la ultima.
+      onFiles: (e) => {
+        const previas = Array.isArray(this.state.vals[d.id]) ? this.state.vals[d.id] : [];
+        const clave = (f) => f.name + '|' + f.size;
+        const vistas = {};
+        previas.forEach((f) => { vistas[clave(f)] = 1; });
+        const juntas = previas.concat(
+          Array.from(e.target.files || []).filter((f) => !vistas[clave(f)])
+        );
+        this.setState({
+          vals: Object.assign({}, this.state.vals, { [d.id]: juntas }),
+          errors: Object.assign({}, this.state.errors, { [d.id]: '' })
+        });
+      }
     }));
 
     const copy = {
