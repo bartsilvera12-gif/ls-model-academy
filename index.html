@@ -2689,8 +2689,11 @@ class Component extends DCLogic {
         if (this.state.busy) return;
         const errors = this.validate(defs);
         if (Object.keys(errors).length) { this.setState({ errors, formError: 'Revisá los campos marcados antes de enviar.' }); return; }
-        this.setState({ busy: true, formError: '', fase: (payload.fotos && payload.fotos.length) ? 'Preparando fotos…' : 'Enviando…' });
         const payload = Object.assign({}, this.state.vals, this.state.modelRequested ? { modelo: this.state.modelRequested } : {});
+        // El aviso va DESPUES de armar payload: leerlo antes de su propia
+        // declaracion lanza ReferenceError y el envio moria ahi, sin que
+        // el formulario dijera nada.
+        this.setState({ busy: true, formError: '', fase: (payload.fotos && payload.fotos.length) ? 'Preparando fotos…' : 'Enviando…' });
         // Se espera la subida real: antes mostraba "enviado" tras 650ms
         // sin que el dato hubiera salido del navegador.
         Promise.resolve(this.persist(this.state.modal, payload)).then((res) => {
